@@ -1,6 +1,10 @@
 package main
 
 import (
+	"os"
+	"strconv"
+
+	"github.com/MRegterschot/GbxRemoteGo/events"
 	"github.com/MRegterschot/GbxRemoteGo/gbxclient"
 	"github.com/MRegterschot/GoController/config"
 	"go.uber.org/zap"
@@ -23,6 +27,8 @@ func NewServer() *Server {
 	onDisconnectChan := make(chan interface{})
 	server.Client.Events.On("disconnect", onDisconnectChan)
 	go handleDisconnect(onDisconnectChan)
+
+	server.Client.OnEcho = append(server.Client.OnEcho, server.onEcho)
 
 	return server
 }
@@ -86,5 +92,18 @@ func handleDisconnect(eventChan chan interface{}) {
 				zap.L().Error("Invalid event type for disconnect.")
 			}
 		}
+	}
+}
+
+func (s *Server) onEcho(client *gbxclient.GbxClient, echoEvent events.EchoEventArgs) {
+	public, err := strconv.Atoi(echoEvent.Public)
+	if err != nil {
+		zap.L().Error("Failed to convert public to int", zap.Error(err))
+		return
+	}
+
+	if echoEvent.Internal == "GoController" && public != GetController().StartTime {
+		zap.L().Fatal("Another instance of GoController has started! Exiting...")
+		os.Exit(1)
 	}
 }

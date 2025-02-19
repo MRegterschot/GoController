@@ -42,7 +42,5 @@ func MemoryChecker() {
 		diff := currentMemory - initialMemory
 
 		logMemoryUsage(currentMemory, diff)
-
-		initialMemory = currentMemory
 	}
 }
