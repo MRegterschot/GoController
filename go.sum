@@ -2042,6 +2042,10 @@ github.com/HdrHistogram/hdrhistogram-go v1.1.2/go.mod h1:yDgFjdqOqDEKOvasDdhWNXY
 github.com/JohnCGriffin/overflow v0.0.0-20211019200055-46fa312c352c/go.mod h1:X0CRv0ky0k6m906ixxpzmDRLvX58TFUKS2eePweuyxk=
 github.com/KimMachineGun/automemlimit v0.6.1/go.mod h1:T7xYht7B8r6AG/AqFcUdc7fzd2bIdBKmepfP2S1svPY=
 github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
+github.com/MRegterschot/GbxRemoteGo v0.1.0 h1:adOdKndE+QT0FgaRaKV5ElMXX0UhdcE76nAfbwvW3yw=
+github.com/MRegterschot/GbxRemoteGo v0.1.0/go.mod h1:8l3d6bq5xWd8qMptgXav9r3j0c5LtQROCl3z/IqrcKs=
+github.com/MRegterschot/GbxRemoteGo v0.2.0 h1:JcXpKalzvKiNBra3ekGoKjF5M5gSmfYdV18amqDenCA=
+github.com/MRegterschot/GbxRemoteGo v0.2.0/go.mod h1:8l3d6bq5xWd8qMptgXav9r3j0c5LtQROCl3z/IqrcKs=
 github.com/Masterminds/goutils v1.1.1/go.mod h1:8cTjp+g8YejhMuvIA5y2vz3BpJxksy863GQaJW2MFNU=
 github.com/Masterminds/semver/v3 v3.1.1/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
 github.com/Masterminds/sprig/v3 v3.2.1/go.mod h1:UoaO7Yp8KlPnJIYWTFkMaqPUYKTfGFPhxNuwnnxkKlk=
