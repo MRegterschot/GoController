@@ -12,6 +12,8 @@ type Env struct {
 	Port int
 	User string
 	Pass string
+
+	MasterAdmins string
 }
 
 // Global variable to store the loaded environment configuration
@@ -40,6 +42,8 @@ func LoadEnv() error {
 		Port: port,
 		User: os.Getenv("XMLRPC_USER"),
 		Pass: os.Getenv("XMLRPC_PASS"),
+
+		MasterAdmins: os.Getenv("MASTER_ADMINS"),
 	}
 
 	return nil

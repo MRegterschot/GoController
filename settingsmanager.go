@@ -3,7 +3,9 @@ package main
 import (
 	"encoding/json"
 	"os"
+	"strings"
 
+	"github.com/MRegterschot/GoController/config"
 	"go.uber.org/zap"
 )
 
@@ -19,8 +21,14 @@ type SettingsManager struct {
 func NewSettingsManager() *SettingsManager {
 	adminPath := "./userdata/admins.json"
 
+	masterAdmins := strings.Split(config.AppEnv.MasterAdmins, ",")
+	for i, admin := range masterAdmins {
+		masterAdmins[i] = strings.TrimSpace(admin)
+	}
+
 	sm := &SettingsManager{
 		Settings:   make(map[string]string),
+		MasterAdmins: masterAdmins,
 		AdminsFile: adminPath,
 	}
 

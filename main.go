@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/MRegterschot/GoController/config"
+	"github.com/MRegterschot/GoController/utils"
 )
 
 
@@ -11,6 +12,7 @@ func main() {
 	controller := GetController()
 	controller.Start()
 
+	go utils.MemoryChecker()
 
 	select {}
 }
