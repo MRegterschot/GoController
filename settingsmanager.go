@@ -57,6 +57,8 @@ func (sm *SettingsManager) LoadAdmins() {
 	if err != nil {
 		zap.L().Fatal("Failed to decode admins file", zap.Error(err))
 	}
+
+	sm.Admins = append(sm.Admins, sm.MasterAdmins...)
 }
 
 // Create file with data if it doesn't exist

@@ -34,7 +34,7 @@ func (s *Server) Connect() error {
 		zap.L().Error("Failed to connect to server", zap.Error(err))
 		return err
 	}
-
+	zap.L().Info("Connected to server")
 	return nil
 }
 
@@ -45,7 +45,7 @@ func (s *Server) Authenticate() error {
 		zap.L().Error("Failed to authenticate with server", zap.Error(err))
 		return err
 	}
-
+	zap.L().Info("Authenticated with server")
 	return nil
 }
 
@@ -55,7 +55,7 @@ func (s *Server) Disconnect() error {
 		zap.L().Error("Failed to disconnect from server", zap.Error(err))
 		return err
 	}
-
+	zap.L().Info("Disconnected from server")
 	return nil
 }
 

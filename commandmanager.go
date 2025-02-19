@@ -8,6 +8,7 @@ import (
 
 	"github.com/MRegterschot/GbxRemoteGo/events"
 	"github.com/MRegterschot/GbxRemoteGo/gbxclient"
+	"github.com/MRegterschot/GoController/utils"
 	"go.uber.org/zap"
 )
 
@@ -54,6 +55,13 @@ func (cm *CommandManager) addDefaultCommands() {
 		Admin:    true,
 		Help:     "Shows all available admin commands",
 	})
+
+	cm.AddCommand(ChatCommand{
+		Name:     "//shutdown",
+		Callback: cm.ShutdownCommand,
+		Admin:    true,
+		Help:     "Shuts down the controller",
+	})
 }
 
 // The default commands
@@ -73,7 +81,6 @@ func (cm *CommandManager) HelpCommand(login string, args []string) {
 
 func (cm *CommandManager) AdminHelpCommand(login string, args []string) {
 	var outCommands []string
-
 	for _, command := range cm.Commands {
 		if !command.Admin {
 			continue
@@ -83,6 +90,10 @@ func (cm *CommandManager) AdminHelpCommand(login string, args []string) {
 	}
 
 	GetController().Chat("Available admin commands: "+strings.Join(outCommands, ", "), login)
+}
+
+func (cm *CommandManager) ShutdownCommand(login string, args []string) {
+	GetController().Shutdown()
 }
 
 // Adds a command to the CommandManager
@@ -101,12 +112,15 @@ func (cm *CommandManager) ExecuteCommand(login string, text string) {
 	defer cm.mu.Unlock()
 
 	if strings.HasPrefix(text, "/") {
+		controller := GetController()
+		
 		for _, command := range cm.Commands {
 			if command.Name == "" {
 				continue
 			}
 
-			if strings.HasPrefix(text, "//") {
+			if strings.HasPrefix(text, "//") && !utils.Includes(*controller.Admins, login) {
+				controller.Chat("$C00Not allowed.", login)
 				return
 			}
 
@@ -115,7 +129,7 @@ func (cm *CommandManager) ExecuteCommand(login string, text string) {
 			if strings.HasPrefix(command.Name, "//") {
 				prefix = `[/]{2}`
 			}
-			exp := regexp.MustCompile(fmt.Sprintf(`^%s\b%s\b`, prefix, EscapeRegex(strings.TrimPrefix(command.Name, "/"))))
+			exp := regexp.MustCompile(fmt.Sprintf(`^%s\b%s\b`, prefix, EscapeRegex(strings.TrimLeft(command.Name, "/"))))
 
 			// Match command
 			if exp.MatchString(text) {
@@ -133,7 +147,7 @@ func (cm *CommandManager) ExecuteCommand(login string, text string) {
 				return
 			}
 		}
-		GetController().Chat(fmt.Sprintf("$fffCommand ¤cmd¤%s $fffnot found.", text), login)
+		controller.Chat(fmt.Sprintf("$fffCommand ¤cmd¤%s $fffnot found.", text), login)
 	}
 
 }

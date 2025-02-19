@@ -36,7 +36,7 @@ func MemoryChecker() {
 	logMemoryUsage(initialMemory, 0)
 
 	for {
-		time.Sleep(5 * time.Second)
+		time.Sleep(1 * time.Minute)
 
 		currentMemory := getMemoryStats()
 		diff := currentMemory - initialMemory

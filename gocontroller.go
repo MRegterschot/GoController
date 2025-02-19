@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"strings"
 	"sync"
 
@@ -10,7 +11,7 @@ import (
 type GoController struct {
 	Server          *Server
 	MapsPath        string
-	Admins          []string
+	Admins          *[]string
 	CommandManager  *CommandManager
 	SettingsManager *SettingsManager
 }
@@ -22,15 +23,20 @@ var (
 
 func GetController() *GoController {
 	once.Do(func() {
+		commandManager := NewCommandManager()
+		settingsManager := NewSettingsManager()
+
 		instance = &GoController{
 			Server:          NewServer(),
-			CommandManager:  NewCommandManager(),
-			SettingsManager: NewSettingsManager(),
+			CommandManager:  commandManager,
+			SettingsManager: settingsManager,
+			Admins: &settingsManager.Admins,
 		}
 	})
 	return instance
 }
 
+// Starts the GoController
 func (c *GoController) Start() {
 	zap.L().Info("Starting GoController")
 
@@ -66,4 +72,15 @@ func (c *GoController) Chat(message string, login ...string) {
 	} else {
 		c.Server.Client.ChatSendServerMessage("$9ab»$z$s " + message)
 	}
+}
+
+// Shutdown the GoController
+func (c *GoController) Shutdown() {
+	zap.L().Info("Shutting down GoController")
+	c.Chat("GoController shutting down...")
+
+	c.Server.Disconnect()
+
+	zap.L().Info("GoController shutdown")
+	os.Exit(0)
 }
