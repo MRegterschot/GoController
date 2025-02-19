@@ -1,14 +1,18 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strings"
 	"sync"
 
+	"github.com/MRegterschot/GoController/utils"
 	"go.uber.org/zap"
 )
 
 type GoController struct {
+	StartTime       int
+	Version         string
 	Server          *Server
 	MapsPath        string
 	Admins          *[]string
@@ -27,10 +31,12 @@ func GetController() *GoController {
 		settingsManager := NewSettingsManager()
 
 		instance = &GoController{
+			StartTime:       utils.GetCurrentTimeInMilliseconds(),
+			Version:         "1.0.0",
 			Server:          NewServer(),
 			CommandManager:  commandManager,
 			SettingsManager: settingsManager,
-			Admins: &settingsManager.Admins,
+			Admins:          &settingsManager.Admins,
 		}
 	})
 	return instance
@@ -62,7 +68,12 @@ func (c *GoController) Start() {
 	c.CommandManager.Init()
 	c.SettingsManager.Init()
 
-	zap.L().Info("GoController started")
+	c.Server.Client.Echo(fmt.Sprintf("%d", c.StartTime), "GoController")
+	
+	msg := fmt.Sprintf("Welcome to $0C6GoController$FFF! Version %s", c.Version)
+	c.Chat(msg)
+	zap.L().Info(msg)
+	zap.L().Info("GoController started successfully")
 }
 
 // Sends a chat message to the server

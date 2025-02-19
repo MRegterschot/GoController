@@ -68,6 +68,7 @@ func (cm *CommandManager) addDefaultCommands() {
 func (cm *CommandManager) HelpCommand(login string, args []string) {
 	var outCommands []string
 
+
 	for _, command := range cm.Commands {
 		if command.Admin {
 			continue
@@ -147,7 +148,7 @@ func (cm *CommandManager) ExecuteCommand(login string, text string) {
 				return
 			}
 		}
-		controller.Chat(fmt.Sprintf("$fffCommand ¤cmd¤%s $fffnot found.", text), login)
+		controller.Chat(fmt.Sprintf("$fffCommand $0C6%s $fffnot found.", text), login)
 	}
 
 }

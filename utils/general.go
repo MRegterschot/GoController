@@ -1,6 +1,9 @@
 package utils
 
-import "reflect"
+import (
+	"reflect"
+	"time"
+)
 
 // Global includes function that checks if an element is present in the slice
 func Includes(slice interface{}, value interface{}) bool {
@@ -20,4 +23,14 @@ func Includes(slice interface{}, value interface{}) bool {
 		}
 	}
 	return false
+}
+
+// GetCurrentTimeInSeconds returns the current time as an integer (seconds since the Unix epoch)
+func GetCurrentTimeInSeconds() int {
+	return int(time.Now().Unix())
+}
+
+// GetCurrentTimeInMilliseconds returns the current time as an integer (milliseconds since the Unix epoch)
+func GetCurrentTimeInMilliseconds() int {
+	return int(time.Now().UnixNano() / int64(time.Millisecond))
 }
