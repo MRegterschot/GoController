@@ -20,4 +20,4 @@
 # air
 tmp/
 
-uploads/
+userdata/*.json
