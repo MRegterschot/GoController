@@ -42,6 +42,13 @@ func (m *GameFlowPlugin) Load() error {
 		Help:     "Restarts map",
 	})
 
+	commandManager.AddCommand(models.ChatCommand{
+		Name:     "//mode",
+		Callback: m.ModeCommand,
+		Admin:    true,
+		Help:     "Sets game mode",
+	})
+
 	return nil
 }
 
@@ -55,6 +62,20 @@ func (m *GameFlowPlugin) SkipCommand(login string, args []string) {
 
 func (m *GameFlowPlugin) RestartCommand(login string, args []string) {
 	m.GoController.Server.Client.RestartMap()
+}
+
+func (m *GameFlowPlugin) ModeCommand(login string, args []string) {
+	if len(args) < 1 {
+		go m.GoController.Chat("Please provide a mode name", login)
+		return
+	}
+
+	if err := m.GoController.Server.Client.SetScriptName(args[0]); err != nil {
+		go m.GoController.Chat("Error setting mode: " + err.Error(), login)
+		return
+	}
+
+	go m.GoController.Chat("Mode set to " + args[0], login)
 }
 
 func init() {
