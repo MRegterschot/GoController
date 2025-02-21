@@ -6,6 +6,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/MRegterschot/GoController/plugins"
 	"github.com/MRegterschot/GoController/utils"
 	"go.uber.org/zap"
 )
@@ -18,6 +19,7 @@ type GoController struct {
 	Admins          *[]string
 	CommandManager  *CommandManager
 	SettingsManager *SettingsManager
+	PluginManager   *plugins.PluginManager
 }
 
 var (
@@ -29,6 +31,7 @@ func GetController() *GoController {
 	once.Do(func() {
 		commandManager := NewCommandManager()
 		settingsManager := NewSettingsManager()
+		pluginManager := plugins.GetPluginManager()
 
 		instance = &GoController{
 			StartTime:       utils.GetCurrentTimeInMilliseconds(),
@@ -36,6 +39,7 @@ func GetController() *GoController {
 			Server:          NewServer(),
 			CommandManager:  commandManager,
 			SettingsManager: settingsManager,
+			PluginManager:   pluginManager,
 			Admins:          &settingsManager.Admins,
 		}
 	})
@@ -67,9 +71,10 @@ func (c *GoController) Start() {
 
 	c.CommandManager.Init()
 	c.SettingsManager.Init()
+	c.PluginManager.Init()
 
 	c.Server.Client.Echo(fmt.Sprintf("%d", c.StartTime), "GoController")
-	
+
 	msg := fmt.Sprintf("Welcome to $0C6GoController$FFF! Version %s", c.Version)
 	c.Chat(msg)
 	zap.L().Info(msg)

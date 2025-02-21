@@ -19,7 +19,7 @@ type SettingsManager struct {
 
 // Creates a new SettingsManager
 func NewSettingsManager() *SettingsManager {
-	adminPath := "./userdata/admins.json"
+	adminPath := "./settings/admins.json"
 
 	masterAdmins := strings.Split(config.AppEnv.MasterAdmins, ",")
 	for i, admin := range masterAdmins {

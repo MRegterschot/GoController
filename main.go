@@ -5,7 +5,6 @@ import (
 	"github.com/MRegterschot/GoController/utils"
 )
 
-
 func main() {
 	config.Setup()
 

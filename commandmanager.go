@@ -8,18 +8,10 @@ import (
 
 	"github.com/MRegterschot/GbxRemoteGo/events"
 	"github.com/MRegterschot/GbxRemoteGo/gbxclient"
+	. "github.com/MRegterschot/GoController/models"
 	"github.com/MRegterschot/GoController/utils"
 	"go.uber.org/zap"
 )
-
-type CommandCallback func(login string, args []string)
-
-type ChatCommand struct {
-	Name     string
-	Callback CommandCallback
-	Admin    bool
-	Help     string
-}
 
 type CommandManager struct {
 	Commands map[string]ChatCommand
@@ -68,7 +60,6 @@ func (cm *CommandManager) addDefaultCommands() {
 func (cm *CommandManager) HelpCommand(login string, args []string) {
 	var outCommands []string
 
-
 	for _, command := range cm.Commands {
 		if command.Admin {
 			continue
@@ -114,7 +105,7 @@ func (cm *CommandManager) ExecuteCommand(login string, text string) {
 
 	if strings.HasPrefix(text, "/") {
 		controller := GetController()
-		
+
 		for _, command := range cm.Commands {
 			if command.Name == "" {
 				continue
