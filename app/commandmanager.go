@@ -151,7 +151,7 @@ func (cm *CommandManager) ExecuteCommand(login string, text string) {
 
 }
 
-func (cm *CommandManager) onPlayerChat(client *gbxclient.GbxClient, chatEvent events.PlayerChatEventArgs) {
+func (cm *CommandManager) onPlayerChat(_ *gbxclient.GbxClient, chatEvent events.PlayerChatEventArgs) {
 	if chatEvent.PlayerUid == 0 {
 		return
 	}

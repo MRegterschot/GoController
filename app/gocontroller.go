@@ -19,6 +19,7 @@ type GoController struct {
 	CommandManager  *CommandManager
 	SettingsManager *SettingsManager
 	PluginManager   *PluginManager
+	PlayerManager   *PlayerManager
 }
 
 var (
@@ -31,6 +32,7 @@ func GetGoController() *GoController {
 		commandManager := GetCommandManager()
 		settingsManager := GetSettingsManager()
 		pluginManager := GetPluginManager()
+		playerManager := GetPlayerManager()
 
 		gcInstance = &GoController{
 			StartTime:       utils.GetCurrentTimeInMilliseconds(),
@@ -39,6 +41,7 @@ func GetGoController() *GoController {
 			CommandManager:  commandManager,
 			SettingsManager: settingsManager,
 			PluginManager:   pluginManager,
+			PlayerManager:   playerManager,
 			Admins:          &settingsManager.Admins,
 		}
 	})
@@ -71,6 +74,7 @@ func (c *GoController) Start() {
 	c.CommandManager.Init()
 	c.SettingsManager.Init()
 	c.PluginManager.Init()
+	c.PlayerManager.Init()
 
 	c.Server.Client.Echo(fmt.Sprintf("%d", c.StartTime), "GoController")
 
@@ -87,6 +91,16 @@ func (c *GoController) Chat(message string, login ...string) {
 	} else {
 		go c.Server.Client.ChatSendServerMessage("$9ab»$z$s " + message)
 	}
+}
+
+// Checks if a login is an admin
+func (c *GoController) IsAdmin(login string) bool {
+	for _, admin := range *c.Admins {
+		if admin == login {
+			return true
+		}
+	}
+	return false
 }
 
 // Shutdown the GoController

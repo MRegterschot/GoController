@@ -95,7 +95,7 @@ func handleDisconnect(eventChan chan interface{}) {
 	}
 }
 
-func (s *Server) onEcho(client *gbxclient.GbxClient, echoEvent events.EchoEventArgs) {
+func (s *Server) onEcho(_ *gbxclient.GbxClient, echoEvent events.EchoEventArgs) {
 	public, err := strconv.Atoi(echoEvent.Public)
 	if err != nil {
 		zap.L().Error("Failed to convert public to int", zap.Error(err))

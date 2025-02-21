@@ -34,6 +34,13 @@ func (m *PlayersPlugin) Load() error {
 		Help:     "Bans a player",
 	})
 
+	commandManager.AddCommand(models.ChatCommand{
+		Name:     "//kick",
+		Callback: m.KickCommand,
+		Admin:    true,
+		Help:     "Kicks a player",
+	})
+
 	return nil
 }
 
@@ -54,6 +61,21 @@ func (m *PlayersPlugin) BanCommand(login string, args []string) {
 	}
 	m.GoController.Server.Client.BanAndBlackList(targetLogin, reason, true)
 	go m.GoController.Chat(fmt.Sprintf("Banned: %s, Reason: %s", targetLogin, reason))
+}
+
+func (m *PlayersPlugin) KickCommand(login string, args []string) {
+	if len(args) < 1 {
+		go m.GoController.Chat("Usage: //kick [*login] [reason]", login)
+		return
+	}
+
+	targetLogin := args[0]
+	reason := ""
+	if len(args) > 1 {
+		reason = strings.Join(args[1:], " ")
+	}
+	m.GoController.Server.Client.Kick(targetLogin, reason)
+	go m.GoController.Chat(fmt.Sprintf("Kicked: %s, Reason: %s", targetLogin, reason))
 }
 
 func init() {
