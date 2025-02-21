@@ -31,7 +31,6 @@ func GetMapManager() *MapManager {
 func (mm *MapManager) Init() {
 	zap.L().Info("Initializing MapManager")
 	mm.SyncMaps()
-	GetDatabaseManager().SyncMaps()
 	GetGoController().Server.Client.OnBeginMap = append(GetGoController().Server.Client.OnBeginMap, mm.onBeginMap)
 	zap.L().Info("MapManager initialized")
 }
@@ -57,6 +56,7 @@ func (mm *MapManager) SyncMaps() {
 	}
 
 	mm.Maps = mapList
+	GetDatabaseManager().SyncMaps()
 }
 
 func (mm *MapManager) AddMap(mapInfo structs.TMMapInfo) {
