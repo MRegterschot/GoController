@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/MRegterschot/GbxRemoteGo/events"
@@ -27,15 +28,36 @@ func GetPlayerManager() *PlayerManager {
 
 func (plm *PlayerManager) Init() {
 	zap.L().Info("Initializing PlayerManager")
+	plm.SyncPlayers()
 	GetGoController().Server.Client.OnPlayerConnect = append(GetGoController().Server.Client.OnPlayerConnect, plm.onPlayerConnect)
 	GetGoController().Server.Client.OnPlayerDisconnect = append(GetGoController().Server.Client.OnPlayerDisconnect, plm.onPlayerDisconnect)
 	zap.L().Info("PlayerManager initialized")
 }
 
+func (plm *PlayerManager) SyncPlayers() {
+	players, err := GetGoController().Server.Client.GetPlayerList(-1, 0)
+	if err != nil {
+		zap.L().Error("Failed to get player list", zap.Error(err))
+		return
+	}
+
+	for _, player := range players {
+		detailedInfo, err := GetGoController().Server.Client.GetDetailedPlayerInfo(player.Login)
+		if err != nil {
+			zap.L().Error("Failed to get detailed player info", zap.Error(err))
+			continue
+		}
+		plm.Players = append(plm.Players, models.Player{
+			TMPlayerDetailedInfo: detailedInfo,
+			IsAdmin:              GetGoController().IsAdmin(player.Login),
+		})
+	}
+}
+
 func (plm *PlayerManager) GetPlayer(login string) *models.Player {
-	for _, p := range plm.Players {
-		if p.Login == login {
-			return &p
+	for i := range plm.Players {
+		if plm.Players[i].Login == login {
+			return &plm.Players[i] // Return the actual struct reference
 		}
 	}
 
@@ -48,7 +70,7 @@ func (plm *PlayerManager) GetPlayer(login string) *models.Player {
 		IsAdmin:              GetGoController().IsAdmin(login),
 	}
 	plm.Players = append(plm.Players, player)
-	return &player
+	return &plm.Players[len(plm.Players)-1]
 }
 
 func (plm *PlayerManager) onPlayerConnect(client *gbxclient.GbxClient, playerConnectEvent events.PlayerConnectEventArgs) {
@@ -59,13 +81,16 @@ func (plm *PlayerManager) onPlayerConnect(client *gbxclient.GbxClient, playerCon
 		}
 	}
 
-	go GetGoController().Chat("Welcome to the server!", playerConnectEvent.Login)
+	player := plm.GetPlayer(playerConnectEvent.Login)
+
+	go GetGoController().Chat(fmt.Sprintf("Welcome %s!", player.NickName))
 }
 
 func (plm *PlayerManager) onPlayerDisconnect(_ *gbxclient.GbxClient, playerDisconnectEvent events.PlayerDisconnectEventArgs) {
 	for i, player := range plm.Players {
 		if player.Login == playerDisconnectEvent.Login {
 			plm.Players = append(plm.Players[:i], plm.Players[i+1:]...)
+			go GetGoController().Chat(fmt.Sprintf("%s disconnected", player.NickName))
 			return
 		}
 	}

@@ -2052,6 +2052,12 @@ github.com/MRegterschot/GbxRemoteGo v0.4.0 h1:Oz4xb7Nuc/+PUIyr68y8YqFzcLuUywCJ6V
 github.com/MRegterschot/GbxRemoteGo v0.4.0/go.mod h1:8l3d6bq5xWd8qMptgXav9r3j0c5LtQROCl3z/IqrcKs=
 github.com/MRegterschot/GbxRemoteGo v0.6.0 h1:N+FVpJZubO5kcn7nFgMO0Ye3r352i8mF0ZVrf56zsrE=
 github.com/MRegterschot/GbxRemoteGo v0.6.0/go.mod h1:8l3d6bq5xWd8qMptgXav9r3j0c5LtQROCl3z/IqrcKs=
+github.com/MRegterschot/GbxRemoteGo v0.6.1 h1:ieXm7f2qzfmNhq8kb49ma2yObbyH53X53+3Ub1AGPCs=
+github.com/MRegterschot/GbxRemoteGo v0.6.1/go.mod h1:8l3d6bq5xWd8qMptgXav9r3j0c5LtQROCl3z/IqrcKs=
+github.com/MRegterschot/GbxRemoteGo v0.6.2 h1:OzcRjwhADe0poIF443Ly1QkJePVKMtBFM/f4LY4fUrE=
+github.com/MRegterschot/GbxRemoteGo v0.6.2/go.mod h1:8l3d6bq5xWd8qMptgXav9r3j0c5LtQROCl3z/IqrcKs=
+github.com/MRegterschot/GbxRemoteGo v0.6.3 h1:slNIcSdtWjqpoHiJMquV2jYxuhLViBJIKFnSoUzv4+4=
+github.com/MRegterschot/GbxRemoteGo v0.6.3/go.mod h1:8l3d6bq5xWd8qMptgXav9r3j0c5LtQROCl3z/IqrcKs=
 github.com/Masterminds/goutils v1.1.1/go.mod h1:8cTjp+g8YejhMuvIA5y2vz3BpJxksy863GQaJW2MFNU=
 github.com/Masterminds/semver/v3 v3.1.1/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
 github.com/Masterminds/sprig/v3 v3.2.1/go.mod h1:UoaO7Yp8KlPnJIYWTFkMaqPUYKTfGFPhxNuwnnxkKlk=
