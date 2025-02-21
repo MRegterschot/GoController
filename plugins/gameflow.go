@@ -1,6 +1,8 @@
 package plugins
 
 import (
+	"fmt"
+
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
 )
@@ -46,7 +48,7 @@ func (m *GameFlowPlugin) Load() error {
 		Name:     "//mode",
 		Callback: m.ModeCommand,
 		Admin:    true,
-		Help:     "Sets game mode",
+		Help:     "Get or set gamemode",
 	})
 
 	return nil
@@ -66,8 +68,13 @@ func (m *GameFlowPlugin) RestartCommand(login string, args []string) {
 
 func (m *GameFlowPlugin) ModeCommand(login string, args []string) {
 	if len(args) < 1 {
-		go m.GoController.Chat("Please provide a mode name", login)
-		return
+		if mode, err := m.GoController.Server.Client.GetScriptName(); err != nil {
+			go m.GoController.Chat("Error getting mode: " + err.Error(), login)
+			return
+		} else {
+			go m.GoController.Chat(fmt.Sprintf("Current mode: %v, Next mode: %v", mode.CurrentValue, mode.NextValue), login)
+			return
+		}
 	}
 
 	if err := m.GoController.Server.Client.SetScriptName(args[0]); err != nil {
