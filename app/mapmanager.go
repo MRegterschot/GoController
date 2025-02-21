@@ -31,7 +31,7 @@ func GetMapManager() *MapManager {
 func (mm *MapManager) Init() {
 	zap.L().Info("Initializing MapManager")
 	mm.SyncMaps()
-
+	GetDatabaseManager().SyncMaps()
 	GetGoController().Server.Client.OnBeginMap = append(GetGoController().Server.Client.OnBeginMap, mm.onBeginMap)
 	zap.L().Info("MapManager initialized")
 }
@@ -47,7 +47,7 @@ func (mm *MapManager) SyncMaps() {
 	mapList := make([]structs.TMMapInfo, 0)
 	for _, chunk := range chunckedMaps {
 		for _, m := range chunk {
-			mapInfo, err := GetGoController().Server.Client.GetMapInfo(m.UId)
+			mapInfo, err := GetGoController().Server.Client.GetMapInfo(m.FileName)
 			if err != nil {
 				zap.L().Error("Failed to get map info", zap.Error(err))
 				continue
@@ -116,5 +116,11 @@ func (mm *MapManager) onBeginMap(_ *gbxclient.GbxClient, mapEvent events.MapEven
 			}
 			break
 		}
+	}
+}
+
+func (mm *MapManager) onMapListModified(_ *gbxclient.GbxClient, mapListModifiedEvent events.MapListModifiedEventArgs) {
+	if mapListModifiedEvent.IsListModified {
+		mm.SyncMaps()
 	}
 }

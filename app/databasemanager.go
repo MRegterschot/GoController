@@ -4,6 +4,7 @@ import (
 	"context"
 	"sync"
 
+	"github.com/MRegterschot/GbxRemoteGo/structs"
 	"github.com/MRegterschot/GoController/database"
 	"github.com/MRegterschot/GoController/models"
 	"go.uber.org/zap"
@@ -58,5 +59,30 @@ func (dbm *DatabaseManager) SyncPlayers() {
 	players := GetPlayerManager().Players
 	for _, player := range players {
 		dbm.SyncPlayer(player)
+	}
+}
+
+func (dbm *DatabaseManager) SyncMap(mapInfo structs.TMMapInfo) {
+	ctx := context.Background()
+	_, err := database.GetMapByUId(ctx, mapInfo.UId)
+	if err != nil {
+		database.InsertMap(ctx, database.NewMap(database.Map{
+			Name:           mapInfo.Name,
+			UId:            mapInfo.UId,
+			FileName:       mapInfo.FileName,
+			Author:         mapInfo.Author,
+			AuthorNickname: mapInfo.AuthorNickname,
+			AuthorTime:     mapInfo.AuthorTime,
+			GoldTime:       mapInfo.GoldTime,
+			SilverTime:     mapInfo.SilverTime,
+			BronzeTime:     mapInfo.BronzeTime,
+		}))
+	}
+}
+
+func (dbm *DatabaseManager) SyncMaps() {
+	maps := GetMapManager().Maps
+	for _, mapInfo := range maps {
+		dbm.SyncMap(mapInfo)
 	}
 }
