@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"fmt"
@@ -18,17 +18,24 @@ type CommandManager struct {
 	mu       sync.Mutex
 }
 
-// Creates a new CommandManager
-func NewCommandManager() *CommandManager {
-	return &CommandManager{
-		Commands: make(map[string]ChatCommand),
-	}
+var (
+	cmInstance *CommandManager
+	cmOnce     sync.Once
+)
+
+func GetCommandManager() *CommandManager {
+	cmOnce.Do(func() {
+		cmInstance = &CommandManager{
+			Commands: make(map[string]ChatCommand),
+		}
+	})
+	return cmInstance
 }
 
 func (cm *CommandManager) Init() {
 	zap.L().Info("Initializing CommandManager")
 	cm.addDefaultCommands()
-	GetController().Server.Client.OnPlayerChat = append(GetController().Server.Client.OnPlayerChat, cm.onPlayerChat)
+	GetGoController().Server.Client.OnPlayerChat = append(GetGoController().Server.Client.OnPlayerChat, cm.onPlayerChat)
 	zap.L().Info("CommandManager initialized")
 }
 
@@ -68,7 +75,7 @@ func (cm *CommandManager) HelpCommand(login string, args []string) {
 		outCommands = append(outCommands, fmt.Sprintf("$0C6%s$FFF %s", command.Name, command.Help))
 	}
 
-	GetController().Chat("Available commands: "+strings.Join(outCommands, ", "), login)
+	GetGoController().Chat("Available commands: "+strings.Join(outCommands, ", "), login)
 }
 
 func (cm *CommandManager) AdminHelpCommand(login string, args []string) {
@@ -81,11 +88,11 @@ func (cm *CommandManager) AdminHelpCommand(login string, args []string) {
 		outCommands = append(outCommands, fmt.Sprintf("$0C6%s$FFF %s", command.Name, command.Help))
 	}
 
-	GetController().Chat("Available admin commands: "+strings.Join(outCommands, ", "), login)
+	GetGoController().Chat("Available admin commands: "+strings.Join(outCommands, ", "), login)
 }
 
 func (cm *CommandManager) ShutdownCommand(login string, args []string) {
-	GetController().Shutdown()
+	GetGoController().Shutdown()
 }
 
 // Adds a command to the CommandManager
@@ -104,7 +111,7 @@ func (cm *CommandManager) ExecuteCommand(login string, text string) {
 	defer cm.mu.Unlock()
 
 	if strings.HasPrefix(text, "/") {
-		controller := GetController()
+		controller := GetGoController()
 
 		for _, command := range cm.Commands {
 			if command.Name == "" {
@@ -112,7 +119,7 @@ func (cm *CommandManager) ExecuteCommand(login string, text string) {
 			}
 
 			if strings.HasPrefix(text, "//") && !utils.Includes(*controller.Admins, login) {
-				controller.Chat("$C00Not allowed.", login)
+				go controller.Chat("$C00Not allowed.", login)
 				return
 			}
 

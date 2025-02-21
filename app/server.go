@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"os"
@@ -102,7 +102,7 @@ func (s *Server) onEcho(client *gbxclient.GbxClient, echoEvent events.EchoEventA
 		return
 	}
 
-	if echoEvent.Internal == "GoController" && public != GetController().StartTime {
+	if echoEvent.Internal == "GoController" && public != GetGoController().StartTime {
 		zap.L().Fatal("Another instance of GoController has started! Exiting...")
 		os.Exit(1)
 	}

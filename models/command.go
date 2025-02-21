@@ -1,4 +1,4 @@
-package models 
+package models
 
 type CommandCallback func(login string, args []string)
 

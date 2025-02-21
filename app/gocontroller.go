@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"fmt"
@@ -6,7 +6,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/MRegterschot/GoController/plugins"
 	"github.com/MRegterschot/GoController/utils"
 	"go.uber.org/zap"
 )
@@ -19,21 +18,21 @@ type GoController struct {
 	Admins          *[]string
 	CommandManager  *CommandManager
 	SettingsManager *SettingsManager
-	PluginManager   *plugins.PluginManager
+	PluginManager   *PluginManager
 }
 
 var (
-	instance *GoController
-	once     sync.Once
+	gcInstance *GoController
+	gcOnce     sync.Once
 )
 
-func GetController() *GoController {
-	once.Do(func() {
-		commandManager := NewCommandManager()
-		settingsManager := NewSettingsManager()
-		pluginManager := plugins.GetPluginManager()
+func GetGoController() *GoController {
+	gcOnce.Do(func() {
+		commandManager := GetCommandManager()
+		settingsManager := GetSettingsManager()
+		pluginManager := GetPluginManager()
 
-		instance = &GoController{
+		gcInstance = &GoController{
 			StartTime:       utils.GetCurrentTimeInMilliseconds(),
 			Version:         "1.0.0",
 			Server:          NewServer(),
@@ -43,7 +42,7 @@ func GetController() *GoController {
 			Admins:          &settingsManager.Admins,
 		}
 	})
-	return instance
+	return gcInstance
 }
 
 // Starts the GoController

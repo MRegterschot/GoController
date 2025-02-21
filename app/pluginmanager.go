@@ -1,4 +1,4 @@
-package plugins
+package app
 
 import (
 	"reflect"
@@ -9,25 +9,41 @@ import (
 
 type PluginManager struct {
 	PreLoadedPlugins []interface{}
-	Plugins []interface{}
+	Plugins          []interface{}
+}
+
+type BasePlugin struct {
+	CommandManager  *CommandManager
+	SettingsManager *SettingsManager
+	GoController    *GoController
 }
 
 var (
-	instance *PluginManager
-	once     sync.Once
+	pmInstance *PluginManager
+	pmOnce     sync.Once
 )
 
 func GetPluginManager() *PluginManager {
-	once.Do(func() {
-		instance = &PluginManager{
+	pmOnce.Do(func() {
+		pmInstance = &PluginManager{
 			Plugins: []interface{}{},
 		}
 	})
-	return instance
+	return pmInstance
 }
 
 func (pm *PluginManager) Init() {
 	zap.L().Info("Initializing PluginManager")
+	pm.RegisterPlugins()
+	pm.LoadPlugins()
+	zap.L().Info("PluginManager initialized")
+}
+
+func (pm *PluginManager) PreLoadPlugin(plugin interface{}) {
+	pm.PreLoadedPlugins = append(pm.PreLoadedPlugins, plugin)
+}
+
+func (pm *PluginManager) RegisterPlugins() {
 	for _, plugin := range pm.PreLoadedPlugins {
 		name, ok := isPlugin(plugin)
 
@@ -37,11 +53,6 @@ func (pm *PluginManager) Init() {
 		zap.L().Info("Registering plugin", zap.String("plugin", name))
 		pm.Plugins = append(pm.Plugins, plugin)
 	}
-	zap.L().Info("PluginManager initialized")
-}
-
-func (pm *PluginManager) PreLoadPlugin(plugin interface{}) {
-	pm.PreLoadedPlugins = append(pm.PreLoadedPlugins, plugin)
 }
 
 func (pm *PluginManager) LoadPlugins() {
@@ -56,15 +67,16 @@ func (pm *PluginManager) LoadPlugins() {
 		pl, _ := plugin.(interface{ Load() error })
 		err := pl.Load()
 		if err != nil {
-			zap.L().Fatal("Failed to load plugin", zap.String("plugin", p.FieldByName("Name").String()), zap.Error(err))
+			zap.L().Error("Failed to load plugin", zap.String("plugin", p.FieldByName("Name").String()), zap.Error(err))
 		}
 		p.FieldByName("Loaded").SetBool(true)
+		zap.L().Info("Loaded plugin", zap.String("plugin", p.FieldByName("Name").String()))
 	}
 }
 
 func isPlugin(plugin interface{}) (string, bool) {
 	t := reflect.TypeOf(plugin)
-	
+
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
@@ -72,7 +84,7 @@ func isPlugin(plugin interface{}) (string, bool) {
 	if t.Kind() != reflect.Struct {
 		return "", false
 	}
-	
+
 	_, hasName := t.FieldByName("Name")
 	_, hasDependencies := t.FieldByName("Dependencies")
 	_, hasLoaded := t.FieldByName("Loaded")
@@ -84,6 +96,6 @@ func isPlugin(plugin interface{}) (string, bool) {
 	}
 
 	name := reflect.ValueOf(plugin).Elem().FieldByName("Name").String()
-	
+
 	return name, hasName && hasDependencies && hasLoaded && hasLoad && hasUnload
 }

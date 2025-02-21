@@ -1,9 +1,10 @@
-package main
+package app
 
 import (
 	"encoding/json"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/MRegterschot/GoController/config"
 	"go.uber.org/zap"
@@ -17,31 +18,34 @@ type SettingsManager struct {
 	AdminsFile string
 }
 
-// Creates a new SettingsManager
-func NewSettingsManager() *SettingsManager {
-	adminPath := "./settings/admins.json"
+var (
+	smInstance *SettingsManager
+	smOnce     sync.Once
+)
 
+func GetSettingsManager() *SettingsManager {
+	smOnce.Do(func() {
+		smInstance = &SettingsManager{
+			Settings:     make(map[string]string),
+			AdminsFile:   "./settings/admins.json",
+		}
+	})
+	return smInstance
+}
+
+func (sm *SettingsManager) Init() {
+	zap.L().Info("Initializing SettingsManager")
 	masterAdmins := strings.Split(config.AppEnv.MasterAdmins, ",")
 	for i, admin := range masterAdmins {
 		masterAdmins[i] = strings.TrimSpace(admin)
 	}
 
-	sm := &SettingsManager{
-		Settings:   make(map[string]string),
-		MasterAdmins: masterAdmins,
-		AdminsFile: adminPath,
-	}
+	sm.MasterAdmins = masterAdmins
 
-	err := sm.CreateFile(adminPath, []string{})
+	err := sm.CreateFile(sm.AdminsFile, []string{})
 	if err != nil {
 		zap.L().Fatal("Failed to create admins file", zap.Error(err))
 	}
-
-	return sm
-}
-
-func (sm *SettingsManager) Init() {
-	zap.L().Info("Initializing SettingsManager")
 	sm.LoadAdmins()
 	zap.L().Info("SettingsManager initialized")
 }
