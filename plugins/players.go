@@ -20,11 +20,7 @@ func CreatePlayersPlugin() *PlayersPlugin {
 		Name: "Players",
 		Dependencies: []string{},
 		Loaded: false,
-		BasePlugin: app.BasePlugin{
-			CommandManager: app.GetCommandManager(),
-			SettingsManager: app.GetSettingsManager(),
-			GoController: app.GetGoController(),
-		},
+		BasePlugin: app.GetBasePlugin(),
 	}
 }
 

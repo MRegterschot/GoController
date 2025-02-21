@@ -19,11 +19,7 @@ func CreateGameFlowPlugin() *GameFlowPlugin {
 		Name: "GameFlow",
 		Dependencies: []string{},
 		Loaded: false,
-		BasePlugin: app.BasePlugin{
-			CommandManager: app.GetCommandManager(),
-			SettingsManager: app.GetSettingsManager(),
-			GoController: app.GetGoController(),
-		},
+		BasePlugin: app.GetBasePlugin(),
 	}
 }
 

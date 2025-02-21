@@ -18,6 +18,14 @@ type BasePlugin struct {
 	GoController    *GoController
 }
 
+func GetBasePlugin() BasePlugin {
+	return BasePlugin{
+		CommandManager:  GetCommandManager(),
+		SettingsManager: GetSettingsManager(),
+		GoController:    GetGoController(),
+	}
+}
+
 var (
 	pmInstance *PluginManager
 	pmOnce     sync.Once
