@@ -34,3 +34,16 @@ func GetCurrentTimeInSeconds() int {
 func GetCurrentTimeInMilliseconds() int {
 	return int(time.Now().UnixNano() / int64(time.Millisecond))
 }
+
+// ChunkArray splits an array into chunks of a specified size
+func ChunkArray[T any](array []T, chunkSize int) [][]T {
+	var chunks [][]T
+	for i := 0; i < len(array); i += chunkSize {
+		end := i + chunkSize
+		if end > len(array) {
+			end = len(array)
+		}
+		chunks = append(chunks, array[i:end])
+	}
+	return chunks
+}

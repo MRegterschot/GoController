@@ -6,6 +6,7 @@ import (
 	"github.com/MRegterschot/GbxRemoteGo/events"
 	"github.com/MRegterschot/GbxRemoteGo/gbxclient"
 	"github.com/MRegterschot/GbxRemoteGo/structs"
+	"github.com/MRegterschot/GoController/utils"
 	"go.uber.org/zap"
 )
 
@@ -30,6 +31,8 @@ func GetMapManager() *MapManager {
 func (mm *MapManager) Init() {
 	zap.L().Info("Initializing MapManager")
 	mm.SyncMaps()
+
+	GetGoController().Server.Client.OnBeginMap = append(GetGoController().Server.Client.OnBeginMap, mm.onBeginMap)
 	zap.L().Info("MapManager initialized")
 }
 
@@ -40,7 +43,47 @@ func (mm *MapManager) SyncMaps() {
 		return
 	}
 
-	mm.Maps = maps
+	chunckedMaps := utils.ChunkArray(maps, 100)
+	mapList := make([]structs.TMMapInfo, 0)
+	for _, chunk := range chunckedMaps {
+		for _, m := range chunk {
+			mapInfo, err := GetGoController().Server.Client.GetMapInfo(m.UId)
+			if err != nil {
+				zap.L().Error("Failed to get map info", zap.Error(err))
+				continue
+			}
+			mapList = append(mapList, mapInfo)
+		}
+	}
+
+	mm.Maps = mapList
+}
+
+func (mm *MapManager) AddMap(mapInfo structs.TMMapInfo) {
+	for _, m := range mm.Maps {
+		if m.UId == mapInfo.UId {
+			return
+		}
+	}
+	mm.Maps = append(mm.Maps, mapInfo)
+}
+
+func (mm *MapManager) RemoveMap(uid string) {
+	for i, m := range mm.Maps {
+		if m.UId == uid {
+			mm.Maps = append(mm.Maps[:i], mm.Maps[i+1:]...)
+			return
+		}
+	}
+}
+
+func (mm *MapManager) GetMap(uid string) *structs.TMMapInfo {
+	for i := range mm.Maps {
+		if mm.Maps[i].UId == uid {
+			return &mm.Maps[i]
+		}
+	}
+	return nil
 }
 
 func (mm *MapManager) onBeginMap(_ *gbxclient.GbxClient, mapEvent events.MapEventArgs) {
