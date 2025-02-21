@@ -75,7 +75,7 @@ func (cm *CommandManager) HelpCommand(login string, args []string) {
 		outCommands = append(outCommands, fmt.Sprintf("$0C6%s$FFF %s", command.Name, command.Help))
 	}
 
-	GetGoController().Chat("Available commands: "+strings.Join(outCommands, ", "), login)
+	go GetGoController().Chat("Available commands: "+strings.Join(outCommands, ", "), login)
 }
 
 func (cm *CommandManager) AdminHelpCommand(login string, args []string) {
@@ -88,7 +88,7 @@ func (cm *CommandManager) AdminHelpCommand(login string, args []string) {
 		outCommands = append(outCommands, fmt.Sprintf("$0C6%s$FFF %s", command.Name, command.Help))
 	}
 
-	GetGoController().Chat("Available admin commands: "+strings.Join(outCommands, ", "), login)
+	go GetGoController().Chat("Available admin commands: "+strings.Join(outCommands, ", "), login)
 }
 
 func (cm *CommandManager) ShutdownCommand(login string, args []string) {
@@ -146,7 +146,7 @@ func (cm *CommandManager) ExecuteCommand(login string, text string) {
 				return
 			}
 		}
-		controller.Chat(fmt.Sprintf("$fffCommand $0C6%s $fffnot found.", text), login)
+		go controller.Chat(fmt.Sprintf("$fffCommand $0C6%s $fffnot found.", text), login)
 	}
 
 }

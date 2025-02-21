@@ -70,11 +70,10 @@ func (m *GameFlowPlugin) ModeCommand(login string, args []string) {
 	if len(args) < 1 {
 		if mode, err := m.GoController.Server.Client.GetScriptName(); err != nil {
 			go m.GoController.Chat("Error getting mode: " + err.Error(), login)
-			return
 		} else {
 			go m.GoController.Chat(fmt.Sprintf("Current mode: %v, Next mode: %v", mode.CurrentValue, mode.NextValue), login)
-			return
 		}
+		return
 	}
 
 	if err := m.GoController.Server.Client.SetScriptName(args[0]); err != nil {

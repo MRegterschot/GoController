@@ -75,7 +75,7 @@ func (c *GoController) Start() {
 	c.Server.Client.Echo(fmt.Sprintf("%d", c.StartTime), "GoController")
 
 	msg := fmt.Sprintf("Welcome to $0C6GoController$FFF! Version %s", c.Version)
-	c.Chat(msg)
+	go c.Chat(msg)
 	zap.L().Info(msg)
 	zap.L().Info("GoController started successfully")
 }
@@ -83,16 +83,16 @@ func (c *GoController) Start() {
 // Sends a chat message to the server
 func (c *GoController) Chat(message string, login ...string) {
 	if len(login) > 0 {
-		c.Server.Client.ChatSendServerMessageToLogin("$9ab$n>$z$s "+message, strings.Join(login, ","))
+		go c.Server.Client.ChatSendServerMessageToLogin("$9ab$n>$z$s "+message, strings.Join(login, ","))
 	} else {
-		c.Server.Client.ChatSendServerMessage("$9ab»$z$s " + message)
+		go c.Server.Client.ChatSendServerMessage("$9ab»$z$s " + message)
 	}
 }
 
 // Shutdown the GoController
 func (c *GoController) Shutdown() {
 	zap.L().Info("Shutting down GoController")
-	c.Chat("GoController shutting down...")
+	go c.Chat("GoController shutting down...")
 
 	c.Server.Disconnect()
 
