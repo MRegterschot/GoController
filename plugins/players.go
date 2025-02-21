@@ -57,7 +57,7 @@ func (m *PlayersPlugin) BanCommand(login string, args []string) {
 		reason = strings.Join(args[1:], " ")
 	}
 	m.GoController.Server.Client.BanAndBlackList(targetLogin, reason, true)
-	go m.GoController.Chat(fmt.Sprintf("Banned %s for %s", targetLogin, reason))
+	go m.GoController.Chat(fmt.Sprintf("Banned: %s, Reason: %s", targetLogin, reason))
 }
 
 func init() {
