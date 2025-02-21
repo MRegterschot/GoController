@@ -1,6 +1,7 @@
 package plugins
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/MRegterschot/GoController/app"
@@ -56,7 +57,7 @@ func (m *PlayersPlugin) BanCommand(login string, args []string) {
 		reason = strings.Join(args[1:], " ")
 	}
 	m.GoController.Server.Client.BanAndBlackList(targetLogin, reason, true)
-	go m.GoController.Chat("Player " + targetLogin + " has been banned")
+	go m.GoController.Chat(fmt.Sprintf("Banned %s for %s", targetLogin, reason))
 }
 
 func init() {
