@@ -20,6 +20,7 @@ type GoController struct {
 	SettingsManager *SettingsManager
 	PluginManager   *PluginManager
 	PlayerManager   *PlayerManager
+	DatabaseManager *DatabaseManager
 }
 
 var (
@@ -33,6 +34,7 @@ func GetGoController() *GoController {
 		settingsManager := GetSettingsManager()
 		pluginManager := GetPluginManager()
 		playerManager := GetPlayerManager()
+		databaseManager := GetDatabaseManager()
 
 		gcInstance = &GoController{
 			StartTime:       utils.GetCurrentTimeInMilliseconds(),
@@ -42,6 +44,7 @@ func GetGoController() *GoController {
 			SettingsManager: settingsManager,
 			PluginManager:   pluginManager,
 			PlayerManager:   playerManager,
+			DatabaseManager: databaseManager,
 			Admins:          &settingsManager.Admins,
 		}
 	})
@@ -71,8 +74,9 @@ func (c *GoController) Start() {
 	}
 	c.Server.Client.TriggerModeScriptEvent("XmlRpc.EnableCallbacks", "true")
 
-	c.CommandManager.Init()
 	c.SettingsManager.Init()
+	c.DatabaseManager.Init()
+	c.CommandManager.Init()
 	c.PluginManager.Init()
 	c.PlayerManager.Init()
 

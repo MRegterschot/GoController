@@ -8,12 +8,18 @@ import (
 )
 
 type Env struct {
+	// XMLRPC server configuration
 	Host string
 	Port int
 	User string
 	Pass string
 
+	// Master admins
 	MasterAdmins string
+
+	// Database configuration
+	MongoUri string
+	MongoDb  string
 }
 
 // Global variable to store the loaded environment configuration
@@ -44,6 +50,9 @@ func LoadEnv() error {
 		Pass: os.Getenv("XMLRPC_PASS"),
 
 		MasterAdmins: os.Getenv("MASTER_ADMINS"),
+
+		MongoUri: os.Getenv("MONGO_URI"),
+		MongoDb:  os.Getenv("MONGO_DB"),
 	}
 
 	return nil

@@ -29,6 +29,7 @@ func GetPlayerManager() *PlayerManager {
 func (plm *PlayerManager) Init() {
 	zap.L().Info("Initializing PlayerManager")
 	plm.SyncPlayers()
+	GetDatabaseManager().SyncPlayers()
 	GetGoController().Server.Client.OnPlayerConnect = append(GetGoController().Server.Client.OnPlayerConnect, plm.onPlayerConnect)
 	GetGoController().Server.Client.OnPlayerDisconnect = append(GetGoController().Server.Client.OnPlayerDisconnect, plm.onPlayerDisconnect)
 	zap.L().Info("PlayerManager initialized")
@@ -42,6 +43,9 @@ func (plm *PlayerManager) SyncPlayers() {
 	}
 
 	for _, player := range players {
+		if (player.PlayerId == 0) {
+			continue
+		}
 		detailedInfo, err := GetGoController().Server.Client.GetDetailedPlayerInfo(player.Login)
 		if err != nil {
 			zap.L().Error("Failed to get detailed player info", zap.Error(err))
