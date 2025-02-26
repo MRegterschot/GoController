@@ -75,7 +75,7 @@ func (c *GoController) Start() {
 	} else {
 		c.MapsPath = mapsPath
 	}
-	c.Server.Client.TriggerModeScriptEvent("XmlRpc.EnableCallbacks", "true")
+	c.Server.Client.TriggerModeScriptEventArray("XmlRpc.EnableCallbacks", []string{"true"})
 
 	c.SettingsManager.Init()
 	c.DatabaseManager.Init()
