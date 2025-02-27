@@ -46,13 +46,16 @@ func (m *RecorderPlugin) Unload() error {
 }
 
 func (m *RecorderPlugin) StartRecording() {
-	m.GoController.Server.Client.OnPlayerFinish = append(m.GoController.Server.Client.OnPlayerFinish, gbxclient.GbxCallbackStruct[events.PlayerWayPointEventArgs]{
-		Key:  "recording",
-		Call: m.onPlayerFinish})
-
-	m.GoController.Server.Client.OnEndRound = append(m.GoController.Server.Client.OnEndRound, gbxclient.GbxCallbackStruct[events.ScoresEventArgs]{
-		Key:  "recording",
-		Call: m.onEndRound})
+	mode := m.GoController.MapManager.CurrentMode
+	if mode == "Trackmania/TM_Rounds_Online.Script.txt" || mode == "Trackmania/TM_TimeAttack_Online.Script.txt" {
+		m.GoController.Server.Client.OnPlayerFinish = append(m.GoController.Server.Client.OnPlayerFinish, gbxclient.GbxCallbackStruct[events.PlayerWayPointEventArgs]{
+			Key:  "recording",
+			Call: m.onPlayerFinish})
+	} else {
+		m.GoController.Server.Client.OnEndRound = append(m.GoController.Server.Client.OnEndRound, gbxclient.GbxCallbackStruct[events.ScoresEventArgs]{
+			Key:  "recording",
+			Call: m.onEndRound})
+	}
 
 	m.IsRecording = true
 	zap.L().Info("Recording started")
@@ -71,7 +74,7 @@ func (m *RecorderPlugin) StopRecording() {
 		}
 	}
 
-	m.IsRecording = false
+	m.IsRecording = false	
 	zap.L().Info("Recording stopped")
 }
 
