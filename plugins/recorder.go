@@ -7,6 +7,7 @@ import (
 	"github.com/MRegterschot/GbxRemoteGo/gbxclient"
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
+	"go.uber.org/zap"
 )
 
 type RecorderPlugin struct {
@@ -46,11 +47,16 @@ func (m *RecorderPlugin) StartRecording() {
 	m.GoController.Server.Client.OnPlayerFinish = append(m.GoController.Server.Client.OnPlayerFinish, gbxclient.GbxCallbackStruct[events.PlayerWayPointEventArgs]{
 		Key:  "recording",
 		Call: m.onPlayerFinish})
-	fmt.Println("Recording started")
+	zap.L().Info("Recording started")
 }
 
 func (m *RecorderPlugin) StopRecording() {
-	fmt.Println("Recording stopped")
+	for i, callback := range m.GoController.Server.Client.OnPlayerFinish {
+		if callback.Key == "recording" {
+			m.GoController.Server.Client.OnPlayerFinish = append(m.GoController.Server.Client.OnPlayerFinish[:i], m.GoController.Server.Client.OnPlayerFinish[i+1:]...)
+		}
+	}
+	zap.L().Info("Recording stopped")
 }
 
 func (m *RecorderPlugin) onPlayerFinish(_ *gbxclient.GbxClient, playerFinishEvent events.PlayerWayPointEventArgs) {
