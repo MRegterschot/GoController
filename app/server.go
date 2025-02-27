@@ -28,7 +28,9 @@ func NewServer() *Server {
 	server.Client.Events.On("disconnect", onDisconnectChan)
 	go handleDisconnect(onDisconnectChan)
 
-	server.Client.OnEcho = append(server.Client.OnEcho, server.onEcho)
+	server.Client.OnEcho = append(server.Client.OnEcho, gbxclient.GbxCallbackStruct[events.EchoEventArgs]{
+		Key:  "echo",
+		Call: server.onEcho})
 
 	return server
 }

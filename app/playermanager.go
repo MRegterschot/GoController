@@ -29,8 +29,12 @@ func GetPlayerManager() *PlayerManager {
 func (plm *PlayerManager) Init() {
 	zap.L().Info("Initializing PlayerManager")
 	plm.SyncPlayers()
-	GetGoController().Server.Client.OnPlayerConnect = append(GetGoController().Server.Client.OnPlayerConnect, plm.onPlayerConnect)
-	GetGoController().Server.Client.OnPlayerDisconnect = append(GetGoController().Server.Client.OnPlayerDisconnect, plm.onPlayerDisconnect)
+	GetGoController().Server.Client.OnPlayerConnect = append(GetGoController().Server.Client.OnPlayerConnect, gbxclient.GbxCallbackStruct[events.PlayerConnectEventArgs]{
+		Key:  "pmPlayerConnect",
+		Call: plm.onPlayerConnect})
+	GetGoController().Server.Client.OnPlayerDisconnect = append(GetGoController().Server.Client.OnPlayerDisconnect, gbxclient.GbxCallbackStruct[events.PlayerDisconnectEventArgs]{
+		Key:  "pmPlayerDisconnect",
+		Call: plm.onPlayerDisconnect})
 	zap.L().Info("PlayerManager initialized")
 }
 
@@ -42,7 +46,7 @@ func (plm *PlayerManager) SyncPlayers() {
 	}
 
 	for _, player := range players {
-		if (player.PlayerId == 0) {
+		if player.PlayerId == 0 {
 			continue
 		}
 		detailedInfo, err := GetGoController().Server.Client.GetDetailedPlayerInfo(player.Login)

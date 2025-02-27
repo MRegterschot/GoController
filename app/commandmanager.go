@@ -35,7 +35,9 @@ func GetCommandManager() *CommandManager {
 func (cm *CommandManager) Init() {
 	zap.L().Info("Initializing CommandManager")
 	cm.addDefaultCommands()
-	GetGoController().Server.Client.OnPlayerChat = append(GetGoController().Server.Client.OnPlayerChat, cm.onPlayerChat)
+	GetGoController().Server.Client.OnPlayerChat = append(GetGoController().Server.Client.OnPlayerChat, gbxclient.GbxCallbackStruct[events.PlayerChatEventArgs]{
+		Key:  "cmPlayerChat",
+		Call: cm.onPlayerChat})
 	zap.L().Info("CommandManager initialized")
 }
 

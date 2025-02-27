@@ -31,7 +31,9 @@ func GetMapManager() *MapManager {
 func (mm *MapManager) Init() {
 	zap.L().Info("Initializing MapManager")
 	mm.SyncMaps()
-	GetGoController().Server.Client.OnBeginMap = append(GetGoController().Server.Client.OnBeginMap, mm.onBeginMap)
+	GetGoController().Server.Client.OnBeginMap = append(GetGoController().Server.Client.OnBeginMap, gbxclient.GbxCallbackStruct[events.MapEventArgs]{
+		Key:  "mmBeginMap",
+		Call: mm.onBeginMap})
 	zap.L().Info("MapManager initialized")
 }
 
@@ -88,29 +90,29 @@ func (mm *MapManager) GetMap(uid string) *structs.TMMapInfo {
 
 func (mm *MapManager) onBeginMap(_ *gbxclient.GbxClient, mapEvent events.MapEventArgs) {
 	mm.CurrentMap = structs.TMMapInfo{
-		UId: mapEvent.Map.Uid,
-		Name: mapEvent.Map.Name,
-		FileName: mapEvent.Map.FileName,
-		Author: mapEvent.Map.Author,
+		UId:            mapEvent.Map.Uid,
+		Name:           mapEvent.Map.Name,
+		FileName:       mapEvent.Map.FileName,
+		Author:         mapEvent.Map.Author,
 		AuthorNickname: mapEvent.Map.AuthorNickname,
-		Environnement: mapEvent.Map.Environnement,
-		Mood: mapEvent.Map.Mood,
-		BronzeTime: mapEvent.Map.BronzeTime,
-		SilverTime: mapEvent.Map.SilverTime,
-		GoldTime: mapEvent.Map.GoldTime,
-		AuthorTime: mapEvent.Map.AuthorTime,
-		CopperPrice: mapEvent.Map.CopperPrice,
-		LapRace: mapEvent.Map.LapRace,
-		NbLaps: mapEvent.Map.NbLaps,
-		NbCheckpoints: mapEvent.Map.NbCheckpoints,
-		MapType: mapEvent.Map.MapType,
-		MapStyle: mapEvent.Map.MapStyle,
+		Environnement:  mapEvent.Map.Environnement,
+		Mood:           mapEvent.Map.Mood,
+		BronzeTime:     mapEvent.Map.BronzeTime,
+		SilverTime:     mapEvent.Map.SilverTime,
+		GoldTime:       mapEvent.Map.GoldTime,
+		AuthorTime:     mapEvent.Map.AuthorTime,
+		CopperPrice:    mapEvent.Map.CopperPrice,
+		LapRace:        mapEvent.Map.LapRace,
+		NbLaps:         mapEvent.Map.NbLaps,
+		NbCheckpoints:  mapEvent.Map.NbCheckpoints,
+		MapType:        mapEvent.Map.MapType,
+		MapStyle:       mapEvent.Map.MapStyle,
 	}
-	
+
 	for i, m := range mm.Maps {
 		if m.UId == mm.CurrentMap.UId {
-			if i < len(mm.Maps) - 1 {
-				mm.NextMap = mm.Maps[i + 1]
+			if i < len(mm.Maps)-1 {
+				mm.NextMap = mm.Maps[i+1]
 			} else {
 				mm.NextMap = mm.Maps[0]
 			}

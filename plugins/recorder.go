@@ -27,14 +27,14 @@ func CreateRecorderPlugin() *RecorderPlugin {
 
 func (m *RecorderPlugin) Load() error {
 	commandManager := app.GetCommandManager()
-	
+
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//recorder",
 		Callback: m.RecorderCommand,
 		Admin:    true,
 		Help:     "Start or stop recording",
 	})
-	
+
 	return nil
 }
 
@@ -43,7 +43,9 @@ func (m *RecorderPlugin) Unload() error {
 }
 
 func (m *RecorderPlugin) StartRecording() {
-	m.GoController.Server.Client.OnPlayerFinish = append(m.GoController.Server.Client.OnPlayerFinish, m.onPlayerFinish)
+	m.GoController.Server.Client.OnPlayerFinish = append(m.GoController.Server.Client.OnPlayerFinish, gbxclient.GbxCallbackStruct[events.PlayerWayPointEventArgs]{
+		Key:  "recording",
+		Call: m.onPlayerFinish})
 	fmt.Println("Recording started")
 }
 
