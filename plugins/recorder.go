@@ -113,15 +113,18 @@ func (m *RecorderPlugin) onPlayerFinish(_ *gbxclient.GbxClient, playerFinishEven
 func (m *RecorderPlugin) onEndRound(_ *gbxclient.GbxClient, endRoundEvent events.ScoresEventArgs) {
 	mapId := m.GoController.MapManager.CurrentMapDB.ID
 
-	recordingContainsMap := false
-	for _, mapRecords := range m.MatchRecording.Maps {
-		if mapRecords.MapID == mapId {
-			recordingContainsMap = true
-			break
+	if len(m.MatchRecording.Maps) == 0 {
+		mapRecords := database.MapRecords{
+			ID: primitive.NewObjectID(),
+			MapID: mapId,
+			Rounds: []database.Round{},
 		}
+	
+		m.MatchRecording.Maps = append(m.MatchRecording.Maps, mapRecords)
 	}
 
-	if !recordingContainsMap {
+	last := len(m.MatchRecording.Maps) - 1
+	if m.MatchRecording.Maps[last].MapID != mapId {
 		mapRecords := database.MapRecords{
 			ID: primitive.NewObjectID(),
 			MapID: mapId,
@@ -129,10 +132,8 @@ func (m *RecorderPlugin) onEndRound(_ *gbxclient.GbxClient, endRoundEvent events
 		}
 
 		m.MatchRecording.Maps = append(m.MatchRecording.Maps, mapRecords)
+		last++
 	}
-
-	index := len(m.MatchRecording.Maps) - 1
-	roundNumber := len(m.MatchRecording.Maps[index].Rounds) + 1
 	
 	var teams []database.Team
 	for _, team := range endRoundEvent.Teams {
@@ -172,11 +173,11 @@ func (m *RecorderPlugin) onEndRound(_ *gbxclient.GbxClient, endRoundEvent events
 
 	round := database.Round{
 		ID: primitive.NewObjectID(),
-		RoundNumber: roundNumber,
+		RoundNumber: len(m.MatchRecording.Maps[last].Rounds) + 1,
 		Teams: teams,
 	}
 
-	m.MatchRecording.Maps[index].Rounds = append(m.MatchRecording.Maps[index].Rounds, round)
+	m.MatchRecording.Maps[last].Rounds = append(m.MatchRecording.Maps[last].Rounds, round)
 	m.MatchRecording.Update(*m.MatchRecording)
 
 	_, err := database.UpdateMatchRecording(context.Background(), *m.MatchRecording)
