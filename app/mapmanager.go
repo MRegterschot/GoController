@@ -1,20 +1,23 @@
 package app
 
 import (
+	"context"
 	"sync"
 
 	"github.com/MRegterschot/GbxRemoteGo/events"
 	"github.com/MRegterschot/GbxRemoteGo/gbxclient"
 	"github.com/MRegterschot/GbxRemoteGo/structs"
+	"github.com/MRegterschot/GoController/database"
 	"github.com/MRegterschot/GoController/utils"
 	"go.uber.org/zap"
 )
 
 type MapManager struct {
-	Maps        []structs.TMMapInfo
-	CurrentMap  structs.TMMapInfo
-	NextMap     structs.TMMapInfo
-	CurrentMode string
+	Maps         []structs.TMMapInfo
+	CurrentMap   structs.TMMapInfo
+	CurrentMapDB database.Map
+	NextMap      structs.TMMapInfo
+	CurrentMode  string
 }
 
 var (
@@ -31,16 +34,26 @@ func GetMapManager() *MapManager {
 
 func (mm *MapManager) Init() {
 	zap.L().Info("Initializing MapManager")
+
 	mm.SyncMaps()
 	GetGoController().Server.Client.OnBeginMap = append(GetGoController().Server.Client.OnBeginMap, gbxclient.GbxCallbackStruct[events.MapEventArgs]{
 		Key:  "mmBeginMap",
 		Call: mm.onBeginMap})
+
 	mode, err := GetGoController().Server.Client.GetScriptName()
 	if err != nil {
 		zap.L().Error("Failed to get mode script text", zap.Error(err))
 		return
 	}
+
 	mm.CurrentMode = mode.CurrentValue
+	mm.CurrentMap = mm.GetCurrentMapInfo()
+	mm.NextMap = mm.GetNextMapInfo()
+
+	mm.CurrentMapDB, err = database.GetMapByUId(context.Background(), mm.CurrentMap.UId)
+	if err != nil {
+		zap.L().Error("Failed to get map from database", zap.Error(err))
+	}
 	zap.L().Info("MapManager initialized")
 }
 
@@ -139,4 +152,24 @@ func (mm *MapManager) onMapListModified(_ *gbxclient.GbxClient, mapListModifiedE
 	if mapListModifiedEvent.IsListModified {
 		mm.SyncMaps()
 	}
+}
+
+func (mm *MapManager) GetCurrentMapInfo() structs.TMMapInfo {
+	currentMap, err := GetGoController().Server.Client.GetCurrentMapInfo()
+	if err != nil {
+		zap.L().Error("Failed to get current map info", zap.Error(err))
+		return structs.TMMapInfo{}
+	}
+
+	return currentMap
+}
+
+func (mm *MapManager) GetNextMapInfo() structs.TMMapInfo {
+	nextMap, err := GetGoController().Server.Client.GetNextMapInfo()
+	if err != nil {
+		zap.L().Error("Failed to get next map info", zap.Error(err))
+		return structs.TMMapInfo{}
+	}
+
+	return nextMap
 }
