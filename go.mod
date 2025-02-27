@@ -3,7 +3,7 @@ module github.com/MRegterschot/GoController
 go 1.24.0
 
 require (
-	github.com/MRegterschot/GbxRemoteGo v0.7.2
+	github.com/MRegterschot/GbxRemoteGo v0.7.4
 	github.com/joho/godotenv v1.5.1
 	go.mongodb.org/mongo-driver v1.17.3
 	go.uber.org/zap v1.27.0

@@ -1,6 +1,8 @@
 package plugins
 
 import (
+	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/MRegterschot/GoController/app"
@@ -30,7 +32,14 @@ func (m *ScriptPlugin) Load() error {
 		Name:     "//modesetting",
 		Callback: m.ModeSettingCommand,
 		Admin:    true,
-		Help:     "Set mode settings",
+		Help:     "Set mode setting",
+	})
+
+	commandManager.AddCommand(models.ChatCommand{
+		Name:     "//modesettings",
+		Callback: m.ModeSettingsCommand,
+		Admin:    true,
+		Help:     "Get mode settings",
 	})
 
 	return nil
@@ -47,18 +56,53 @@ func (m *ScriptPlugin) ModeSettingCommand(login string, args []string) {
 	}
 
 	setting := args[0]
-	value := strings.Join(args[1:], " ")
+	valueStr := strings.Join(args[1:], " ")
 
-	err := m.GoController.Server.Client.SetModeScriptSettings(map[string]interface{}{
-		setting: value,
-	})
+	var err error
+	switch valueStr {
+	case "true":
+		err = m.GoController.Server.Client.SetModeScriptSettings(map[string]interface{}{
+			setting: true,
+		})
+	case "false":
+		err = m.GoController.Server.Client.SetModeScriptSettings(map[string]interface{}{
+			setting: false,
+		})
+	default:
+		// Try to convert valueStr to an integer
+		val, err := strconv.Atoi(valueStr)
+		if err != nil {
+			err = m.GoController.Server.Client.SetModeScriptSettings(map[string]interface{}{
+				setting: valueStr,
+			})
+		} else {
+			err = m.GoController.Server.Client.SetModeScriptSettings(map[string]interface{}{
+				setting: val,
+			})
+		}
+	}
 
 	if err != nil {
 		go m.GoController.Chat("Error setting mode settings: "+err.Error(), login)
 		return
 	} else {
-		go m.GoController.Chat("Setting "+setting+" set to "+value, login)
+		go m.GoController.Chat("Setting "+setting+" set to "+valueStr, login)
 	}
+}
+
+func (m *ScriptPlugin) ModeSettingsCommand(login string, args []string) {
+	settings, err := m.GoController.Server.Client.GetModeScriptSettings()
+	if err != nil {
+		go m.GoController.Chat("Error getting mode settings: "+err.Error(), login)
+		return
+	}
+
+	message := "Mode settings:\n"
+	for key, value := range settings {
+		message += fmt.Sprintf("%s: %v\n", key, value)
+	}
+
+	go m.GoController.Chat(message, login)
 }
 
 func init() {

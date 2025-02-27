@@ -15,6 +15,8 @@ type RecorderPlugin struct {
 	Name         string
 	Dependencies []string
 	Loaded       bool
+
+	IsRecording bool
 }
 
 func CreateRecorderPlugin() *RecorderPlugin {
@@ -47,6 +49,12 @@ func (m *RecorderPlugin) StartRecording() {
 	m.GoController.Server.Client.OnPlayerFinish = append(m.GoController.Server.Client.OnPlayerFinish, gbxclient.GbxCallbackStruct[events.PlayerWayPointEventArgs]{
 		Key:  "recording",
 		Call: m.onPlayerFinish})
+
+	m.GoController.Server.Client.OnEndRound = append(m.GoController.Server.Client.OnEndRound, gbxclient.GbxCallbackStruct[events.ScoresEventArgs]{
+		Key:  "recording",
+		Call: m.onEndRound})
+
+	m.IsRecording = true
 	zap.L().Info("Recording started")
 }
 
@@ -56,6 +64,14 @@ func (m *RecorderPlugin) StopRecording() {
 			m.GoController.Server.Client.OnPlayerFinish = append(m.GoController.Server.Client.OnPlayerFinish[:i], m.GoController.Server.Client.OnPlayerFinish[i+1:]...)
 		}
 	}
+
+	for i, callback := range m.GoController.Server.Client.OnEndRound {
+		if callback.Key == "recording" {
+			m.GoController.Server.Client.OnEndRound = append(m.GoController.Server.Client.OnEndRound[:i], m.GoController.Server.Client.OnEndRound[i+1:]...)
+		}
+	}
+
+	m.IsRecording = false
 	zap.L().Info("Recording stopped")
 }
 
@@ -63,9 +79,10 @@ func (m *RecorderPlugin) onPlayerFinish(_ *gbxclient.GbxClient, playerFinishEven
 	fmt.Println(playerFinishEvent)
 }
 
-func (m *RecorderPlugin) onAnyCallback(_ *gbxclient.GbxClient, anyCallbackEvent gbxclient.CallbackEventArgs) {
-	fmt.Println(anyCallbackEvent)
+func (m *RecorderPlugin) onEndRound(_ *gbxclient.GbxClient, endRoundEvent events.ScoresEventArgs) {
+	fmt.Println(endRoundEvent)
 }
+
 
 func (m *RecorderPlugin) RecorderCommand(login string, args []string) {
 	if len(args) < 1 {

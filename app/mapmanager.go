@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/MRegterschot/GbxRemoteGo/events"
@@ -11,9 +12,10 @@ import (
 )
 
 type MapManager struct {
-	Maps       []structs.TMMapInfo
-	CurrentMap structs.TMMapInfo
-	NextMap    structs.TMMapInfo
+	Maps        []structs.TMMapInfo
+	CurrentMap  structs.TMMapInfo
+	NextMap     structs.TMMapInfo
+	CurrentMode string
 }
 
 var (
@@ -88,7 +90,7 @@ func (mm *MapManager) GetMap(uid string) *structs.TMMapInfo {
 	return nil
 }
 
-func (mm *MapManager) onBeginMap(_ *gbxclient.GbxClient, mapEvent events.MapEventArgs) {
+func (mm *MapManager) onBeginMap(client *gbxclient.GbxClient, mapEvent events.MapEventArgs) {
 	mm.CurrentMap = structs.TMMapInfo{
 		UId:            mapEvent.Map.Uid,
 		Name:           mapEvent.Map.Name,
@@ -119,6 +121,14 @@ func (mm *MapManager) onBeginMap(_ *gbxclient.GbxClient, mapEvent events.MapEven
 			break
 		}
 	}
+
+	mode, err := client.GetModeScriptText()
+	fmt.Println(mode)
+	if err != nil {
+		zap.L().Error("Failed to get mode script text", zap.Error(err))
+		return
+	}
+	mm.CurrentMode = mode
 }
 
 func (mm *MapManager) onMapListModified(_ *gbxclient.GbxClient, mapListModifiedEvent events.MapListModifiedEventArgs) {
