@@ -95,9 +95,19 @@ func (m *RecorderPlugin) RecorderCommand(login string, args []string) {
 
 	switch args[0] {
 	case "start":
+		if m.IsRecording {
+			go m.GoController.Chat("Already recording", login)
+			return
+		}
+
 		m.StartRecording()
 		go m.GoController.Chat("Recording started", login)
 	case "stop":
+		if !m.IsRecording {
+			go m.GoController.Chat("Not recording", login)
+			return
+		}
+
 		m.StopRecording()
 		go m.GoController.Chat("Recording stopped", login)
 	default:
