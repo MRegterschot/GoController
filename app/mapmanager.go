@@ -1,7 +1,6 @@
 package app
 
 import (
-	"context"
 	"sync"
 
 	"github.com/MRegterschot/GbxRemoteGo/events"
@@ -50,10 +49,8 @@ func (mm *MapManager) Init() {
 	mm.CurrentMap = mm.GetCurrentMapInfo()
 	mm.NextMap = mm.GetNextMapInfo()
 
-	mm.CurrentMapDB, err = database.GetMapByUId(context.Background(), mm.CurrentMap.UId)
-	if err != nil {
-		zap.L().Error("Failed to get map from database", zap.Error(err))
-	}
+	mm.CurrentMapDB = GetDatabaseManager().SyncMap(mm.CurrentMap)
+
 	zap.L().Info("MapManager initialized")
 }
 
@@ -140,12 +137,13 @@ func (mm *MapManager) onBeginMap(client *gbxclient.GbxClient, mapEvent events.Ma
 		}
 	}
 
-	mode, err := client.GetScriptName()
-	if err != nil {
+	mm.CurrentMapDB = GetDatabaseManager().SyncMap(mm.CurrentMap)
+
+	if mode, err := client.GetScriptName(); err != nil {
 		zap.L().Error("Failed to get mode script text", zap.Error(err))
-		return
+	} else {
+		mm.CurrentMode = mode.CurrentValue
 	}
-	mm.CurrentMode = mode.CurrentValue
 }
 
 func (mm *MapManager) onMapListModified(_ *gbxclient.GbxClient, mapListModifiedEvent events.MapListModifiedEventArgs) {

@@ -62,11 +62,10 @@ func (dbm *DatabaseManager) SyncPlayers() {
 	}
 }
 
-func (dbm *DatabaseManager) SyncMap(mapInfo structs.TMMapInfo) {
+func (dbm *DatabaseManager) SyncMap(mapInfo structs.TMMapInfo) database.Map {
 	ctx := context.Background()
-	_, err := database.GetMapByUId(ctx, mapInfo.UId)
-	if err != nil {
-		database.InsertMap(ctx, database.NewMap(database.Map{
+	if mapDB, err := database.GetMapByUId(ctx, mapInfo.UId); err != nil {
+		newMap := database.NewMap(database.Map{
 			Name:           mapInfo.Name,
 			UId:            mapInfo.UId,
 			FileName:       mapInfo.FileName,
@@ -76,7 +75,11 @@ func (dbm *DatabaseManager) SyncMap(mapInfo structs.TMMapInfo) {
 			GoldTime:       mapInfo.GoldTime,
 			SilverTime:     mapInfo.SilverTime,
 			BronzeTime:     mapInfo.BronzeTime,
-		}))
+		})
+		database.InsertMap(ctx, newMap)
+		return newMap
+	} else {
+		return mapDB
 	}
 }
 
