@@ -8,7 +8,7 @@ import (
 )
 
 type UIManager struct {
-	Views *jet.Set
+	Templates *jet.Set
 }
 
 var (
@@ -26,7 +26,7 @@ func GetUIManager() *UIManager {
 func (uim *UIManager) Init() {
 	zap.L().Info("Initializing UIManager")
 
-	uim.Views = jet.NewSet(jet.NewOSFileSystemLoader("./ui"))
+	uim.Templates = jet.NewSet(jet.NewOSFileSystemLoader("./templates"))
 
 	zap.L().Info("UIManager initialized")
 }
