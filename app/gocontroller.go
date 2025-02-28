@@ -22,6 +22,7 @@ type GoController struct {
 	PlayerManager   *PlayerManager
 	DatabaseManager *DatabaseManager
 	MapManager      *MapManager
+	UIManager       *UIManager
 }
 
 var (
@@ -37,6 +38,7 @@ func GetGoController() *GoController {
 		playerManager := GetPlayerManager()
 		databaseManager := GetDatabaseManager()
 		mapManager := GetMapManager()
+		uiManager := GetUIManager()
 
 		gcInstance = &GoController{
 			StartTime:       utils.GetCurrentTimeInMilliseconds(),
@@ -48,6 +50,7 @@ func GetGoController() *GoController {
 			PlayerManager:   playerManager,
 			DatabaseManager: databaseManager,
 			MapManager:      mapManager,
+			UIManager:       uiManager,
 			Admins:          &settingsManager.Admins,
 		}
 	})
@@ -79,6 +82,7 @@ func (c *GoController) Start() {
 
 	c.SettingsManager.Init()
 	c.DatabaseManager.Init()
+	c.UIManager.Init()
 	c.CommandManager.Init()
 	c.PluginManager.Init()
 	c.PlayerManager.Init()

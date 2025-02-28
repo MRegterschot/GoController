@@ -1,0 +1,3 @@
+<manialink id="{{ .Id }}" version="3">
+  {{ yield body() }}      
+</manialink>

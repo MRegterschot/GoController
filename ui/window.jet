@@ -1,0 +1,6 @@
+{{ extends "manialink.jet" }}
+{{ block body() }}
+  <frame>
+    {{ yield content() }}
+  </frame>
+{{ end }}
