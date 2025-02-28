@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/database"
 	"github.com/MRegterschot/GoController/models"
+	"github.com/MRegterschot/GoController/utils"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.uber.org/zap"
 )
@@ -41,6 +43,13 @@ func (m *RecorderPlugin) Load() error {
 		Callback: m.recorderCommand,
 		Admin:    true,
 		Help:     "Start or stop recording",
+	})
+
+	commandManager.AddCommand(models.ChatCommand{
+		Name:     "//export",
+		Callback: m.exportToCSVCommand,
+		Admin:    true,
+		Help:     "Export recording to CSV",
 	})
 
 	return nil
@@ -264,10 +273,58 @@ func (m *RecorderPlugin) recorderCommand(login string, args []string) {
 		}
 
 		m.stopRecording()
-		go m.GoController.Chat("Recording stopped", login)
+		go m.GoController.Chat("Recording stopped with id " + m.Recording.ID.Hex(), login)
 	default:
 		go m.GoController.Chat("Usage: //recorder [start | stop]", login)
 	}
+}
+
+func (m *RecorderPlugin) exportToCSVCommand(login string, args []string) {
+	if len(args) < 1 {
+		go m.GoController.Chat("Usage: //export [*recording id]", login)
+		return
+	}
+
+	recordingID := args[0]
+	objectID, err := primitive.ObjectIDFromHex(recordingID)
+	if err != nil {
+		zap.L().Error("Invalid recording ID", zap.Error(err))
+		go m.GoController.Chat("Invalid recording ID", login)
+		return
+	}
+	recording, err := database.GetRecordingByID(context.Background(), objectID)
+	if err != nil {
+		zap.L().Error("Failed to get recording", zap.Error(err))
+		go m.GoController.Chat("Failed to get recording", login)
+		return
+	}
+
+	data := [][]string{
+		{"Time", "Track", "PlayerID", "PlayerName", "Record", "RoundNumber", "Checkpoints"},
+	}
+	for _, mapRecords := range recording.Maps {
+		for _, round := range mapRecords.Rounds {
+			checkpoints := strings.Trim(fmt.Sprint(round.Checkpoints), "[]")
+			data = append(data, []string{
+				fmt.Sprint(round.Timestamp.Time().Unix()),
+				mapRecords.MapID.Hex(),
+				round.AccountId,
+				round.Login,
+				fmt.Sprint(round.Time),
+				"",
+				checkpoints,
+			})
+		}
+	}
+
+	filePath := "recording_" + recordingID + ".csv"
+	if err := utils.ExportCSV("./exports/" + filePath, data); err != nil {
+		zap.L().Error("Failed to export to CSV", zap.Error(err))
+		go m.GoController.Chat("Failed to export to CSV", login)
+		return
+	}
+
+	go m.GoController.Chat("Exported to " + filePath, login)
 }
 
 func init() {

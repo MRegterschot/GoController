@@ -21,3 +21,4 @@
 tmp/
 
 settings/*.json
+exports/*.csv

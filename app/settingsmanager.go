@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/MRegterschot/GoController/config"
+	"github.com/MRegterschot/GoController/utils"
 	"go.uber.org/zap"
 )
 
@@ -42,7 +43,7 @@ func (sm *SettingsManager) Init() {
 
 	sm.MasterAdmins = masterAdmins
 
-	err := sm.CreateFile(sm.AdminsFile, []string{})
+	err := utils.CreateFile(sm.AdminsFile, []string{})
 	if err != nil {
 		zap.L().Fatal("Failed to create admins file", zap.Error(err))
 	}
@@ -63,22 +64,4 @@ func (sm *SettingsManager) LoadAdmins() {
 	}
 
 	sm.Admins = append(sm.Admins, sm.MasterAdmins...)
-}
-
-// Create file with data if it doesn't exist
-func (sm *SettingsManager) CreateFile(file string, data interface{}) error {
-	if _, err := os.Stat(file); os.IsNotExist(err) {
-		f, err := os.Create(file)
-		if err != nil {
-			return err // Return error instead of panicking
-		}
-		defer f.Close()
-
-		// Format data into JSON and write it to the file
-		err = json.NewEncoder(f).Encode(data)
-		if err != nil {
-			return err // Return error instead of panicking
-		}
-	}
-	return nil
 }
