@@ -30,14 +30,14 @@ func (m *ScriptPlugin) Load() error {
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//modesetting",
-		Callback: m.ModeSettingCommand,
+		Callback: m.modeSettingCommand,
 		Admin:    true,
 		Help:     "Set mode setting",
 	})
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//modesettings",
-		Callback: m.ModeSettingsCommand,
+		Callback: m.modeSettingsCommand,
 		Admin:    true,
 		Help:     "Get mode settings",
 	})
@@ -49,7 +49,7 @@ func (m *ScriptPlugin) Unload() error {
 	return nil
 }
 
-func (m *ScriptPlugin) ModeSettingCommand(login string, args []string) {
+func (m *ScriptPlugin) modeSettingCommand(login string, args []string) {
 	if len(args) < 2 {
 		go m.GoController.Chat("Usage: //modesetting [*setting] [*value]", login)
 		return
@@ -90,7 +90,7 @@ func (m *ScriptPlugin) ModeSettingCommand(login string, args []string) {
 	}
 }
 
-func (m *ScriptPlugin) ModeSettingsCommand(login string, args []string) {
+func (m *ScriptPlugin) modeSettingsCommand(login string, args []string) {
 	settings, err := m.GoController.Server.Client.GetModeScriptSettings()
 	if err != nil {
 		go m.GoController.Chat("Error getting mode settings: "+err.Error(), login)

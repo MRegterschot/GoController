@@ -38,7 +38,7 @@ func (m *RecorderPlugin) Load() error {
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//recorder",
-		Callback: m.RecorderCommand,
+		Callback: m.recorderCommand,
 		Admin:    true,
 		Help:     "Start or stop recording",
 	})
@@ -236,7 +236,7 @@ func (m *RecorderPlugin) onEndRound(_ *gbxclient.GbxClient, endRoundEvent events
 	zap.L().Info("Round recorded")
 }
 
-func (m *RecorderPlugin) RecorderCommand(login string, args []string) {
+func (m *RecorderPlugin) recorderCommand(login string, args []string) {
 	if len(args) < 1 {
 		go m.GoController.Chat("Usage: //recorder [start | stop] [*name]", login)
 		return

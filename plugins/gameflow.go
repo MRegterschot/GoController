@@ -28,21 +28,21 @@ func (m *GameFlowPlugin) Load() error {
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//skip",
-		Callback: m.SkipCommand,
+		Callback: m.skipCommand,
 		Admin:    true,
 		Help:     "Skips map",
 	})
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//restart",
-		Callback: m.RestartCommand,
+		Callback: m.restartCommand,
 		Admin:    true,
 		Help:     "Restarts map",
 	})
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//mode",
-		Callback: m.ModeCommand,
+		Callback: m.modeCommand,
 		Admin:    true,
 		Help:     "Get or set gamemode",
 	})
@@ -54,15 +54,15 @@ func (m *GameFlowPlugin) Unload() error {
 	return nil
 }
 
-func (m *GameFlowPlugin) SkipCommand(login string, args []string) {
+func (m *GameFlowPlugin) skipCommand(login string, args []string) {
 	m.GoController.Server.Client.NextMap()
 }
 
-func (m *GameFlowPlugin) RestartCommand(login string, args []string) {
+func (m *GameFlowPlugin) restartCommand(login string, args []string) {
 	m.GoController.Server.Client.RestartMap()
 }
 
-func (m *GameFlowPlugin) ModeCommand(login string, args []string) {
+func (m *GameFlowPlugin) modeCommand(login string, args []string) {
 	if len(args) < 1 {
 		if mode, err := m.GoController.Server.Client.GetScriptName(); err != nil {
 			go m.GoController.Chat("Error getting mode: "+err.Error(), login)
