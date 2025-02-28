@@ -2,7 +2,6 @@ package plugins
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
@@ -22,7 +21,7 @@ type RecorderPlugin struct {
 	Loaded       bool
 
 	IsRecording bool
-	MatchRecording *database.MatchRecording
+	Recording *database.Recording
 }
 
 func CreateRecorderPlugin() *RecorderPlugin {
@@ -54,39 +53,36 @@ func (m *RecorderPlugin) Unload() error {
 func (m *RecorderPlugin) startRecording(name string) {
 	mode := m.GoController.MapManager.CurrentMode
 	if mode == "Trackmania/TM_Rounds_Online.Script.txt" || mode == "Trackmania/TM_TimeAttack_Online.Script.txt" {
-		m.startRoundsRecording(name)
-	} else {
-		m.startMatchRecording(name)
+		m.GoController.Server.Client.OnPlayerFinish = append(m.GoController.Server.Client.OnPlayerFinish, gbxclient.GbxCallbackStruct[events.PlayerWayPointEventArgs]{
+			Key:  "recording",
+			Call: m.onPlayerFinish})
+		m.createRecording(name, "Rounds")
+		} else {
+		m.GoController.Server.Client.OnEndRound = append(m.GoController.Server.Client.OnEndRound, gbxclient.GbxCallbackStruct[events.ScoresEventArgs]{
+			Key:  "recording",
+			Call: m.onEndRound})
+		m.createRecording(name, "Match")
 	}
 
 	m.IsRecording = true
 }
 
-func (m *RecorderPlugin) startMatchRecording(name string) {
-	m.GoController.Server.Client.OnEndRound = append(m.GoController.Server.Client.OnEndRound, gbxclient.GbxCallbackStruct[events.ScoresEventArgs]{
-		Key:  "recording",
-		Call: m.onEndRound})
-
-	newMatchRecording := database.NewMatchRecording(database.MatchRecording{
+func (m *RecorderPlugin) createRecording(name string, modeType string) {
+	newRecording := database.NewRecording(database.Recording{
 		Name: name,
 		Mode: m.GoController.MapManager.CurrentMode,
+		Type: modeType,
 		Maps: []database.MapRecords{},
 	})
 
-	_, err := database.InsertMatchRecording(context.Background(), newMatchRecording)
+	_, err := database.InsertRecording(context.Background(), newRecording)
 	if err != nil {
-		zap.L().Error("Failed to insert match recording", zap.Error(err))
+		zap.L().Error("Failed to insert recording", zap.Error(err))
 		return
 	}
 
-	m.MatchRecording = &newMatchRecording
-	zap.L().Info("Match recording started")
-}
-
-func (m *RecorderPlugin) startRoundsRecording(name string) {
-	m.GoController.Server.Client.OnPlayerFinish = append(m.GoController.Server.Client.OnPlayerFinish, gbxclient.GbxCallbackStruct[events.PlayerWayPointEventArgs]{
-		Key:  "recording",
-		Call: m.onPlayerFinish})
+	m.Recording = &newRecording
+	zap.L().Info("Recording started")
 }
 
 func (m *RecorderPlugin) stopRecording() {
@@ -107,31 +103,81 @@ func (m *RecorderPlugin) stopRecording() {
 }
 
 func (m *RecorderPlugin) onPlayerFinish(_ *gbxclient.GbxClient, playerFinishEvent events.PlayerWayPointEventArgs) {
-	fmt.Println(playerFinishEvent)
+	mapId := m.GoController.MapManager.CurrentMapDB.ID
+
+	if len(m.Recording.Maps) == 0 {
+		mapRecords := database.MapRecords{
+			ID: primitive.NewObjectID(),
+			MapID: mapId,
+			Rounds: []database.PlayerRound{},
+		}
+	
+		m.Recording.Maps = append(m.Recording.Maps, mapRecords)
+	}
+
+	last := len(m.Recording.Maps) - 1
+	if m.Recording.Maps[last].MapID != mapId {
+		mapRecords := database.MapRecords{
+			ID: primitive.NewObjectID(),
+			MapID: mapId,
+			Rounds: []database.PlayerRound{},
+		}
+
+		m.Recording.Maps = append(m.Recording.Maps, mapRecords)
+		last++
+	}
+
+	var playerID *primitive.ObjectID
+	if playerDB, err := database.GetPlayerByLogin(context.Background(), playerFinishEvent.Login); err != nil {
+		zap.L().Error("Player not found", zap.String("login", playerFinishEvent.Login))
+	} else {
+		playerID = &playerDB.ID
+	}
+
+	round := database.PlayerRound{
+		ID: primitive.NewObjectID(),
+		PlayerID: playerID,
+		Login: playerFinishEvent.Login,
+		AccountId: playerFinishEvent.AccountId,
+		Time: playerFinishEvent.RaceTime,
+		Checkpoints: playerFinishEvent.CurLapCheckpoints,
+		Timestamp: primitive.NewDateTimeFromTime(time.Now()),
+	}
+
+	m.Recording.Maps[last].Rounds = append(m.Recording.Maps[last].Rounds, round)
+	m.Recording.Update(*m.Recording)
+
+	_, err := database.UpdateRecording(context.Background(), *m.Recording)
+	if err != nil {
+		zap.L().Error("Failed to update match recording", zap.Error(err))
+		return
+	}
+
+	zap.L().Info("Round recorded")
 }
 
 func (m *RecorderPlugin) onEndRound(_ *gbxclient.GbxClient, endRoundEvent events.ScoresEventArgs) {
 	mapId := m.GoController.MapManager.CurrentMapDB.ID
 
-	if len(m.MatchRecording.Maps) == 0 {
+	if len(m.Recording.Maps) == 0 {
 		mapRecords := database.MapRecords{
 			ID: primitive.NewObjectID(),
 			MapID: mapId,
-			Rounds: []database.Round{},
+			MatchRounds: []database.MatchRound{},
 		}
 	
-		m.MatchRecording.Maps = append(m.MatchRecording.Maps, mapRecords)
+		m.Recording.Maps = append(m.Recording.Maps, mapRecords)
 	}
 
-	last := len(m.MatchRecording.Maps) - 1
-	if m.MatchRecording.Maps[last].MapID != mapId {
+	last := len(m.Recording.Maps) - 1
+	if m.Recording.Maps[last].MapID != mapId {
 		mapRecords := database.MapRecords{
 			ID: primitive.NewObjectID(),
 			MapID: mapId,
-			Rounds: []database.Round{},
+			MatchRounds: []database.MatchRound{},
 		}
 
-		m.MatchRecording.Maps = append(m.MatchRecording.Maps, mapRecords)
+		m.Recording.Maps = append(m.Recording.Maps, mapRecords)
 		last++
 	}
 	
@@ -143,7 +189,7 @@ func (m *RecorderPlugin) onEndRound(_ *gbxclient.GbxClient, endRoundEvent events
 			Name: team.Name,
 			Points: team.RoundPoints,
 			TotalPoints: team.MapPoints,
-			Players: []database.PlayerRound{},
+			Players: []database.PlayerMatchRound{},
 		})
 	}
 
@@ -157,10 +203,11 @@ func (m *RecorderPlugin) onEndRound(_ *gbxclient.GbxClient, endRoundEvent events
 					playerID = &playerDB.ID
 				}
 
-				teams[i].Players = append(teams[i].Players, database.PlayerRound{
+				teams[i].Players = append(teams[i].Players, database.PlayerMatchRound{
 					ID: primitive.NewObjectID(),
 					PlayerID: playerID,
 					Login: player.Login,
+					AccountId: player.AccountId,
 					Points: player.RoundPoints,
 					TotalPoints: player.MapPoints,
 					Time: player.PrevRaceTime,
@@ -171,16 +218,16 @@ func (m *RecorderPlugin) onEndRound(_ *gbxclient.GbxClient, endRoundEvent events
 		}
 	}
 
-	round := database.Round{
+	round := database.MatchRound{
 		ID: primitive.NewObjectID(),
-		RoundNumber: len(m.MatchRecording.Maps[last].Rounds) + 1,
+		RoundNumber: len(m.Recording.Maps[last].Rounds) + 1,
 		Teams: teams,
 	}
 
-	m.MatchRecording.Maps[last].Rounds = append(m.MatchRecording.Maps[last].Rounds, round)
-	m.MatchRecording.Update(*m.MatchRecording)
+	m.Recording.Maps[last].MatchRounds = append(m.Recording.Maps[last].MatchRounds, round)
+	m.Recording.Update(*m.Recording)
 
-	_, err := database.UpdateMatchRecording(context.Background(), *m.MatchRecording)
+	_, err := database.UpdateRecording(context.Background(), *m.Recording)
 	if err != nil {
 		zap.L().Error("Failed to update match recording", zap.Error(err))
 		return
