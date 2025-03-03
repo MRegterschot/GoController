@@ -78,6 +78,9 @@ func (plm *PlayerManager) GetPlayer(login string) *models.Player {
 		TMPlayerDetailedInfo: detailedInfo,
 		IsAdmin:              GetGoController().IsAdmin(login),
 	}
+
+	GetDatabaseManager().SyncPlayer(player)
+
 	plm.Players = append(plm.Players, player)
 	return &plm.Players[len(plm.Players)-1]
 }
