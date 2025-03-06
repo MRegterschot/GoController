@@ -42,6 +42,13 @@ func (m *ScriptPlugin) Load() error {
 		Help:     "Get mode settings",
 	})
 
+	commandManager.AddCommand(models.ChatCommand{
+		Name:     "//loadmatchsettings",
+		Callback: m.loadMatchSettingsCommand,
+		Admin:    true,
+		Help:     "Load match settings",
+	})
+
 	return nil
 }
 
@@ -103,6 +110,22 @@ func (m *ScriptPlugin) modeSettingsCommand(login string, args []string) {
 	}
 
 	go m.GoController.Chat(message, login)
+}
+
+func (m *ScriptPlugin) loadMatchSettingsCommand(login string, args []string) {
+	if len(args) < 1 {
+		go m.GoController.Chat("Usage: //loadmatchsettings [*filename]", login)
+		return
+	}
+
+	filename := args[0]
+	_, err := m.GoController.Server.Client.LoadMatchSettings("MatchSettings/" + filename)
+	if err != nil {
+		go m.GoController.Chat("Error loading match settings: "+err.Error(), login)
+		return
+	}
+
+	go m.GoController.Chat("Match settings loaded", login)
 }
 
 func init() {

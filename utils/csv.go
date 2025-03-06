@@ -15,7 +15,7 @@ func ExportCSV(filePath string, data [][]string) error {
 		return err
 	}
 
-	file, err := os.OpenFile(filePath, os.O_RDWR, 0644)
+	file, err := os.OpenFile(filePath, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		zap.L().Error("Failed to open file", zap.Error(err))
 		return err

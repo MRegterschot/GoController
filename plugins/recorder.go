@@ -23,7 +23,7 @@ type RecorderPlugin struct {
 	Loaded       bool
 
 	IsRecording bool
-	Recording *database.Recording
+	Recording   *database.Recording
 }
 
 func CreateRecorderPlugin() *RecorderPlugin {
@@ -61,15 +61,20 @@ func (m *RecorderPlugin) Unload() error {
 
 func (m *RecorderPlugin) startRecording(name string) {
 	mode := m.GoController.MapManager.CurrentMode
-	if mode == "Trackmania/TM_Rounds_Online.Script.txt" || mode == "Trackmania/TM_TimeAttack_Online.Script.txt" {
+	if mode == "Trackmania/TM_TimeAttack_Online.Script.txt" {
 		m.GoController.Server.Client.OnPlayerFinish = append(m.GoController.Server.Client.OnPlayerFinish, gbxclient.GbxCallbackStruct[events.PlayerWayPointEventArgs]{
 			Key:  "recording",
 			Call: m.onPlayerFinish})
-		m.createRecording(name, "Rounds")
-		} else {
-		m.GoController.Server.Client.OnEndRound = append(m.GoController.Server.Client.OnEndRound, gbxclient.GbxCallbackStruct[events.ScoresEventArgs]{
+		m.createRecording(name, "TimeAttack")
+	} else if mode == "Trackmania/TM_Rounds_Online.Script.txt" {
+		m.GoController.Server.Client.OnPreEndRound = append(m.GoController.Server.Client.OnPreEndRound, gbxclient.GbxCallbackStruct[events.ScoresEventArgs]{
 			Key:  "recording",
-			Call: m.onEndRound})
+			Call: m.onPreEndRound})
+		m.createRecording(name, "Rounds")
+	} else {
+		m.GoController.Server.Client.OnPreEndRound = append(m.GoController.Server.Client.OnPreEndRound, gbxclient.GbxCallbackStruct[events.ScoresEventArgs]{
+			Key:  "recording",
+			Call: m.onPreEndRoundMatch})
 		m.createRecording(name, "Match")
 	}
 
@@ -101,13 +106,13 @@ func (m *RecorderPlugin) stopRecording() {
 		}
 	}
 
-	for i, callback := range m.GoController.Server.Client.OnEndRound {
+	for i, callback := range m.GoController.Server.Client.OnPreEndRound {
 		if callback.Key == "recording" {
-			m.GoController.Server.Client.OnEndRound = append(m.GoController.Server.Client.OnEndRound[:i], m.GoController.Server.Client.OnEndRound[i+1:]...)
+			m.GoController.Server.Client.OnPreEndRound = append(m.GoController.Server.Client.OnPreEndRound[:i], m.GoController.Server.Client.OnPreEndRound[i+1:]...)
 		}
 	}
 
-	m.IsRecording = false	
+	m.IsRecording = false
 	zap.L().Info("Recording stopped")
 }
 
@@ -116,20 +121,20 @@ func (m *RecorderPlugin) onPlayerFinish(_ *gbxclient.GbxClient, playerFinishEven
 
 	if len(m.Recording.Maps) == 0 {
 		mapRecords := database.MapRecords{
-			ID: primitive.NewObjectID(),
-			MapID: mapId,
-			Rounds: []database.PlayerRound{},
+			ID:       primitive.NewObjectID(),
+			MapID:    mapId,
+			Finishes: []database.PlayerFinish{},
 		}
-	
+
 		m.Recording.Maps = append(m.Recording.Maps, mapRecords)
 	}
 
 	last := len(m.Recording.Maps) - 1
 	if m.Recording.Maps[last].MapID != mapId {
 		mapRecords := database.MapRecords{
-			ID: primitive.NewObjectID(),
-			MapID: mapId,
-			Rounds: []database.PlayerRound{},
+			ID:       primitive.NewObjectID(),
+			MapID:    mapId,
+			Finishes: []database.PlayerFinish{},
 		}
 
 		m.Recording.Maps = append(m.Recording.Maps, mapRecords)
@@ -143,14 +148,79 @@ func (m *RecorderPlugin) onPlayerFinish(_ *gbxclient.GbxClient, playerFinishEven
 		playerID = &playerDB.ID
 	}
 
-	round := database.PlayerRound{
-		ID: primitive.NewObjectID(),
-		PlayerID: playerID,
-		Login: playerFinishEvent.Login,
-		AccountId: playerFinishEvent.AccountId,
-		Time: playerFinishEvent.RaceTime,
+	playerFinish := database.PlayerFinish{
+		ID:          primitive.NewObjectID(),
+		PlayerID:    playerID,
+		Login:       playerFinishEvent.Login,
+		AccountId:   playerFinishEvent.AccountId,
+		Time:        playerFinishEvent.RaceTime,
 		Checkpoints: playerFinishEvent.CurLapCheckpoints,
-		Timestamp: primitive.NewDateTimeFromTime(time.Now()),
+		Timestamp:   primitive.NewDateTimeFromTime(time.Now()),
+	}
+
+	m.Recording.Maps[last].Finishes = append(m.Recording.Maps[last].Finishes, playerFinish)
+	m.Recording.Update(*m.Recording)
+
+	_, err := database.UpdateRecording(context.Background(), *m.Recording)
+	if err != nil {
+		zap.L().Error("Failed to update match recording", zap.Error(err))
+		return
+	}
+
+	zap.L().Info("Finish recorded")
+}
+
+func (m *RecorderPlugin) onPreEndRound(_ *gbxclient.GbxClient, preEndRoundEvent events.ScoresEventArgs) {
+	fmt.Println(preEndRoundEvent)
+	mapId := m.GoController.MapManager.CurrentMapDB.ID
+
+	if len(m.Recording.Maps) == 0 {
+		mapRecords := database.MapRecords{
+			ID:     primitive.NewObjectID(),
+			MapID:  mapId,
+			Rounds: []database.Round{},
+		}
+
+		m.Recording.Maps = append(m.Recording.Maps, mapRecords)
+	}
+
+	last := len(m.Recording.Maps) - 1
+	if m.Recording.Maps[last].MapID != mapId {
+		mapRecords := database.MapRecords{
+			ID:     primitive.NewObjectID(),
+			MapID:  mapId,
+			Rounds: []database.Round{},
+		}
+
+		m.Recording.Maps = append(m.Recording.Maps, mapRecords)
+		last++
+	}
+
+	var playerRounds []database.PlayerRound
+	for _, player := range preEndRoundEvent.Players {
+		var playerID *primitive.ObjectID
+		if playerDB, err := database.GetPlayerByLogin(context.Background(), player.Login); err != nil {
+			zap.L().Error("Player not found", zap.String("login", player.Login))
+		} else {
+			playerID = &playerDB.ID
+		}
+
+		playerRounds = append(playerRounds, database.PlayerRound{
+			ID:          primitive.NewObjectID(),
+			PlayerID:    playerID,
+			Login:       player.Login,
+			AccountId:   player.AccountId,
+			Points:      player.RoundPoints,
+			TotalPoints: player.MapPoints + player.RoundPoints,
+			Time:        player.PrevRaceTime,
+			Checkpoints: player.PrevRaceCheckpoints,
+		})
+	}
+
+	round := database.Round{
+		ID:          primitive.NewObjectID(),
+		RoundNumber: len(m.Recording.Maps[last].Rounds) + 1,
+		Players:     playerRounds,
 	}
 
 	m.Recording.Maps[last].Rounds = append(m.Recording.Maps[last].Rounds, round)
@@ -165,44 +235,44 @@ func (m *RecorderPlugin) onPlayerFinish(_ *gbxclient.GbxClient, playerFinishEven
 	zap.L().Info("Round recorded")
 }
 
-func (m *RecorderPlugin) onEndRound(_ *gbxclient.GbxClient, endRoundEvent events.ScoresEventArgs) {
+func (m *RecorderPlugin) onPreEndRoundMatch(_ *gbxclient.GbxClient, preEndRoundEvent events.ScoresEventArgs) {
 	mapId := m.GoController.MapManager.CurrentMapDB.ID
 
 	if len(m.Recording.Maps) == 0 {
 		mapRecords := database.MapRecords{
-			ID: primitive.NewObjectID(),
-			MapID: mapId,
-			MatchRounds: []database.MatchRound{},
+			ID:     primitive.NewObjectID(),
+			MapID:  mapId,
+			Rounds: []database.Round{},
 		}
-	
+
 		m.Recording.Maps = append(m.Recording.Maps, mapRecords)
 	}
 
 	last := len(m.Recording.Maps) - 1
 	if m.Recording.Maps[last].MapID != mapId {
 		mapRecords := database.MapRecords{
-			ID: primitive.NewObjectID(),
-			MapID: mapId,
+			ID:          primitive.NewObjectID(),
+			MapID:       mapId,
 			MatchRounds: []database.MatchRound{},
 		}
 
 		m.Recording.Maps = append(m.Recording.Maps, mapRecords)
 		last++
 	}
-	
+
 	var teams []database.Team
-	for _, team := range endRoundEvent.Teams {
+	for _, team := range preEndRoundEvent.Teams {
 		teams = append(teams, database.Team{
-			ID: primitive.NewObjectID(),
-			TeamID: team.ID,
-			Name: team.Name,
-			Points: team.RoundPoints,
+			ID:          primitive.NewObjectID(),
+			TeamID:      team.ID,
+			Name:        team.Name,
+			Points:      team.RoundPoints,
 			TotalPoints: team.MapPoints,
-			Players: []database.PlayerMatchRound{},
+			Players:     []database.PlayerRound{},
 		})
 	}
 
-	for _, player := range endRoundEvent.Players {
+	for _, player := range preEndRoundEvent.Players {
 		for i, team := range teams {
 			if team.TeamID == player.Team {
 				var playerID *primitive.ObjectID
@@ -212,14 +282,14 @@ func (m *RecorderPlugin) onEndRound(_ *gbxclient.GbxClient, endRoundEvent events
 					playerID = &playerDB.ID
 				}
 
-				teams[i].Players = append(teams[i].Players, database.PlayerMatchRound{
-					ID: primitive.NewObjectID(),
-					PlayerID: playerID,
-					Login: player.Login,
-					AccountId: player.AccountId,
-					Points: player.RoundPoints,
-					TotalPoints: player.MapPoints,
-					Time: player.PrevRaceTime,
+				teams[i].Players = append(teams[i].Players, database.PlayerRound{
+					ID:          primitive.NewObjectID(),
+					PlayerID:    playerID,
+					Login:       player.Login,
+					AccountId:   player.AccountId,
+					Points:      player.RoundPoints,
+					TotalPoints: player.MapPoints + player.RoundPoints,
+					Time:        player.PrevRaceTime,
 					Checkpoints: player.PrevRaceCheckpoints,
 				})
 				break
@@ -227,13 +297,13 @@ func (m *RecorderPlugin) onEndRound(_ *gbxclient.GbxClient, endRoundEvent events
 		}
 	}
 
-	round := database.MatchRound{
-		ID: primitive.NewObjectID(),
-		RoundNumber: len(m.Recording.Maps[last].Rounds) + 1,
-		Teams: teams,
+	matchRound := database.MatchRound{
+		ID:          primitive.NewObjectID(),
+		RoundNumber: len(m.Recording.Maps[last].MatchRounds) + 1,
+		Teams:       teams,
 	}
 
-	m.Recording.Maps[last].MatchRounds = append(m.Recording.Maps[last].MatchRounds, round)
+	m.Recording.Maps[last].MatchRounds = append(m.Recording.Maps[last].MatchRounds, matchRound)
 	m.Recording.Update(*m.Recording)
 
 	_, err := database.UpdateRecording(context.Background(), *m.Recording)
@@ -242,7 +312,7 @@ func (m *RecorderPlugin) onEndRound(_ *gbxclient.GbxClient, endRoundEvent events
 		return
 	}
 
-	zap.L().Info("Round recorded")
+	zap.L().Info("Match round recorded")
 }
 
 func (m *RecorderPlugin) recorderCommand(login string, args []string) {
@@ -251,7 +321,6 @@ func (m *RecorderPlugin) recorderCommand(login string, args []string) {
 		return
 	}
 
-	
 	switch args[0] {
 	case "start":
 		if m.IsRecording {
@@ -273,7 +342,7 @@ func (m *RecorderPlugin) recorderCommand(login string, args []string) {
 		}
 
 		m.stopRecording()
-		go m.GoController.Chat("Recording stopped with id " + m.Recording.ID.Hex(), login)
+		go m.GoController.Chat("Recording stopped with id "+m.Recording.ID.Hex(), login)
 	default:
 		go m.GoController.Chat("Usage: //recorder [start | stop]", login)
 	}
@@ -302,29 +371,84 @@ func (m *RecorderPlugin) exportToCSVCommand(login string, args []string) {
 	data := [][]string{
 		{"Time", "Track", "PlayerID", "PlayerName", "Record", "RoundNumber", "Checkpoints"},
 	}
-	for _, mapRecords := range recording.Maps {
-		for _, round := range mapRecords.Rounds {
-			checkpoints := strings.Trim(fmt.Sprint(round.Checkpoints), "[]")
-			data = append(data, []string{
-				fmt.Sprint(round.Timestamp.Time().Unix()),
-				mapRecords.MapID.Hex(),
-				round.AccountId,
-				round.Login,
-				fmt.Sprint(round.Time),
-				"",
-				checkpoints,
-			})
+
+	switch recording.Type {
+	case "TimeAttack":
+		for _, mapRecords := range recording.Maps {
+			for _, finish := range mapRecords.Finishes {
+				checkpoints := strings.Trim(fmt.Sprint(finish.Checkpoints), "[]")
+				mapName := "Unknown"
+				mapDB, err := database.GetMapByID(context.Background(), mapRecords.MapID)
+				if err == nil {
+					mapName = mapDB.Name
+				}
+				data = append(data, []string{
+					fmt.Sprint(finish.Timestamp.Time().Unix()),
+					mapName,
+					finish.AccountId,
+					finish.Login,
+					fmt.Sprint(finish.Time),
+					"",
+					checkpoints,
+				})
+			}
+		}
+	case "Rounds":
+		for _, mapRecords := range recording.Maps {
+			for _, round := range mapRecords.Rounds {
+				for _, player := range round.Players {
+					checkpoints := strings.Trim(fmt.Sprint(player.Checkpoints), "[]")
+					mapName := "Unknown"
+					mapDB, err := database.GetMapByID(context.Background(), mapRecords.MapID)
+					if err == nil {
+						mapName = mapDB.Name
+					}
+					data = append(data, []string{
+						"",
+						mapName,
+						player.AccountId,
+						player.Login,
+						fmt.Sprint(player.Time),
+						fmt.Sprint(round.RoundNumber),
+						checkpoints,
+					})
+				}
+			}
+		}
+	case "Match":
+		for _, mapRecords := range recording.Maps {
+			for _, round := range mapRecords.MatchRounds {
+				for _, team := range round.Teams {
+					for _, player := range team.Players {
+						checkpoints := strings.Trim(fmt.Sprint(player.Checkpoints), "[]")
+						mapName := "Unknown"
+						mapDB, err := database.GetMapByID(context.Background(), mapRecords.MapID)
+						if err == nil {
+							mapName = mapDB.Name
+						}
+						data = append(data, []string{
+							"",
+							mapName,
+							player.AccountId,
+							player.Login,
+							fmt.Sprint(player.Time),
+							fmt.Sprint(round.RoundNumber),
+							checkpoints,
+						})
+					}
+				}
+			}
 		}
 	}
 
 	filePath := "recording_" + recordingID + ".csv"
-	if err := utils.ExportCSV("./exports/" + filePath, data); err != nil {
+	if err := utils.ExportCSV("./exports/"+filePath, data); err != nil {
 		zap.L().Error("Failed to export to CSV", zap.Error(err))
 		go m.GoController.Chat("Failed to export to CSV", login)
 		return
 	}
 
-	go m.GoController.Chat("Exported to " + filePath, login)
+	go m.GoController.Chat("Exported to "+filePath, login)
 }
 
 func init() {
