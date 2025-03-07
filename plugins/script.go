@@ -7,6 +7,7 @@ import (
 
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
+	"github.com/MRegterschot/GoController/ui"
 )
 
 type ScriptPlugin struct {
@@ -110,6 +111,11 @@ func (m *ScriptPlugin) modeSettingsCommand(login string, args []string) {
 	}
 
 	go m.GoController.Chat(message, login)
+
+	window := ui.NewWindow(&login)
+	window.Title = "Mode settings"
+	
+	go window.Display()
 }
 
 func (m *ScriptPlugin) loadMatchSettingsCommand(login string, args []string) {

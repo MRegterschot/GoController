@@ -27,7 +27,7 @@ type Manialink struct {
 	Size         UISize
 	Pos          UIPos
 	Template     string
-	Actions      map[string]ManialinkAction
+	Actions      map[string]string
 	Data         interface{}
 	Recipient    *string
 	Title        string
@@ -47,7 +47,7 @@ func NewManialink(login *string) *Manialink {
 			Z: 1,
 		},
 		Template:  "manialink.jet",
-		Actions:   make(map[string]ManialinkAction),
+		Actions:   make(map[string]string),
 		Data:      nil,
 		Recipient: login,
 		Title:     "",
@@ -58,9 +58,18 @@ func NewManialink(login *string) *Manialink {
 func (ml *Manialink) Display() {
 	if ml.FirstDisplay {
 		ml.FirstDisplay = false
+		GetUIManager().DisplayManialink(ml)
 	} else {
-		
+		GetUIManager().RefreshManialink(ml)
 	}
+}
+
+func (ml *Manialink) Hide() {
+	GetUIManager().HideManialink(ml)
+}
+
+func (ml *Manialink) Destroy() {
+	GetUIManager().DestroyManialink(ml)
 }
 
 func (ml *Manialink) Render() (string, error) {

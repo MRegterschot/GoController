@@ -39,7 +39,13 @@ var (
 
 func GetUIManager() *UIManager {
 	uiOnce.Do(func() {
-		uiInstance = &UIManager{}
+		uiInstance = &UIManager{
+			Actions:          make(map[string]ManialinkAction),
+			PublicManialinks: make(map[string]*Manialink),
+			PlayerManialinks: make(map[string]map[string]*Manialink),
+			Modules:          make([]UIModule, 0),
+			ScriptCalls:      make([]string, 0),
+		}
 	})
 	return uiInstance
 }
@@ -48,6 +54,9 @@ func (uim *UIManager) Init() {
 	zap.L().Info("Initializing UIManager")
 
 	uim.Templates = jet.NewSet(jet.NewOSFileSystemLoader("./templates"))
+	uim.Templates.AddGlobal("Colors", map[string]string{
+		"Primary":   "0C6",
+	})
 
 	GetClient().OnPlayerManialinkPageAnswer = append(GetClient().OnPlayerManialinkPageAnswer, gbxclient.GbxCallbackStruct[events.PlayerManialinkPageAnswerEventArgs]{
 		Key:  "uimanager",
@@ -198,8 +207,9 @@ func (uim *UIManager) RemoveAction(uuid string) {
 }
 
 func (uim *UIManager) onManialinkAnswer(manialinkAnswerEvent events.PlayerManialinkPageAnswerEventArgs) {
-	fmt.Println(manialinkAnswerEvent)
+	fmt.Println(manialinkAnswerEvent.Answer, uim.Actions)
 	if action, exists := uim.Actions[manialinkAnswerEvent.Answer]; exists {
+		fmt.Println(action)
 		action.Callback(manialinkAnswerEvent.Login, action.Data, manialinkAnswerEvent.Entries)
 	}
 }
@@ -242,6 +252,9 @@ func (uim *UIManager) DisplayManialink(ml *Manialink) {
 	if ml.Recipient == nil {
 		uim.PublicManialinks[ml.ID] = ml
 	} else {
+		if _, ok := uim.PlayerManialinks[*ml.Recipient]; !ok {
+			uim.PlayerManialinks[*ml.Recipient] = make(map[string]*Manialink)
+		}
 		uim.PlayerManialinks[*ml.Recipient][ml.ID] = ml
 	}
 
@@ -267,6 +280,8 @@ func (uim *UIManager) HideManialink(ml *Manialink) {
 func (uim *UIManager) DestroyManialink(ml *Manialink) {
 	zap.L().Debug("Destroying manialink", zap.String("id", ml.ID))
 
+	uim.HideManialink(ml)
+
 	// Remove actions
 	for key := range ml.Actions {
 		uim.RemoveAction(key)
@@ -274,12 +289,12 @@ func (uim *UIManager) DestroyManialink(ml *Manialink) {
 
 	ml.Data = nil
 	if ml.Recipient != nil {
-		uim.PlayerManialinks[*ml.Recipient] = utils.Remove(uim.PlayerManialinks[*ml.Recipient], ml).(map[string]*Manialink)
-	} else {
-		if updatedLinks, ok := utils.Remove(uim.PublicManialinks, ml).(map[string]*Manialink); ok {
-			uim.PublicManialinks = updatedLinks
-		} else {
-			zap.L().Error("Error removing manialink from PublicManiaLinks")
+		for key, value := range uim.PlayerManialinks[*ml.Recipient] {
+			if value.ID == ml.ID {
+				delete(uim.PlayerManialinks[*ml.Recipient], key)
+			}
 		}
+	} else {
+		delete(uim.PublicManialinks, ml.ID)
 	}
 }
