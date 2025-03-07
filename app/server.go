@@ -107,5 +107,7 @@ func (s *Server) onEcho(echoEvent events.EchoEventArgs) {
 	if echoEvent.Internal == "GoController" && public != GetGoController().StartTime {
 		zap.L().Fatal("Another instance of GoController has started! Exiting...")
 		os.Exit(1)
+	} else if echoEvent.Internal == "GoController" && public == GetGoController().StartTime {
+		GetGoController().AfterStart()
 	}
 }

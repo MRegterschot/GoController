@@ -1,11 +1,13 @@
-package models
+package app
 
 import (
+	"bytes"
+
 	"github.com/google/uuid"
 )
 
 type ManialinkAction struct {
-	Callback func()
+	Callback func(string, interface{}, interface{})
 	Data     interface{}
 }
 
@@ -59,4 +61,29 @@ func (ml *Manialink) Display() {
 	} else {
 		
 	}
+}
+
+func (ml *Manialink) Render() (string, error) {
+	t, err := GetUIManager().Templates.GetTemplate(ml.Template)
+	if err != nil {
+		return "", err
+	}
+
+	data := map[string]interface{}{
+		"ID": 	ml.ID,
+		"Size": ml.Size,
+		"Pos": 	ml.Pos,
+		"Actions": ml.Actions,
+		"Data": ml.Data,
+		"Title": ml.Title,
+		"Recipient": ml.Recipient,
+	}
+
+	var buf bytes.Buffer
+	err = t.Execute(&buf, nil, data)
+	if err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
 }

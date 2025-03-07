@@ -109,6 +109,10 @@ func (c *GoController) Start() {
 	zap.L().Info("GoController started successfully")
 }
 
+func (c *GoController) AfterStart() {
+	c.UIManager.AfterInit()
+}
+
 // Sends a chat message to the server
 func (c *GoController) Chat(message string, login ...string) {
 	if len(login) > 0 {

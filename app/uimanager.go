@@ -8,23 +8,26 @@ import (
 	"github.com/CloudyKit/jet/v6"
 	"github.com/MRegterschot/GbxRemoteGo/events"
 	"github.com/MRegterschot/GbxRemoteGo/gbxclient"
-	"github.com/MRegterschot/GoController/models"
+	"github.com/MRegterschot/GoController/utils"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
 type UIModule struct {
-	ID       string     `json:"id"`
-	Position [2]float64 `json:"position"`
-	Scale    int        `json:"scale"`
-	Visible  bool       `json:"visible"`
+	ID             string     `json:"id"`
+	Position       [2]float64 `json:"position"`
+	PositionUpdate bool       `json:"position_update"`
+	Scale          int        `json:"scale"`
+	ScaleUpdate    bool       `json:"scale_update"`
+	Visible        bool       `json:"visible"`
+	VisibleUpdate  bool       `json:"visible_update"`
 }
 
 type UIManager struct {
 	Templates        *jet.Set
-	Actions          map[string]models.ManialinkAction
-	PublicManiaLinks map[string]*models.Manialink
-	PlayerManiaLinks map[string][]*models.Manialink
+	Actions          map[string]ManialinkAction
+	PublicManialinks map[string]*Manialink
+	PlayerManialinks map[string]map[string]*Manialink
 	Modules          []UIModule
 	ScriptCalls      []string
 }
@@ -67,12 +70,12 @@ func (uim *UIManager) Init() {
 	zap.L().Info("UIManager initialized")
 }
 
-func (uim *UIManager) DisplayManialink(ml *models.Manialink) {
-	zap.L().Info("Displaying manialink", zap.String("id", ml.ID))
-}
-
-func (uim *UIManager) RefreshManialink(ml *models.Manialink) {
-	zap.L().Info("Refreshing manialink", zap.String("id", ml.ID))
+func (uim *UIManager) AfterInit() {
+	uim.setUIProperty("Race_RespawnHelper", "Visible", false)
+	uim.setUIProperty("Race_DisplayMessage", "Visible", false)
+	uim.setUIProperty("Race_BestRaceViewer", "Visible", false)
+	uim.setUIProperty("Race_LapsCounter", "Visible", false)
+	uim.sendUIProperties()
 }
 
 func (uim *UIManager) getUIProperties() {
@@ -81,16 +84,41 @@ func (uim *UIManager) getUIProperties() {
 	GetClient().TriggerModeScriptEventArray("Common.UIModules.GetProperties", []string{uuid})
 }
 
-func (uim *UIManager) onManialinkAnswer(manialinkAnswerEvent events.PlayerManialinkPageAnswerEventArgs) {
-	fmt.Println(manialinkAnswerEvent)
+func (uim *UIManager) setUIProperty(ID string, property string, value interface{}) {
+	for i := range uim.Modules {
+		if uim.Modules[i].ID == ID {
+			switch property {
+			case "Position":
+				uim.Modules[i].Position = value.([2]float64)
+				uim.Modules[i].PositionUpdate = true
+			case "Scale":
+				uim.Modules[i].Scale = value.(int)
+				uim.Modules[i].ScaleUpdate = true
+			case "Visible":
+				uim.Modules[i].Visible = value.(bool)
+				uim.Modules[i].VisibleUpdate = true
+			}
+
+			return
+		}
+	}
+
+	zap.L().Error("Module not found", zap.String("ID", ID))
 }
 
-func (uim *UIManager) onPlayerConnect(playerConnectEvent events.PlayerConnectEventArgs) {
-	fmt.Println(playerConnectEvent)
-}
+func (uim *UIManager) sendUIProperties() {
+	var moduleProperties struct {
+		UIModules []UIModule `json:"uimodules"`
+	}
+	moduleProperties.UIModules = uim.Modules
 
-func (uim *UIManager) onPlayerDisconnect(playerDisconnectEvent events.PlayerDisconnectEventArgs) {
-	fmt.Println(playerDisconnectEvent)
+	jsonBytes, err := json.Marshal(moduleProperties)
+	if err != nil {
+		zap.L().Error("Error marshalling module properties", zap.Error(err))
+		return
+	}
+
+	GetClient().TriggerModeScriptEventArray("Common.UIModules.SetProperties", []string{string(jsonBytes)})
 }
 
 func (uim *UIManager) onUIModulesProperties(event interface{}) {
@@ -126,6 +154,11 @@ func (uim *UIManager) onUIModulesProperties(event interface{}) {
 		return
 	}
 
+	if !utils.Includes(uim.ScriptCalls, moduleProperties.ResponseID) {
+		return
+	}
+
+	uim.ScriptCalls = utils.Remove(uim.ScriptCalls, moduleProperties.ResponseID).([]string)
 	uim.Modules = moduleProperties.UIModules
 
 	var reset []string
@@ -143,6 +176,110 @@ func (uim *UIManager) onUIModulesProperties(event interface{}) {
 		zap.L().Error("Error marshalling reset request", zap.Error(err))
 		return
 	}
-	
+
 	GetClient().TriggerModeScriptEventArray("Common.UIModules.ResetProperties", []string{string(jsonBytes)})
+}
+
+func (uim *UIManager) AddAction(callback func(string, interface{}, interface{}), data interface{}) string {
+	uuid := uuid.NewString()
+	uim.Actions[uuid] = ManialinkAction{
+		Callback: callback,
+		Data:     data,
+	}
+
+	zap.L().Debug("Added action", zap.String("uuid", uuid))
+
+	return uuid
+}
+
+func (uim *UIManager) RemoveAction(uuid string) {
+	delete(uim.Actions, uuid)
+	zap.L().Debug("Removed action", zap.String("uuid", uuid))
+}
+
+func (uim *UIManager) onManialinkAnswer(manialinkAnswerEvent events.PlayerManialinkPageAnswerEventArgs) {
+	fmt.Println(manialinkAnswerEvent)
+	if action, exists := uim.Actions[manialinkAnswerEvent.Answer]; exists {
+		action.Callback(manialinkAnswerEvent.Login, action.Data, manialinkAnswerEvent.Entries)
+	}
+}
+
+func (uim *UIManager) onPlayerConnect(playerConnectEvent events.PlayerConnectEventArgs) {
+	for _, manialink := range uim.PublicManialinks {
+		render, err := manialink.Render()
+		if err != nil {
+			zap.L().Error("Error rendering manialink", zap.Error(err))
+			continue
+		}
+		xml := fmt.Sprintf("<manialinks>%s</manialinks>", render)
+		GetClient().SendDisplayManialinkPageToLogin(playerConnectEvent.Login, gbxclient.CData(xml), 0, false)
+	}
+}
+
+func (uim *UIManager) onPlayerDisconnect(playerDisconnectEvent events.PlayerDisconnectEventArgs) {
+	for _, manialink := range uim.PlayerManialinks[playerDisconnectEvent.Login] {
+		uim.DestroyManialink(manialink)
+	}
+}
+
+func (uim *UIManager) sendManialink(ml *Manialink) {
+	render, err := ml.Render()
+	if err != nil {
+		zap.L().Error("Error rendering manialink", zap.Error(err))
+		return
+	}
+
+	xml := fmt.Sprintf(`<?xml version="1.0" encoding="UTF-8"?><manialinks>%s</manialinks>`, render)
+
+	if ml.Recipient == nil {
+		GetClient().SendDisplayManialinkPage(gbxclient.CData(xml), 0, false)
+	} else {
+		GetClient().SendDisplayManialinkPageToLogin(*ml.Recipient, gbxclient.CData(xml), 0, false)
+	}
+}
+
+func (uim *UIManager) DisplayManialink(ml *Manialink) {
+	if ml.Recipient == nil {
+		uim.PublicManialinks[ml.ID] = ml
+	} else {
+		uim.PlayerManialinks[*ml.Recipient][ml.ID] = ml
+	}
+
+	uim.sendManialink(ml)
+}
+
+func (uim *UIManager) RefreshManialink(ml *Manialink) {
+	uim.sendManialink(ml)
+}
+
+func (uim *UIManager) HideManialink(ml *Manialink) {
+	zap.L().Debug("Hiding manialink", zap.String("id", ml.ID))
+	xml := fmt.Sprintf(`<?xml version="1.0" encoding="UTF-8"?>
+<manialinks><manialink id="%s"></manialink></manialinks>`, ml.ID)
+
+	if ml.Recipient == nil {
+		GetClient().SendDisplayManialinkPage(gbxclient.CData(xml), 0, false)
+	} else {
+		GetClient().SendDisplayManialinkPageToLogin(*ml.Recipient, gbxclient.CData(xml), 0, false)
+	}
+}
+
+func (uim *UIManager) DestroyManialink(ml *Manialink) {
+	zap.L().Debug("Destroying manialink", zap.String("id", ml.ID))
+
+	// Remove actions
+	for key := range ml.Actions {
+		uim.RemoveAction(key)
+	}
+
+	ml.Data = nil
+	if ml.Recipient != nil {
+		uim.PlayerManialinks[*ml.Recipient] = utils.Remove(uim.PlayerManialinks[*ml.Recipient], ml).(map[string]*Manialink)
+	} else {
+		if updatedLinks, ok := utils.Remove(uim.PublicManialinks, ml).(map[string]*Manialink); ok {
+			uim.PublicManialinks = updatedLinks
+		} else {
+			zap.L().Error("Error removing manialink from PublicManiaLinks")
+		}
+	}
 }
