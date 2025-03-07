@@ -207,9 +207,7 @@ func (uim *UIManager) RemoveAction(uuid string) {
 }
 
 func (uim *UIManager) onManialinkAnswer(manialinkAnswerEvent events.PlayerManialinkPageAnswerEventArgs) {
-	fmt.Println(manialinkAnswerEvent.Answer, uim.Actions)
 	if action, exists := uim.Actions[manialinkAnswerEvent.Answer]; exists {
-		fmt.Println(action)
 		action.Callback(manialinkAnswerEvent.Login, action.Data, manialinkAnswerEvent.Entries)
 	}
 }

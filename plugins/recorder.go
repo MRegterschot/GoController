@@ -171,7 +171,6 @@ func (m *RecorderPlugin) onPlayerFinish(playerFinishEvent events.PlayerWayPointE
 }
 
 func (m *RecorderPlugin) onPreEndRound(preEndRoundEvent events.ScoresEventArgs) {
-	fmt.Println(preEndRoundEvent)
 	mapId := m.GoController.MapManager.CurrentMapDB.ID
 
 	if len(m.Recording.Maps) == 0 {
