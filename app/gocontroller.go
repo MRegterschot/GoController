@@ -6,6 +6,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/MRegterschot/GbxRemoteGo/gbxclient"
 	"github.com/MRegterschot/GoController/utils"
 	"go.uber.org/zap"
 )
@@ -28,6 +29,11 @@ type GoController struct {
 var (
 	gcInstance *GoController
 	gcOnce     sync.Once
+)
+
+var (
+	cInstance *gbxclient.GbxClient
+	cOnce     sync.Once
 )
 
 func GetGoController() *GoController {
@@ -55,6 +61,13 @@ func GetGoController() *GoController {
 		}
 	})
 	return gcInstance
+}
+
+func GetClient() *gbxclient.GbxClient {
+	cOnce.Do(func() {
+		cInstance = GetGoController().Server.Client
+	})
+	return cInstance
 }
 
 // Starts the GoController

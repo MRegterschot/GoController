@@ -116,7 +116,7 @@ func (m *RecorderPlugin) stopRecording() {
 	zap.L().Info("Recording stopped")
 }
 
-func (m *RecorderPlugin) onPlayerFinish(_ *gbxclient.GbxClient, playerFinishEvent events.PlayerWayPointEventArgs) {
+func (m *RecorderPlugin) onPlayerFinish(playerFinishEvent events.PlayerWayPointEventArgs) {
 	mapId := m.GoController.MapManager.CurrentMapDB.ID
 
 	if len(m.Recording.Maps) == 0 {
@@ -170,7 +170,7 @@ func (m *RecorderPlugin) onPlayerFinish(_ *gbxclient.GbxClient, playerFinishEven
 	zap.L().Info("Finish recorded")
 }
 
-func (m *RecorderPlugin) onPreEndRound(_ *gbxclient.GbxClient, preEndRoundEvent events.ScoresEventArgs) {
+func (m *RecorderPlugin) onPreEndRound(preEndRoundEvent events.ScoresEventArgs) {
 	fmt.Println(preEndRoundEvent)
 	mapId := m.GoController.MapManager.CurrentMapDB.ID
 
@@ -235,7 +235,7 @@ func (m *RecorderPlugin) onPreEndRound(_ *gbxclient.GbxClient, preEndRoundEvent 
 	zap.L().Info("Round recorded")
 }
 
-func (m *RecorderPlugin) onPreEndRoundMatch(_ *gbxclient.GbxClient, preEndRoundEvent events.ScoresEventArgs) {
+func (m *RecorderPlugin) onPreEndRoundMatch(preEndRoundEvent events.ScoresEventArgs) {
 	mapId := m.GoController.MapManager.CurrentMapDB.ID
 
 	if len(m.Recording.Maps) == 0 {

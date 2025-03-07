@@ -29,17 +29,17 @@ func GetPlayerManager() *PlayerManager {
 func (plm *PlayerManager) Init() {
 	zap.L().Info("Initializing PlayerManager")
 	plm.SyncPlayers()
-	GetGoController().Server.Client.OnPlayerConnect = append(GetGoController().Server.Client.OnPlayerConnect, gbxclient.GbxCallbackStruct[events.PlayerConnectEventArgs]{
+	GetClient().OnPlayerConnect = append(GetClient().OnPlayerConnect, gbxclient.GbxCallbackStruct[events.PlayerConnectEventArgs]{
 		Key:  "pmPlayerConnect",
 		Call: plm.onPlayerConnect})
-	GetGoController().Server.Client.OnPlayerDisconnect = append(GetGoController().Server.Client.OnPlayerDisconnect, gbxclient.GbxCallbackStruct[events.PlayerDisconnectEventArgs]{
+	GetClient().OnPlayerDisconnect = append(GetClient().OnPlayerDisconnect, gbxclient.GbxCallbackStruct[events.PlayerDisconnectEventArgs]{
 		Key:  "pmPlayerDisconnect",
 		Call: plm.onPlayerDisconnect})
 	zap.L().Info("PlayerManager initialized")
 }
 
 func (plm *PlayerManager) SyncPlayers() {
-	players, err := GetGoController().Server.Client.GetPlayerList(-1, 0)
+	players, err := GetClient().GetPlayerList(-1, 0)
 	if err != nil {
 		zap.L().Error("Failed to get player list", zap.Error(err))
 		return
@@ -49,7 +49,7 @@ func (plm *PlayerManager) SyncPlayers() {
 		if player.PlayerId == 0 {
 			continue
 		}
-		detailedInfo, err := GetGoController().Server.Client.GetDetailedPlayerInfo(player.Login)
+		detailedInfo, err := GetClient().GetDetailedPlayerInfo(player.Login)
 		if err != nil {
 			zap.L().Error("Failed to get detailed player info", zap.Error(err))
 			continue
@@ -70,7 +70,7 @@ func (plm *PlayerManager) GetPlayer(login string) *models.Player {
 		}
 	}
 
-	detailedInfo, err := GetGoController().Server.Client.GetDetailedPlayerInfo(login)
+	detailedInfo, err := GetClient().GetDetailedPlayerInfo(login)
 	if err != nil {
 		return nil
 	}
@@ -85,10 +85,10 @@ func (plm *PlayerManager) GetPlayer(login string) *models.Player {
 	return &plm.Players[len(plm.Players)-1]
 }
 
-func (plm *PlayerManager) onPlayerConnect(client *gbxclient.GbxClient, playerConnectEvent events.PlayerConnectEventArgs) {
+func (plm *PlayerManager) onPlayerConnect(playerConnectEvent events.PlayerConnectEventArgs) {
 	for _, player := range plm.Players {
 		if player.Login == playerConnectEvent.Login {
-			go client.Kick(player.Login, "You are already connected")
+			go GetClient().Kick(player.Login, "You are already connected")
 			return
 		}
 	}
@@ -98,7 +98,7 @@ func (plm *PlayerManager) onPlayerConnect(client *gbxclient.GbxClient, playerCon
 	go GetGoController().Chat(fmt.Sprintf("Welcome %s!", player.NickName))
 }
 
-func (plm *PlayerManager) onPlayerDisconnect(_ *gbxclient.GbxClient, playerDisconnectEvent events.PlayerDisconnectEventArgs) {
+func (plm *PlayerManager) onPlayerDisconnect(playerDisconnectEvent events.PlayerDisconnectEventArgs) {
 	for i, player := range plm.Players {
 		if player.Login == playerDisconnectEvent.Login {
 			plm.Players = append(plm.Players[:i], plm.Players[i+1:]...)

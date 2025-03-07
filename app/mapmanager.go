@@ -35,11 +35,11 @@ func (mm *MapManager) Init() {
 	zap.L().Info("Initializing MapManager")
 
 	mm.SyncMaps()
-	GetGoController().Server.Client.OnBeginMap = append(GetGoController().Server.Client.OnBeginMap, gbxclient.GbxCallbackStruct[events.MapEventArgs]{
+	GetClient().OnBeginMap = append(GetClient().OnBeginMap, gbxclient.GbxCallbackStruct[events.MapEventArgs]{
 		Key:  "mmBeginMap",
 		Call: mm.onBeginMap})
 
-	mode, err := GetGoController().Server.Client.GetScriptName()
+	mode, err := GetClient().GetScriptName()
 	if err != nil {
 		zap.L().Error("Failed to get mode script text", zap.Error(err))
 		return
@@ -55,7 +55,7 @@ func (mm *MapManager) Init() {
 }
 
 func (mm *MapManager) SyncMaps() {
-	maps, err := GetGoController().Server.Client.GetMapList(-1, 0)
+	maps, err := GetClient().GetMapList(-1, 0)
 	if err != nil {
 		zap.L().Error("Failed to get map list", zap.Error(err))
 		return
@@ -65,7 +65,7 @@ func (mm *MapManager) SyncMaps() {
 	mapList := make([]structs.TMMapInfo, 0)
 	for _, chunk := range chunckedMaps {
 		for _, m := range chunk {
-			mapInfo, err := GetGoController().Server.Client.GetMapInfo(m.FileName)
+			mapInfo, err := GetClient().GetMapInfo(m.FileName)
 			if err != nil {
 				zap.L().Error("Failed to get map info", zap.Error(err))
 				continue
@@ -105,7 +105,7 @@ func (mm *MapManager) GetMap(uid string) *structs.TMMapInfo {
 	return nil
 }
 
-func (mm *MapManager) onBeginMap(client *gbxclient.GbxClient, mapEvent events.MapEventArgs) {
+func (mm *MapManager) onBeginMap(mapEvent events.MapEventArgs) {
 	mm.CurrentMap = structs.TMMapInfo{
 		UId:            mapEvent.Map.Uid,
 		Name:           mapEvent.Map.Name,
@@ -139,21 +139,21 @@ func (mm *MapManager) onBeginMap(client *gbxclient.GbxClient, mapEvent events.Ma
 
 	mm.CurrentMapDB = GetDatabaseManager().SyncMap(mm.CurrentMap)
 
-	if mode, err := client.GetScriptName(); err != nil {
+	if mode, err := GetClient().GetScriptName(); err != nil {
 		zap.L().Error("Failed to get mode script text", zap.Error(err))
 	} else {
 		mm.CurrentMode = mode.CurrentValue
 	}
 }
 
-func (mm *MapManager) onMapListModified(_ *gbxclient.GbxClient, mapListModifiedEvent events.MapListModifiedEventArgs) {
+func (mm *MapManager) onMapListModified(mapListModifiedEvent events.MapListModifiedEventArgs) {
 	if mapListModifiedEvent.IsListModified {
 		mm.SyncMaps()
 	}
 }
 
 func (mm *MapManager) GetCurrentMapInfo() structs.TMMapInfo {
-	currentMap, err := GetGoController().Server.Client.GetCurrentMapInfo()
+	currentMap, err := GetClient().GetCurrentMapInfo()
 	if err != nil {
 		zap.L().Error("Failed to get current map info", zap.Error(err))
 		return structs.TMMapInfo{}
@@ -163,7 +163,7 @@ func (mm *MapManager) GetCurrentMapInfo() structs.TMMapInfo {
 }
 
 func (mm *MapManager) GetNextMapInfo() structs.TMMapInfo {
-	nextMap, err := GetGoController().Server.Client.GetNextMapInfo()
+	nextMap, err := GetClient().GetNextMapInfo()
 	if err != nil {
 		zap.L().Error("Failed to get next map info", zap.Error(err))
 		return structs.TMMapInfo{}

@@ -35,7 +35,7 @@ func GetCommandManager() *CommandManager {
 func (cm *CommandManager) Init() {
 	zap.L().Info("Initializing CommandManager")
 	cm.addDefaultCommands()
-	GetGoController().Server.Client.OnPlayerChat = append(GetGoController().Server.Client.OnPlayerChat, gbxclient.GbxCallbackStruct[events.PlayerChatEventArgs]{
+	GetClient().OnPlayerChat = append(GetClient().OnPlayerChat, gbxclient.GbxCallbackStruct[events.PlayerChatEventArgs]{
 		Key:  "cmPlayerChat",
 		Call: cm.onPlayerChat})
 	zap.L().Info("CommandManager initialized")
@@ -153,7 +153,7 @@ func (cm *CommandManager) ExecuteCommand(login string, text string) {
 
 }
 
-func (cm *CommandManager) onPlayerChat(_ *gbxclient.GbxClient, chatEvent events.PlayerChatEventArgs) {
+func (cm *CommandManager) onPlayerChat(chatEvent events.PlayerChatEventArgs) {
 	if chatEvent.PlayerUid == 0 {
 		return
 	}
