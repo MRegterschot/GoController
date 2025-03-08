@@ -43,7 +43,7 @@ func NewManialink(login *string) *Manialink {
 		},
 		Pos: UIPos{
 			X: 0,
-			Y: 0,
+			Y: 20,
 			Z: 1,
 		},
 		Template:  "manialink.jet",

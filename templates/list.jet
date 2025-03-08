@@ -37,15 +37,13 @@
 
   {{ if exists := .Actions.cancel; exists }}
     <frame pos="2 -{{ .Size.Height - 19 }}">
-      <quad pos="0 0" z-index="0" size="20 6" bgcolor="FFF" opacity="0.2" action="{{ .Actions.cancel }}" />
-      <label pos="9.5 -2.75" z-index="0" size="20 5" text="Cancel" textsize="2" halign="center" valign="center" textfont="{{ Fonts.Regular }}" />
+      <label pos="9.5 -3" size="20 6" text="Cancel" textsize="2" action="{{ .Actions.cancel }}" halign="center" valign="center" scriptevents="1" focusareacolor1="{{ Colors.Primary }}" focusareacolor2="{{ Colors.Primary }}" textfont="{{ Fonts.SemiBold }}"/>
     </frame>
   {{ end }}
 
   {{ if exists := .Actions.apply; exists }}
     <frame pos="{{ .Size.Width - 24 }} -{{ .Size.Height - 19 }}">
-      <quad pos="0 0" z-index="0" size="20 6" bgcolor="FFF" opacity="0.2" action="{{ .Actions.apply }}" />
-      <label pos="9.5 -2.75" z-index="0" size="20 5" text="Apply" textsize="2" halign="center" valign="center" textfont="{{ Fonts.Regular }}" />
+      <label pos="9.5 -3" size="20 6" text="Apply" textsize="2" action="{{ .Actions.apply }}" halign="center" valign="center" scriptevents="1" focusareacolor1="{{ Colors.Primary }}" focusareacolor2="{{ Colors.Primary }}" textfont="{{ Fonts.SemiBold }}"/>
     </frame>
   {{ end }}
 {{ end }}

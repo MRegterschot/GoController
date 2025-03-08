@@ -55,10 +55,11 @@ func (uim *UIManager) Init() {
 
 	uim.Templates = jet.NewSet(jet.NewOSFileSystemLoader("./templates"))
 	uim.Templates.AddGlobal("Colors", map[string]string{
-		"Primary": "0C6",
+		"Primary": "00CC66",
 	})
 	uim.Templates.AddGlobal("Fonts", map[string]string{
 		"Regular":   "GameFont",
+		"SemiBold":  "GameFontSemiBold",
 		"ExtraBold": "GameFontExtraBold",
 	})
 
