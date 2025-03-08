@@ -35,7 +35,6 @@ func NewListWindow(login *string) *ListWindow {
 	}
 
 	uim := app.GetUIManager()
-
 	lw.Actions["start"] = uim.AddAction(lw.paginate, "start")
 	lw.Actions["previous"] = uim.AddAction(lw.paginate, "previous")
 	lw.Actions["next"] = uim.AddAction(lw.paginate, "next")
@@ -44,7 +43,7 @@ func NewListWindow(login *string) *ListWindow {
 	return lw
 }
 
-func (lw *ListWindow) paginate(_ string, data interface{}, _ interface{}) {
+func (lw *ListWindow) paginate(_ string, data interface{}, entries interface{}) {
 	action, ok := data.(string)
 	if !ok {
 		return
@@ -72,7 +71,7 @@ func (lw *ListWindow) paginate(_ string, data interface{}, _ interface{}) {
 	case "end":
 		lw.Pagination.CurrentPage = lw.Pagination.TotalPages - 1
 	}
-
+	
 	lw.Pagination = utils.Paginate(lw.Items, lw.Pagination.CurrentPage, lw.Pagination.PageSize)
 
 	lw.Data = struct {

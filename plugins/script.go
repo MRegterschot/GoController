@@ -125,7 +125,7 @@ func (m *ScriptPlugin) modeSettingsCommand(login string, args []string) {
 	window := CreateScriptListWindow(&login)
 	window.Title = "Mode settings"
 	window.Items = items
-	
+
 	go window.Display()
 }
 

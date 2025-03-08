@@ -26,6 +26,6 @@ func (slw *ScriptListWindow) AddApplyButtons() {
 	slw.Actions["cancel"] = app.GetUIManager().AddAction(slw.Destroy, nil)
 }
 
-func (slw *ScriptListWindow) onApply(_ string, _ interface{}, _ interface{}) {
-	fmt.Println("glorp")
+func (slw *ScriptListWindow) onApply(_ string, _ interface{}, entries interface{}) {
+	fmt.Println(entries)
 }
