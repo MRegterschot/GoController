@@ -38,12 +38,12 @@ func NewManialink(login *string) *Manialink {
 	return &Manialink{
 		ID: uuid.NewString(),
 		Size: UISize{
-			Width:  150,
-			Height: 120,
+			Width:  200,
+			Height: 124,
 		},
 		Pos: UIPos{
 			X: 0,
-			Y: 20,
+			Y: 0,
 			Z: 1,
 		},
 		Template:  "manialink.jet",

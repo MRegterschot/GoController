@@ -13,11 +13,11 @@ func NewWindow(login *string) *Window {
 		Manialink: *ml,
 	}
 
-	w.Actions["close"] = app.GetUIManager().AddAction(w.Hide, "")
+	w.Actions["close"] = app.GetUIManager().AddAction(w.Destroy, "")
 
 	return w
 }
 
-func (w *Window) Hide(_ string, _ interface{}, _ interface{}) {
+func (w *Window) Destroy(_ string, _ interface{}, _ interface{}) {
 	w.Manialink.Destroy()
 }

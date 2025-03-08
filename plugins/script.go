@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -105,15 +106,38 @@ func (m *ScriptPlugin) modeSettingsCommand(login string, args []string) {
 		return
 	}
 
+	// Extract and sort keys
+	keys := make([]string, 0, len(settings))
+	for key := range settings {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+
 	message := "Mode settings:\n"
-	for key, value := range settings {
-		message += fmt.Sprintf("%s: %v\n", key, value)
+	items := make([]ui.ListItem, 0)
+	for _, key := range keys {
+		message += fmt.Sprintf("%s: %v\n", key, settings[key])
+		items = append(items, ui.ListItem{
+			Name:        key,
+			Description: key,
+			Value:       fmt.Sprintf("%v", settings[key]),
+		})
 	}
 
 	go m.GoController.Chat(message, login)
 
-	window := ui.NewWindow(&login)
+	window := CreateScriptListWindow(&login)
 	window.Title = "Mode settings"
+
+	if len(items) > 14 {
+		items = items[:14]
+	}
+
+	window.Data = struct {
+		Items []ui.ListItem
+	}{
+		Items: items,
+	}
 	
 	go window.Display()
 }

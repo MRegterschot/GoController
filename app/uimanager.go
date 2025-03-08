@@ -55,7 +55,11 @@ func (uim *UIManager) Init() {
 
 	uim.Templates = jet.NewSet(jet.NewOSFileSystemLoader("./templates"))
 	uim.Templates.AddGlobal("Colors", map[string]string{
-		"Primary":   "0C6",
+		"Primary": "0C6",
+	})
+	uim.Templates.AddGlobal("Fonts", map[string]string{
+		"Regular":   "GameFont",
+		"ExtraBold": "GameFontExtraBold",
 	})
 
 	GetClient().OnPlayerManialinkPageAnswer = append(GetClient().OnPlayerManialinkPageAnswer, gbxclient.GbxCallbackStruct[events.PlayerManialinkPageAnswerEventArgs]{
@@ -281,8 +285,8 @@ func (uim *UIManager) DestroyManialink(ml *Manialink) {
 	uim.HideManialink(ml)
 
 	// Remove actions
-	for key := range ml.Actions {
-		uim.RemoveAction(key)
+	for _, value := range ml.Actions {
+		uim.RemoveAction(value)
 	}
 
 	ml.Data = nil
