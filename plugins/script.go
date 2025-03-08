@@ -3,12 +3,12 @@ package plugins
 import (
 	"fmt"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
 	"github.com/MRegterschot/GoController/ui"
+	"github.com/MRegterschot/GoController/utils"
 )
 
 type ScriptPlugin struct {
@@ -67,29 +67,9 @@ func (m *ScriptPlugin) modeSettingCommand(login string, args []string) {
 	setting := args[0]
 	valueStr := strings.Join(args[1:], " ")
 
-	var err error
-	switch valueStr {
-	case "true":
-		err = m.GoController.Server.Client.SetModeScriptSettings(map[string]interface{}{
-			setting: true,
-		})
-	case "false":
-		err = m.GoController.Server.Client.SetModeScriptSettings(map[string]interface{}{
-			setting: false,
-		})
-	default:
-		// Try to convert valueStr to an integer
-		val, err := strconv.Atoi(valueStr)
-		if err != nil {
-			err = m.GoController.Server.Client.SetModeScriptSettings(map[string]interface{}{
-				setting: valueStr,
-			})
-		} else {
-			err = m.GoController.Server.Client.SetModeScriptSettings(map[string]interface{}{
-				setting: val,
-			})
-		}
-	}
+	err := m.GoController.Server.Client.SetModeScriptSettings(map[string]interface{}{
+		setting: utils.ConvertStringToType(valueStr),
+	})
 
 	if err != nil {
 		go m.GoController.Chat("Error setting mode settings: "+err.Error(), login)

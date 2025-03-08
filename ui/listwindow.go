@@ -16,6 +16,7 @@ type ListWindow struct {
 	*Window
 	Items      []ListItem
 	Pagination models.PaginationResult[ListItem]
+	UpdateItems func([]ListItem, interface{})
 }
 
 func NewListWindow(login *string) *ListWindow {
@@ -72,6 +73,7 @@ func (lw *ListWindow) paginate(_ string, data interface{}, entries interface{}) 
 		lw.Pagination.CurrentPage = lw.Pagination.TotalPages - 1
 	}
 	
+	lw.UpdateItems(lw.Items, entries)
 	lw.Pagination = utils.Paginate(lw.Items, lw.Pagination.CurrentPage, lw.Pagination.PageSize)
 
 	lw.Data = struct {

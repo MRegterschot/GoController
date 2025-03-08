@@ -2,6 +2,8 @@ package utils
 
 import (
 	"reflect"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/MRegterschot/GoController/models"
@@ -89,4 +91,30 @@ func Paginate[T any](array []T, page int, pageSize int) models.PaginationResult[
 		TotalPages: (len(array) + pageSize - 1) / pageSize,
 		PageSize: pageSize,
 	}
+}
+
+// Converts a string to an appropriate type dynamically
+func ConvertStringToType(value string) interface{} {
+	// Trim the input string to remove leading/trailing spaces
+	value = strings.TrimSpace(value)
+
+	// Try converting to boolean
+	if value == "true" {
+		return true
+	} else if value == "false" {
+		return false
+	}
+
+	// Try converting to integer
+	if i, err := strconv.Atoi(value); err == nil {
+		return i
+	}
+
+	// Try converting to float
+	if f, err := strconv.ParseFloat(value, 64); err == nil {
+		return f
+	}
+
+	// If it's none of the above, return the string itself
+	return value
 }
