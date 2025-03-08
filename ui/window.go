@@ -1,19 +1,21 @@
 package ui
 
-import "github.com/MRegterschot/GoController/app"
+import (
+	"github.com/MRegterschot/GoController/app"
+)
 
 type Window struct {
-	app.Manialink
+	*app.Manialink
 }
 
 func NewWindow(login *string) *Window {
 	ml := app.NewManialink(login)
 	ml.Template = "window.jet"
 	w := &Window{
-		Manialink: *ml,
+		Manialink: ml,
 	}
 
-	w.Actions["close"] = app.GetUIManager().AddAction(w.Destroy, "")
+	w.Actions["close"] = app.GetUIManager().AddAction(w.Destroy, nil)
 
 	return w
 }

@@ -3,6 +3,8 @@ package utils
 import (
 	"reflect"
 	"time"
+
+	"github.com/MRegterschot/GoController/models"
 )
 
 // Global includes function that checks if an element is present in the slice
@@ -46,17 +48,17 @@ func Remove(slice interface{}, value interface{}) interface{} {
 	return slice
 }
 
-// GetCurrentTimeInSeconds returns the current time as an integer (seconds since the Unix epoch)
+// Returns the current time as an integer (seconds since the Unix epoch)
 func GetCurrentTimeInSeconds() int {
 	return int(time.Now().Unix())
 }
 
-// GetCurrentTimeInMilliseconds returns the current time as an integer (milliseconds since the Unix epoch)
+// Rreturns the current time as an integer (milliseconds since the Unix epoch)
 func GetCurrentTimeInMilliseconds() int {
 	return int(time.Now().UnixNano() / int64(time.Millisecond))
 }
 
-// ChunkArray splits an array into chunks of a specified size
+// Splits an array into chunks of a specified size
 func ChunkArray[T any](array []T, chunkSize int) [][]T {
 	var chunks [][]T
 	for i := 0; i < len(array); i += chunkSize {
@@ -67,4 +69,24 @@ func ChunkArray[T any](array []T, chunkSize int) [][]T {
 		chunks = append(chunks, array[i:end])
 	}
 	return chunks
+}
+
+// Paginate an array
+func Paginate[T any](array []T, page int, pageSize int) models.PaginationResult[T] {
+	start := page * pageSize
+	end := start + pageSize
+	if start > len(array) {
+		start = len(array)
+	}
+	if end > len(array) {
+		end = len(array)
+	}
+
+	return models.PaginationResult[T]{
+		Items: array[start:end],
+		TotalItems: len(array),
+		CurrentPage: page,
+		TotalPages: (len(array) + pageSize - 1) / pageSize,
+		PageSize: pageSize,
+	}
 }

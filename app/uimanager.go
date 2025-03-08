@@ -201,14 +201,11 @@ func (uim *UIManager) AddAction(callback func(string, interface{}, interface{}),
 		Data:     data,
 	}
 
-	zap.L().Debug("Added action", zap.String("uuid", uuid))
-
 	return uuid
 }
 
 func (uim *UIManager) RemoveAction(uuid string) {
 	delete(uim.Actions, uuid)
-	zap.L().Debug("Removed action", zap.String("uuid", uuid))
 }
 
 func (uim *UIManager) onManialinkAnswer(manialinkAnswerEvent events.PlayerManialinkPageAnswerEventArgs) {

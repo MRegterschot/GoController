@@ -7,7 +7,7 @@
     <quad pos="0 -6" z-index="0" size="{{ .Size.Width - 2 }} 0.2" bgcolor="fff" opacity="0.2"/>
   </frame>
 
-  {{ range i, item := .Data.Items }}
+  {{ range i, item := .Data.Pagination.Items }}
     <frame pos="0 -{{ (i + 1) * 7 }}">
       <label pos="2 -2.5" z-index="1" size="{{ .Size.Width / 4 }} 5" text="{{ item.Name }}" valign="center" textcolor="FFFFFFFF" textfont="{{ Fonts.Regular }}" textsize="1.5"/>
       <label pos="{{ .Size.Width / 4 + 4 }} -2.5" z-index="1" size="{{ .Size.Width / 5 * 2 }} 5" text="{{ item.Description }}" valign="center" textcolor="FFFFFFFF" textsize="1.5" textfont="{{ Fonts.Regular }}"/>
@@ -19,18 +19,18 @@
 
   <frame pos="{{ .Size.Width / 10 * 3 - 1 }} -{{ .Size.Height - 18.5 }}">
     <frame>
-      <quad pos="0 0" z-index="0" size="6 6" opacity="1" style="Icons64x64_1" substyle="ShowLeft2" modulatecolor="{{ Colors.Primary }}"/>
-      <quad pos="2 0" z-index="0" size="6 6" opacity="1" style="Icons64x64_1" substyle="ShowLeft2" modulatecolor="{{ Colors.Primary }}"/>
-      <quad pos="10 0" z-index="0" size="6 6" opacity="1" style="Icons64x64_1" substyle="ShowLeft2" modulatecolor="{{ Colors.Primary }}"/>
+      <quad pos="0 0" z-index="0" size="6 6" action="{{ .Actions.start }}" opacity="1" style="Icons64x64_1" substyle="ShowLeft2" modulatecolor="{{ Colors.Primary }}"/>
+      <quad pos="2 0" z-index="0" size="6 6" action="{{ .Actions.start }}" opacity="1" style="Icons64x64_1" substyle="ShowLeft2" modulatecolor="{{ Colors.Primary }}"/>
+      <quad pos="10 0" z-index="0" size="6 6" action="{{ .Actions.previous }}" opacity="1" style="Icons64x64_1" substyle="ShowLeft2" modulatecolor="{{ Colors.Primary }}"/>
     </frame>
     <frame pos="{{ .Size.Width / 5 }}">
       <label
-      pos="0 -2" z-index="0" size="20 4" text="1 / 4" textfont="{{ Fonts.Regular }}" halign="center" textsize="2" />
+      pos="0 -2" z-index="0" size="20 4" text="{{ .Data.Pagination.CurrentPage + 1 }} / {{ .Data.Pagination.TotalPages }}" textfont="{{ Fonts.Regular }}" halign="center" textsize="2" />
     </frame>
     <frame pos="{{ .Size.Width / 5 * 2 - 16 }}">
-      <quad pos="10 0" z-index="0" size="6 6" opacity="1" style="Icons64x64_1" substyle="ShowRight2" modulatecolor="{{ Colors.Primary }}"/>
-      <quad pos="8 0" z-index="0" size="6 6" opacity="1" style="Icons64x64_1" substyle="ShowRight2" modulatecolor="{{ Colors.Primary }}"/>
-      <quad pos="0 0" z-index="0" size="6 6" opacity="1" style="Icons64x64_1" substyle="ShowRight2" modulatecolor="{{ Colors.Primary }}"/>
+      <quad pos="10 0" z-index="0" size="6 6" action="{{ .Actions.end }}" opacity="1" style="Icons64x64_1" substyle="ShowRight2" modulatecolor="{{ Colors.Primary }}"/>
+      <quad pos="8 0" z-index="0" size="6 6" action="{{ .Actions.end }}" opacity="1" style="Icons64x64_1" substyle="ShowRight2" modulatecolor="{{ Colors.Primary }}"/>
+      <quad pos="0 0" z-index="0" size="6 6" action="{{ .Actions.next }}" opacity="1" style="Icons64x64_1" substyle="ShowRight2" modulatecolor="{{ Colors.Primary }}"/>
     </frame>
   </frame>
 

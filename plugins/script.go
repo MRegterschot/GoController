@@ -128,16 +128,7 @@ func (m *ScriptPlugin) modeSettingsCommand(login string, args []string) {
 
 	window := CreateScriptListWindow(&login)
 	window.Title = "Mode settings"
-
-	if len(items) > 14 {
-		items = items[:14]
-	}
-
-	window.Data = struct {
-		Items []ui.ListItem
-	}{
-		Items: items,
-	}
+	window.Items = items
 	
 	go window.Display()
 }

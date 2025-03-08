@@ -8,12 +8,12 @@ import (
 )
 
 type ScriptListWindow struct {
-	ui.ListWindow
+	*ui.ListWindow
 }
 
 func CreateScriptListWindow(login *string) *ScriptListWindow {
 	slw := &ScriptListWindow{
-		ListWindow: *ui.NewListWindow(login),
+		ListWindow: ui.NewListWindow(login),
 	}
 
 	slw.AddApplyButtons()
@@ -22,8 +22,8 @@ func CreateScriptListWindow(login *string) *ScriptListWindow {
 }
 
 func (slw *ScriptListWindow) AddApplyButtons() {
-	slw.Actions["apply"] = app.GetUIManager().AddAction(slw.onApply, "")
-	slw.Actions["cancel"] = app.GetUIManager().AddAction(slw.Destroy, "")
+	slw.Actions["apply"] = app.GetUIManager().AddAction(slw.onApply, nil)
+	slw.Actions["cancel"] = app.GetUIManager().AddAction(slw.Destroy, nil)
 }
 
 func (slw *ScriptListWindow) onApply(_ string, _ interface{}, _ interface{}) {
