@@ -4,6 +4,7 @@ import (
 	"bytes"
 
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type ManialinkAction struct {
@@ -35,7 +36,7 @@ type Manialink struct {
 }
 
 func NewManialink(login *string) *Manialink {
-	return &Manialink{
+	ml := &Manialink{
 		ID: uuid.NewString(),
 		Size: UISize{
 			Width:  200,
@@ -53,6 +54,10 @@ func NewManialink(login *string) *Manialink {
 		Title:     "",
 		FirstDisplay: true,
 	}
+
+	zap.L().Debug("Creating manialink", zap.String("id", ml.ID))
+
+	return ml
 }
 
 func (ml *Manialink) Display() {

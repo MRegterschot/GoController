@@ -113,18 +113,14 @@ func (m *ScriptPlugin) modeSettingsCommand(login string, args []string) {
 	}
 	sort.Strings(keys)
 
-	message := "Mode settings:\n"
 	items := make([]ui.ListItem, 0)
 	for _, key := range keys {
-		message += fmt.Sprintf("%s: %v\n", key, settings[key])
 		items = append(items, ui.ListItem{
 			Name:        key,
 			Description: key,
 			Value:       fmt.Sprintf("%v", settings[key]),
 		})
 	}
-
-	go m.GoController.Chat(message, login)
 
 	window := CreateScriptListWindow(&login)
 	window.Title = "Mode settings"
