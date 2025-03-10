@@ -38,6 +38,7 @@ func (m *GameFlowPlugin) Load() error {
 		Callback: m.restartCommand,
 		Admin:    true,
 		Help:     "Restarts map",
+		Aliases:  []string{"//res"},
 	})
 
 	commandManager.AddCommand(models.ChatCommand{

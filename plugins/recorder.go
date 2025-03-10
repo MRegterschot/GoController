@@ -43,6 +43,7 @@ func (m *RecorderPlugin) Load() error {
 		Callback: m.recorderCommand,
 		Admin:    true,
 		Help:     "Start or stop recording",
+		Aliases:  []string{"//rec"},
 	})
 
 	commandManager.AddCommand(models.ChatCommand{
@@ -50,6 +51,7 @@ func (m *RecorderPlugin) Load() error {
 		Callback: m.exportToCSVCommand,
 		Admin:    true,
 		Help:     "Export recording to CSV",
+		Aliases:  []string{"//exp"},
 	})
 
 	return nil

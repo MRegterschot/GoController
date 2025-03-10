@@ -7,4 +7,5 @@ type ChatCommand struct {
 	Callback CommandCallback
 	Admin    bool
 	Help     string
+	Aliases  []string
 }

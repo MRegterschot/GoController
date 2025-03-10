@@ -74,7 +74,7 @@ func (cm *CommandManager) HelpCommand(login string, args []string) {
 			continue
 		}
 
-		outCommands = append(outCommands, fmt.Sprintf("$0C6%s$FFF %s", command.Name, command.Help))
+		outCommands = append(outCommands, fmt.Sprintf("$0C6%s - %s$FFF %s", command.Name, strings.Join(command.Aliases, " - "), command.Help))
 	}
 
 	go GetGoController().Chat("Available commands: "+strings.Join(outCommands, ", "), login)
@@ -87,7 +87,7 @@ func (cm *CommandManager) AdminHelpCommand(login string, args []string) {
 			continue
 		}
 
-		outCommands = append(outCommands, fmt.Sprintf("$0C6%s$FFF %s", command.Name, command.Help))
+		outCommands = append(outCommands, fmt.Sprintf("$0C6%s - %s$FFF %s", command.Name, strings.Join(command.Aliases, " - "), command.Help))
 	}
 
 	go GetGoController().Chat("Available admin commands: "+strings.Join(outCommands, ", "), login)
@@ -116,7 +116,7 @@ func (cm *CommandManager) ExecuteCommand(login string, text string) {
 		controller := GetGoController()
 
 		for _, command := range cm.Commands {
-			if command.Name == "" {
+			if command.Name == "" && len(command.Aliases) == 0 {
 				continue
 			}
 
@@ -146,6 +146,25 @@ func (cm *CommandManager) ExecuteCommand(login string, text string) {
 				// Execute command
 				go command.Callback(login, params) // Run in a goroutine to mimic async behavior
 				return
+			} else {
+				for _, alias := range command.Aliases {
+					exp = regexp.MustCompile(fmt.Sprintf(`^%s\b%s\b`, prefix, EscapeRegex(strings.TrimLeft(alias, "/"))))
+
+					if exp.MatchString(text) {
+						// Extract parameters
+						words := strings.TrimSpace(strings.Replace(text, alias, "", 1))
+						params := regexp.MustCompile(`(?:[^"\s]+|"[^"]*")`).FindAllString(words, -1)
+
+						// Remove surrounding quotes
+						for i, word := range params {
+							params[i] = strings.Trim(word, `"`)
+						}
+
+						// Execute command
+						go command.Callback(login, params) // Run in a goroutine to mimic async behavior
+						return
+					}
+				}
 			}
 		}
 		go controller.Chat(fmt.Sprintf("$fffCommand $0C6%s $fffnot found.", text), login)
