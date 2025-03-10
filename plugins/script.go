@@ -94,15 +94,13 @@ func (m *ScriptPlugin) modeSettingsCommand(login string, args []string) {
 			key,
 			desc,
 			fmt.Sprintf("%v", settings[key]),
-			"",
 		})
 	}
 
 	columns := []ui.Column{
-		{Name: "Name", Width: 25},
+		{Name: "Name", Width: 30},
 		{Name: "Description", Width: 40},
-		{Name: "Value", Width: 25, Type: "input"},
-		{Name: "Actions", Width: 10},
+		{Name: "Value", Width: 30, Type: "input"},
 	}
 
 	window := CreateScriptListWindow(&login)

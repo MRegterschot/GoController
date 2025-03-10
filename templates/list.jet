@@ -1,9 +1,11 @@
 {{ extends "window.jet" }}
 {{ block body() }}
+  {{ maxWidth := (.Size.Width - 6 - ((len(.Data.Columns) - 1) * 2)) }}
+
   <frame>
     {{ totalWidth := 0 }}
     {{ range _, col := .Data.Columns }}
-      {{ colWidth := (.Size.Width - ((len(.Data.Columns) - 1) * 2)) / ( 100 / col.Width ) }}
+      {{ colWidth := maxWidth / ( 100 / col.Width ) }}
       <label pos="{{ totalWidth + 2 }} -2.5" z-index="1" size="{{ colWidth }} 5" text="{{ col.Name }}" valign="center" textcolor="FFFFFFFF" textfont="{{ Fonts.Regular }}" textsize="1.5"/>
       {{ totalWidth = totalWidth + colWidth + 2 }}
     {{ end }}
@@ -14,7 +16,7 @@
     <frame pos="0 -{{ (i + 1) * 7 }}">
       {{ totalWidth := 0 }}
       {{ range i, col := .Data.Columns }}
-        {{ colWidth := (.Size.Width - ((len(.Data.Columns) - 1) * 2)) / ( 100 / col.Width ) }}
+        {{ colWidth := maxWidth / ( 100 / col.Width ) }}
 
         {{ if col.Type == "text" }}
           <label pos="{{ totalWidth + 2 }} -2.5" z-index="1" size="{{ colWidth }} 5" text="{{ item[i] }}" valign="center" textcolor="FFFFFFFF" textfont="{{ Fonts.Regular }}" textsize="1.5"/>
