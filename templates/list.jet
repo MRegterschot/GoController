@@ -1,17 +1,31 @@
 {{ extends "window.jet" }}
 {{ block body() }}
   <frame>
-    <label pos="2 -2.5" z-index="1" size="{{ .Size.Width / 4 }} 5" text="Name" valign="center" textcolor="FFFFFFFF" textfont="{{ Fonts.Regular }}" textsize="1.5"/>
-    <label pos="{{ .Size.Width / 4 + 4 }} -2.5" z-index="1" size="{{ .Size.Width / 5 * 2 }} 5" text="Description" valign="center" textcolor="FFFFFFFF" textfont="{{ Fonts.Regular }}" textsize="1.5"/>
-    <label pos="{{ (.Size.Width / 4 + 4) + (.Size.Width / 5 * 2 + 2) }} -2.5" z-index="1" size="{{ .Size.Width / 4 }} 5" text="Value" valign="center" textcolor="FFFFFFFF" textfont="{{ Fonts.Regular }}" textsize="1.5"/>
+    {{ totalWidth := 0 }}
+    {{ range _, col := .Data.Columns }}
+      {{ colWidth := (.Size.Width - ((len(.Data.Columns) - 1) * 2)) / ( 100 / col.Width ) }}
+      <label pos="{{ totalWidth + 2 }} -2.5" z-index="1" size="{{ colWidth }} 5" text="{{ col.Name }}" valign="center" textcolor="FFFFFFFF" textfont="{{ Fonts.Regular }}" textsize="1.5"/>
+      {{ totalWidth = totalWidth + colWidth + 2 }}
+    {{ end }}
     <quad pos="0 -6" z-index="0" size="{{ .Size.Width - 2 }} 0.2" bgcolor="fff" opacity="0.2"/>
   </frame>
 
   {{ range i, item := .Data.Pagination.Items }}
     <frame pos="0 -{{ (i + 1) * 7 }}">
-      <label pos="2 -2.5" z-index="1" size="{{ .Size.Width / 4 }} 5" text="{{ item.Name }}" valign="center" textcolor="FFFFFFFF" textfont="{{ Fonts.Regular }}" textsize="1.5"/>
-      <label pos="{{ .Size.Width / 4 + 4 }} -2.5" z-index="1" size="{{ .Size.Width / 5 * 2 }} 5" text="{{ item.Description }}" valign="center" textcolor="FFFFFFFF" textsize="1.5" textfont="{{ Fonts.Regular }}"/>
-      <textedit pos="{{ (.Size.Width / 4 + 4) + (.Size.Width / 5 * 2 + 2) }} -2.5" z-index="0" name="{{ item.Name }}" size="{{ .Size.Width / 4 }} 3.5" maxline="1" default="{{ item.Value }}"  textsize="1.5" valign="center" textfont="{{ Fonts.Regular }}" scriptevents="1"/>
+      {{ totalWidth := 0 }}
+      {{ range i, col := .Data.Columns }}
+        {{ colWidth := (.Size.Width - ((len(.Data.Columns) - 1) * 2)) / ( 100 / col.Width ) }}
+
+        {{ if col.Type == "text" }}
+          <label pos="{{ totalWidth + 2 }} -2.5" z-index="1" size="{{ colWidth }} 5" text="{{ item[i] }}" valign="center" textcolor="FFFFFFFF" textfont="{{ Fonts.Regular }}" textsize="1.5"/>
+        {{ else if col.Type == "input" }}
+          <textedit pos="{{ totalWidth + 2 }} -2.5" z-index="0" name="{{ item[0] }}" size="{{ colWidth }} 3.5" maxline="1" default="{{ item[i] }}"  textsize="1.5" valign="center" textfont="{{ Fonts.Regular }}" scriptevents="1"/>
+        {{ else }}
+          <label pos="{{ totalWidth + 2 }} -2.5" z-index="1" size="{{ colWidth }} 5" text="{{ item[i] }}" valign="center" textcolor="FFFFFFFF" textfont="{{ Fonts.Regular }}" textsize="1.5"/>
+        {{ end }}
+
+        {{ totalWidth = totalWidth + colWidth + 2 }}
+      {{ end }}
       <quad pos="0 -6" z-index="0" size="{{ .Size.Width - 2 }} 0.2" bgcolor="fff" opacity="0.2"/>
     </frame>
   {{ end }}

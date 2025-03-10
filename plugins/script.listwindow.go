@@ -32,7 +32,9 @@ func (slw *ScriptListWindow) onApply(login string, _ interface{}, entries interf
 
 	var items = make(map[string]interface{})
 	for _, item := range slw.Items {
-		items[item.Name] = utils.ConvertStringToType(item.Value)
+		if key, ok := item[0].(string); ok {
+			items[key] = utils.ConvertStringToType(item[2].(string))
+		}
 	}
 
 	err := app.GetClient().SetModeScriptSettings(items)
@@ -45,7 +47,7 @@ func (slw *ScriptListWindow) onApply(login string, _ interface{}, entries interf
 	go app.GetGoController().Chat("Mode settings applied", login)
 }
 
-func (slw *ScriptListWindow) updateItems(items []ui.ListItem, updatedItems interface{}) {
+func (slw *ScriptListWindow) updateItems(items [][]interface{}, updatedItems interface{}) {
 	updatedList, ok := updatedItems.([]structs.TMSEntryVal)
 	if !ok {
 		return
@@ -53,8 +55,8 @@ func (slw *ScriptListWindow) updateItems(items []ui.ListItem, updatedItems inter
 
 	for _, updatedItem := range updatedList {
 		for i, item := range items {
-			if item.Name == updatedItem.Name {
-				items[i].Value = updatedItem.Value
+			if key, ok := item[0].(string); ok && key == updatedItem.Name {
+				items[i][2] = updatedItem.Value
 				break
 			}
 		}

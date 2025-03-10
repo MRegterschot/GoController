@@ -6,17 +6,18 @@ import (
 	"github.com/MRegterschot/GoController/utils"
 )
 
-type ListItem struct {
-	Name        string
-	Description string
-	Value       string
+type Column struct {
+	Name  string
+	Width int    // percentage of the total width
+	Type  string // text, input
 }
 
 type ListWindow struct {
 	*Window
-	Items      []ListItem
-	Pagination models.PaginationResult[ListItem]
-	UpdateItems func([]ListItem, interface{})
+	Columns     []Column
+	Items       [][]interface{}
+	Pagination  models.PaginationResult[[]interface{}]
+	UpdateItems func([][]interface{}, interface{})
 }
 
 func NewListWindow(login *string) *ListWindow {
@@ -25,9 +26,9 @@ func NewListWindow(login *string) *ListWindow {
 
 	lw := &ListWindow{
 		Window: w,
-		Items:  []ListItem{},
-		Pagination: models.PaginationResult[ListItem]{
-			Items:       []ListItem{},
+		Items:  [][]interface{}{},
+		Pagination: models.PaginationResult[[]interface{}]{
+			Items:       [][]interface{}{},
 			TotalItems:  0,
 			CurrentPage: 0,
 			TotalPages:  0,
@@ -72,13 +73,15 @@ func (lw *ListWindow) paginate(_ string, data interface{}, entries interface{}) 
 	case "end":
 		lw.Pagination.CurrentPage = lw.Pagination.TotalPages - 1
 	}
-	
+
 	lw.UpdateItems(lw.Items, entries)
 	lw.Pagination = utils.Paginate(lw.Items, lw.Pagination.CurrentPage, lw.Pagination.PageSize)
 
 	lw.Data = struct {
-		Pagination models.PaginationResult[ListItem]
+		Columns    []Column
+		Pagination models.PaginationResult[[]interface{}]
 	}{
+		Columns:    lw.Columns,
 		Pagination: lw.Pagination,
 	}
 
