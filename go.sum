@@ -30,6 +30,8 @@ github.com/MRegterschot/GbxRemoteGo v0.7.5 h1:P7lnqrCXnmEoP05u5n3WSj3nMAF42pKs8a
 github.com/MRegterschot/GbxRemoteGo v0.7.5/go.mod h1:8l3d6bq5xWd8qMptgXav9r3j0c5LtQROCl3z/IqrcKs=
 github.com/MRegterschot/GbxRemoteGo v1.0.0 h1:GXvjDwruWvyLH3Y0wvDR/Ryt231J+70rYVxeRTFdC00=
 github.com/MRegterschot/GbxRemoteGo v1.0.0/go.mod h1:8l3d6bq5xWd8qMptgXav9r3j0c5LtQROCl3z/IqrcKs=
+github.com/MRegterschot/GbxRemoteGo v1.0.1 h1:X4sF4uiAQwjnl7J9MIiaL4XQ8DPGJpOn6QbVFYTvQC0=
+github.com/MRegterschot/GbxRemoteGo v1.0.1/go.mod h1:8l3d6bq5xWd8qMptgXav9r3j0c5LtQROCl3z/IqrcKs=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/golang/snappy v0.0.4 h1:yAGX7huGHXlcLOEtBnF4w7FQwA26wojNCwOYAEhLjQM=

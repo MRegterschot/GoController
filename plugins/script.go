@@ -86,6 +86,12 @@ func (m *ScriptPlugin) modeSettingsCommand(login string, args []string) {
 		return
 	}
 
+	info, err := m.GoController.Server.Client.GetModeScriptInfo()
+	if err != nil {
+		go m.GoController.Chat("Error getting mode script info: "+err.Error(), login)
+		return
+	}
+
 	// Extract and sort keys
 	keys := make([]string, 0, len(settings))
 	for key := range settings {
@@ -95,9 +101,17 @@ func (m *ScriptPlugin) modeSettingsCommand(login string, args []string) {
 
 	items := make([]ui.ListItem, 0)
 	for _, key := range keys {
+		var desc string
+		for _, item := range info.ParamDescs {
+			if item.Name == key && item.Desc != "<hidden>" {
+				desc = item.Desc
+				break
+			}
+		}
+
 		items = append(items, ui.ListItem{
 			Name:        key,
-			Description: key,
+			Description: desc,
 			Value:       fmt.Sprintf("%v", settings[key]),
 		})
 	}
