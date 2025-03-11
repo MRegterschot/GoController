@@ -48,42 +48,42 @@ func (cm *CommandManager) Init() {
 func (cm *CommandManager) addDefaultCommands() {
 	cm.AddCommand(ChatCommand{
 		Name:     "/help",
-		Callback: cm.HelpCommand,
+		Callback: cm.helpCommand,
 		Admin:    false,
 		Help:     "Shows all available commands",
 	})
 
 	cm.AddCommand(ChatCommand{
 		Name:     "//help",
-		Callback: cm.AdminHelpCommand,
+		Callback: cm.adminHelpCommand,
 		Admin:    true,
 		Help:     "Shows all available admin commands",
 	})
 
 	cm.AddCommand(ChatCommand{
 		Name:     "//shutdown",
-		Callback: cm.ShutdownCommand,
+		Callback: cm.shutdownCommand,
 		Admin:    true,
 		Help:     "Shuts down the controller",
 	})
 
 	cm.AddCommand(ChatCommand{
 		Name:     "//load",
-		Callback: cm.LoadPluginCommand,
+		Callback: cm.loadPluginCommand,
 		Admin:    true,
 		Help:     "Loads a plugin",
 	})
 
 	cm.AddCommand(ChatCommand{
 		Name:     "//unload",
-		Callback: cm.UnloadPluginCommand,
+		Callback: cm.unloadPluginCommand,
 		Admin:    true,
 		Help:     "Unloads a plugin",
 	})
 }
 
 // The default commands
-func (cm *CommandManager) HelpCommand(login string, args []string) {
+func (cm *CommandManager) helpCommand(login string, args []string) {
 	var outCommands []string
 
 	for _, command := range cm.Commands {
@@ -97,7 +97,7 @@ func (cm *CommandManager) HelpCommand(login string, args []string) {
 	go GetGoController().Chat("Available commands: "+strings.Join(outCommands, ", "), login)
 }
 
-func (cm *CommandManager) AdminHelpCommand(login string, args []string) {
+func (cm *CommandManager) adminHelpCommand(login string, args []string) {
 	var outCommands []string
 	for _, command := range cm.Commands {
 		if !command.Admin {
@@ -110,11 +110,11 @@ func (cm *CommandManager) AdminHelpCommand(login string, args []string) {
 	go GetGoController().Chat("Available admin commands: "+strings.Join(outCommands, ", "), login)
 }
 
-func (cm *CommandManager) ShutdownCommand(login string, args []string) {
+func (cm *CommandManager) shutdownCommand(login string, args []string) {
 	GetGoController().Shutdown()
 }
 
-func (cm *CommandManager) LoadPluginCommand(login string, args []string) {
+func (cm *CommandManager) loadPluginCommand(login string, args []string) {
 	if len(args) < 1 {
 		go GetGoController().Chat("Usage: //loadplugin [*plugin]", login)
 		return
@@ -128,7 +128,7 @@ func (cm *CommandManager) LoadPluginCommand(login string, args []string) {
 	}
 }
 
-func (cm *CommandManager) UnloadPluginCommand(login string, args []string) {
+func (cm *CommandManager) unloadPluginCommand(login string, args []string) {
 	if len(args) < 1 {
 		go GetGoController().Chat("Usage: //unloadplugin [*plugin]", login)
 		return
