@@ -27,10 +27,10 @@ func (slw *ScriptListWindow) AddApplyButtons() {
 	slw.Actions["cancel"] = app.GetUIManager().AddAction(slw.Destroy, nil)
 }
 
-func (slw *ScriptListWindow) onApply(login string, _ interface{}, entries interface{}) {
+func (slw *ScriptListWindow) onApply(login string, _ any, entries any) {
 	slw.updateItems(slw.Items, entries)
 
-	var items = make(map[string]interface{})
+	var items = make(map[string]any)
 	for _, item := range slw.Items {
 		if key, ok := item[0].(string); ok {
 			items[key] = utils.ConvertStringToType(item[2].(string))
@@ -47,7 +47,7 @@ func (slw *ScriptListWindow) onApply(login string, _ interface{}, entries interf
 	go app.GetGoController().Chat("Mode settings applied", login)
 }
 
-func (slw *ScriptListWindow) updateItems(items [][]interface{}, updatedItems interface{}) {
+func (slw *ScriptListWindow) updateItems(items [][]any, updatedItems any) {
 	updatedList, ok := updatedItems.([]structs.TMSEntryVal)
 	if !ok {
 		return

@@ -15,9 +15,9 @@ type Column struct {
 type ListWindow struct {
 	*Window
 	Columns     []Column
-	Items       [][]interface{}
-	Pagination  models.PaginationResult[[]interface{}]
-	UpdateItems func([][]interface{}, interface{})
+	Items       [][]any
+	Pagination  models.PaginationResult[[]any]
+	UpdateItems func([][]any, any)
 }
 
 func NewListWindow(login *string) *ListWindow {
@@ -26,9 +26,9 @@ func NewListWindow(login *string) *ListWindow {
 
 	lw := &ListWindow{
 		Window: w,
-		Items:  [][]interface{}{},
-		Pagination: models.PaginationResult[[]interface{}]{
-			Items:       [][]interface{}{},
+		Items:  [][]any{},
+		Pagination: models.PaginationResult[[]any]{
+			Items:       [][]any{},
 			TotalItems:  0,
 			CurrentPage: 0,
 			TotalPages:  0,
@@ -45,7 +45,7 @@ func NewListWindow(login *string) *ListWindow {
 	return lw
 }
 
-func (lw *ListWindow) paginate(_ string, data interface{}, entries interface{}) {
+func (lw *ListWindow) paginate(_ string, data any, entries any) {
 	action, ok := data.(string)
 	if !ok {
 		return
@@ -79,7 +79,7 @@ func (lw *ListWindow) paginate(_ string, data interface{}, entries interface{}) 
 
 	lw.Data = struct {
 		Columns    []Column
-		Pagination models.PaginationResult[[]interface{}]
+		Pagination models.PaginationResult[[]any]
 	}{
 		Columns:    lw.Columns,
 		Pagination: lw.Pagination,

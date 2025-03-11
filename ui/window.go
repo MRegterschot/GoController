@@ -20,6 +20,6 @@ func NewWindow(login *string) *Window {
 	return w
 }
 
-func (w *Window) Destroy(_ string, _ interface{}, _ interface{}) {
+func (w *Window) Destroy(_ string, _ any, _ any) {
 	w.Manialink.Destroy()
 }

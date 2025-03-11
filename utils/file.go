@@ -6,7 +6,7 @@ import (
 )
 
 // Create file with data if it doesn't exist
-func CreateFile(file string, data interface{}) error {
+func CreateFile(file string, data any) error {
 	if _, err := os.Stat(file); os.IsNotExist(err) {
 		f, err := os.Create(file)
 		if err != nil {

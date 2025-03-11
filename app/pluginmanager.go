@@ -8,8 +8,8 @@ import (
 )
 
 type PluginManager struct {
-	PreLoadedPlugins []interface{}
-	Plugins          []interface{}
+	PreLoadedPlugins []any
+	Plugins          []any
 }
 
 type BasePlugin struct {
@@ -34,7 +34,7 @@ var (
 func GetPluginManager() *PluginManager {
 	pmOnce.Do(func() {
 		pmInstance = &PluginManager{
-			Plugins: []interface{}{},
+			Plugins: []any{},
 		}
 	})
 	return pmInstance
@@ -47,7 +47,7 @@ func (pm *PluginManager) Init() {
 	zap.L().Info("PluginManager initialized")
 }
 
-func (pm *PluginManager) PreLoadPlugin(plugin interface{}) {
+func (pm *PluginManager) PreLoadPlugin(plugin any) {
 	pm.PreLoadedPlugins = append(pm.PreLoadedPlugins, plugin)
 }
 
@@ -82,7 +82,7 @@ func (pm *PluginManager) LoadPlugins() {
 	}
 }
 
-func isPlugin(plugin interface{}) (string, bool) {
+func isPlugin(plugin any) (string, bool) {
 	t := reflect.TypeOf(plugin)
 
 	if t.Kind() == reflect.Ptr {

@@ -80,7 +80,7 @@ func (m *ScriptPlugin) modeSettingsCommand(login string, args []string) {
 	}
 	sort.Strings(keys)
 
-	items := make([][]interface{}, 0)
+	items := make([][]any, 0)
 	for _, key := range keys {
 		var desc string
 		for _, item := range info.ParamDescs {
@@ -90,7 +90,7 @@ func (m *ScriptPlugin) modeSettingsCommand(login string, args []string) {
 			}
 		}
 
-		items = append(items, []interface{}{
+		items = append(items, []any{
 			key,
 			desc,
 			fmt.Sprintf("%v", settings[key]),
@@ -140,7 +140,7 @@ func (m *ScriptPlugin) saveMatchSettingsCommand(login string, args []string) {
 		return
 	}
 
-	go m.GoController.Chat("Match settings saved to " + file, login)
+	go m.GoController.Chat("Match settings saved to "+file, login)
 }
 
 func init() {

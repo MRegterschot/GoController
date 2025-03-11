@@ -20,11 +20,11 @@ func NewServer() *Server {
 	}
 
 	// Register event handlers
-	onConnectionChan := make(chan interface{})
+	onConnectionChan := make(chan any)
 	server.Client.Events.On("connect", onConnectionChan)
 	go handleConnect(onConnectionChan)
 
-	onDisconnectChan := make(chan interface{})
+	onDisconnectChan := make(chan any)
 	server.Client.Events.On("disconnect", onDisconnectChan)
 	go handleDisconnect(onDisconnectChan)
 
@@ -67,7 +67,7 @@ func (s *Server) Disconnect() error {
 	return nil
 }
 
-func handleConnect(eventChan chan interface{}) {
+func handleConnect(eventChan chan any) {
 	for {
 		select {
 		case event := <-eventChan:
@@ -84,7 +84,7 @@ func handleConnect(eventChan chan interface{}) {
 	}
 }
 
-func handleDisconnect(eventChan chan interface{}) {
+func handleDisconnect(eventChan chan any) {
 	for {
 		select {
 		case event := <-eventChan:

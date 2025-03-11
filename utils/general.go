@@ -10,7 +10,7 @@ import (
 )
 
 // Global includes function that checks if an element is present in the slice
-func Includes(slice interface{}, value interface{}) bool {
+func Includes(slice any, value any) bool {
 	// Get the slice value using reflection
 	v := reflect.ValueOf(slice)
 
@@ -30,7 +30,7 @@ func Includes(slice interface{}, value interface{}) bool {
 }
 
 // Remove function that removes an element from a slice
-func Remove(slice interface{}, value interface{}) interface{} {
+func Remove[T any](slice []T, value T) []T {
 	// Get the slice value using reflection
 	v := reflect.ValueOf(slice)
 
@@ -40,11 +40,11 @@ func Remove(slice interface{}, value interface{}) interface{} {
 	}
 
 	// Iterate over the slice
-	for i := 0; i < v.Len(); i++ {
+	for i := range v.Len() {
 		// Check if the current element in the slice is equal to the value
 		if reflect.DeepEqual(v.Index(i).Interface(), value) {
 			// Remove the element from the slice
-			return reflect.AppendSlice(v.Slice(0, i), v.Slice(i+1, v.Len())).Interface()
+			return reflect.AppendSlice(v.Slice(0, i), v.Slice(i+1, v.Len())).Interface().([]T)
 		}
 	}
 	return slice
@@ -85,16 +85,16 @@ func Paginate[T any](array []T, page int, pageSize int) models.PaginationResult[
 	}
 
 	return models.PaginationResult[T]{
-		Items: array[start:end],
-		TotalItems: len(array),
+		Items:       array[start:end],
+		TotalItems:  len(array),
 		CurrentPage: page,
-		TotalPages: (len(array) + pageSize - 1) / pageSize,
-		PageSize: pageSize,
+		TotalPages:  (len(array) + pageSize - 1) / pageSize,
+		PageSize:    pageSize,
 	}
 }
 
 // Converts a string to an appropriate type dynamically
-func ConvertStringToType(value string) interface{} {
+func ConvertStringToType(value string) any {
 	// Trim the input string to remove leading/trailing spaces
 	value = strings.TrimSpace(value)
 

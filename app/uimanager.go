@@ -95,7 +95,7 @@ func (uim *UIManager) getUIProperties() {
 	GetClient().TriggerModeScriptEventArray("Common.UIModules.GetProperties", []string{uuid})
 }
 
-func (uim *UIManager) setUIProperty(ID string, property string, value interface{}) {
+func (uim *UIManager) setUIProperty(ID string, property string, value any) {
 	for i := range uim.Modules {
 		if uim.Modules[i].ID == ID {
 			switch property {
@@ -132,9 +132,9 @@ func (uim *UIManager) sendUIProperties() {
 	GetClient().TriggerModeScriptEventArray("Common.UIModules.SetProperties", []string{string(jsonBytes)})
 }
 
-func (uim *UIManager) onUIModulesProperties(event interface{}) {
+func (uim *UIManager) onUIModulesProperties(event any) {
 	// Ensure event is a slice
-	outerArray, ok := event.([]interface{})
+	outerArray, ok := event.([]any)
 	if !ok {
 		zap.L().Error("Error: event is not a JSON array")
 		return
@@ -169,7 +169,7 @@ func (uim *UIManager) onUIModulesProperties(event interface{}) {
 		return
 	}
 
-	uim.ScriptCalls = utils.Remove(uim.ScriptCalls, moduleProperties.ResponseID).([]string)
+	uim.ScriptCalls = utils.Remove(uim.ScriptCalls, moduleProperties.ResponseID)
 	uim.Modules = moduleProperties.UIModules
 
 	var reset []string
@@ -191,7 +191,7 @@ func (uim *UIManager) onUIModulesProperties(event interface{}) {
 	GetClient().TriggerModeScriptEventArray("Common.UIModules.ResetProperties", []string{string(jsonBytes)})
 }
 
-func (uim *UIManager) AddAction(callback func(string, interface{}, interface{}), data interface{}) string {
+func (uim *UIManager) AddAction(callback func(string, any, any), data any) string {
 	uuid := uuid.NewString()
 	uim.Actions[uuid] = ManialinkAction{
 		Callback: callback,

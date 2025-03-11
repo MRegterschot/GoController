@@ -8,8 +8,8 @@ import (
 )
 
 type ManialinkAction struct {
-	Callback func(string, interface{}, interface{})
-	Data     interface{}
+	Callback func(string, any, any)
+	Data     any
 }
 
 type UISize struct {
@@ -29,7 +29,7 @@ type Manialink struct {
 	Pos          UIPos
 	Template     string
 	Actions      map[string]string
-	Data         interface{}
+	Data         any
 	Recipient    *string
 	Title        string
 	FirstDisplay bool
@@ -47,11 +47,11 @@ func NewManialink(login *string) *Manialink {
 			Y: 0,
 			Z: 1,
 		},
-		Template:  "manialink.jet",
-		Actions:   make(map[string]string),
-		Data:      nil,
-		Recipient: login,
-		Title:     "",
+		Template:     "manialink.jet",
+		Actions:      make(map[string]string),
+		Data:         nil,
+		Recipient:    login,
+		Title:        "",
 		FirstDisplay: true,
 	}
 
@@ -83,13 +83,13 @@ func (ml *Manialink) Render() (string, error) {
 		return "", err
 	}
 
-	data := map[string]interface{}{
-		"ID": 	ml.ID,
-		"Size": ml.Size,
-		"Pos": 	ml.Pos,
-		"Actions": ml.Actions,
-		"Data": ml.Data,
-		"Title": ml.Title,
+	data := map[string]any{
+		"ID":        ml.ID,
+		"Size":      ml.Size,
+		"Pos":       ml.Pos,
+		"Actions":   ml.Actions,
+		"Data":      ml.Data,
+		"Title":     ml.Title,
 		"Recipient": ml.Recipient,
 	}
 
