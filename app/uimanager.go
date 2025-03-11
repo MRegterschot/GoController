@@ -165,11 +165,11 @@ func (uim *UIManager) onUIModulesProperties(event any) {
 		return
 	}
 
-	if !utils.Includes(uim.ScriptCalls, moduleProperties.ResponseID) {
+	uim.ScriptCalls, ok = utils.Remove(uim.ScriptCalls, moduleProperties.ResponseID)
+	if !ok {
 		return
 	}
-
-	uim.ScriptCalls = utils.Remove(uim.ScriptCalls, moduleProperties.ResponseID)
+	
 	uim.Modules = moduleProperties.UIModules
 
 	var reset []string

@@ -9,19 +9,15 @@ import (
 	"github.com/MRegterschot/GoController/models"
 )
 
-// Global includes function that checks if an element is present in the slice
+// Checks if an element is present in the slice
 func Includes(slice any, value any) bool {
-	// Get the slice value using reflection
 	v := reflect.ValueOf(slice)
 
-	// Check if the slice is indeed a slice
 	if v.Kind() != reflect.Slice {
 		return false
 	}
 
-	// Iterate over the slice
-	for i := 0; i < v.Len(); i++ {
-		// Check if the current element in the slice is equal to the value
+	for i := range v.Len() {
 		if reflect.DeepEqual(v.Index(i).Interface(), value) {
 			return true
 		}
@@ -29,25 +25,21 @@ func Includes(slice any, value any) bool {
 	return false
 }
 
-// Remove function that removes an element from a slice
-func Remove[T any](slice []T, value T) []T {
-	// Get the slice value using reflection
+// Removes an element from a slice.
+// Returns the new slice and a boolean indicating if the element was removed
+func Remove[T any](slice []T, value T) ([]T, bool) {
 	v := reflect.ValueOf(slice)
 
-	// Check if the slice is indeed a slice
 	if v.Kind() != reflect.Slice {
-		return slice
+		return slice, false
 	}
 
-	// Iterate over the slice
 	for i := range v.Len() {
-		// Check if the current element in the slice is equal to the value
 		if reflect.DeepEqual(v.Index(i).Interface(), value) {
-			// Remove the element from the slice
-			return reflect.AppendSlice(v.Slice(0, i), v.Slice(i+1, v.Len())).Interface().([]T)
+			return reflect.AppendSlice(v.Slice(0, i), v.Slice(i+1, v.Len())).Interface().([]T), true
 		}
 	}
-	return slice
+	return slice, false
 }
 
 // Returns the current time as an integer (seconds since the Unix epoch)
@@ -64,10 +56,7 @@ func GetCurrentTimeInMilliseconds() int {
 func ChunkArray[T any](array []T, chunkSize int) [][]T {
 	var chunks [][]T
 	for i := 0; i < len(array); i += chunkSize {
-		end := i + chunkSize
-		if end > len(array) {
-			end = len(array)
-		}
+		end := min(i + chunkSize, len(array))
 		chunks = append(chunks, array[i:end])
 	}
 	return chunks
@@ -95,26 +84,21 @@ func Paginate[T any](array []T, page int, pageSize int) models.PaginationResult[
 
 // Converts a string to an appropriate type dynamically
 func ConvertStringToType(value string) any {
-	// Trim the input string to remove leading/trailing spaces
 	value = strings.TrimSpace(value)
 
-	// Try converting to boolean
 	if value == "true" {
 		return true
 	} else if value == "false" {
 		return false
 	}
 
-	// Try converting to integer
 	if i, err := strconv.Atoi(value); err == nil {
 		return i
 	}
 
-	// Try converting to float
 	if f, err := strconv.ParseFloat(value, 64); err == nil {
 		return f
 	}
 
-	// If it's none of the above, return the string itself
 	return value
 }
