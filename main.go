@@ -1,10 +1,12 @@
 package main
 
 import (
+	"time"
+
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/config"
-	"github.com/MRegterschot/GoController/utils"
 	_ "github.com/MRegterschot/GoController/plugins"
+	"github.com/MRegterschot/GoController/utils"
 )
 
 func main() {
@@ -13,7 +15,7 @@ func main() {
 	controller := app.GetGoController()
 	controller.Start()
 
-	go utils.MemoryChecker()
+	go utils.MemoryChecker(1 * time.Minute)
 
 	select {}
 }

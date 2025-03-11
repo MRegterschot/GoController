@@ -8,14 +8,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// Function to get the current memory stats
+// Get the current memory stats
 func getMemoryStats() uint64 {
 	var memStats runtime.MemStats
 	runtime.ReadMemStats(&memStats)
-	return memStats.Alloc // Returns the number of bytes allocated for heap objects
+	return memStats.Alloc
 }
 
-// Function to convert bytes to megabytes
+// Convert bytes to megabytes
 func bytesToMB(bytes uint64) float64 {
 	return float64(bytes) / (1024 * 1024)
 }
@@ -26,7 +26,7 @@ func roundTo2Decimals(val float64) float64 {
 }
 
 // Create log message
-func logMemoryUsage(currentMemory uint64, diff int64, runtime int) {
+func logMemoryUsage(currentMemory uint64, diff int64, intervals int) {
 	currentMemoryMB := roundTo2Decimals(bytesToMB(currentMemory))
 	diffMB := roundTo2Decimals(bytesToMB(uint64(abs(diff))))
 
@@ -35,7 +35,7 @@ func logMemoryUsage(currentMemory uint64, diff int64, runtime int) {
 		sign = "-"
 	}
 
-	zap.L().Info(fmt.Sprintf("Memory Usage: Current %.3f MB, Diff %s%.3f MB. Running for %d min.", currentMemoryMB, sign, diffMB, runtime))
+	zap.L().Info(fmt.Sprintf("Memory Usage: Current %.3f MB, Diff %s%.3f MB. Running for %d intervals.", currentMemoryMB, sign, diffMB, intervals))
 }
 
 // Absolute value function for int64
@@ -46,19 +46,19 @@ func abs(x int64) int64 {
 	return x
 }
 
-// Function to start checking memory every minute
-func MemoryChecker() {
-	runtime := 0
+// Start checking memory every minute
+func MemoryChecker(interval time.Duration) {
+	intervals := 0
 	initialMemory := getMemoryStats()
-	logMemoryUsage(initialMemory, 0, runtime)
+	logMemoryUsage(initialMemory, 0, intervals)
 
 	for {
-		time.Sleep(1 * time.Minute)
-		runtime++
+		time.Sleep(interval)
+		intervals++
 
 		currentMemory := getMemoryStats()
-		diff := int64(currentMemory) - int64(initialMemory) // Ensure signed calculation
+		diff := int64(currentMemory) - int64(initialMemory)
 
-		logMemoryUsage(currentMemory, diff, runtime)
+		logMemoryUsage(currentMemory, diff, intervals)
 	}
 }
