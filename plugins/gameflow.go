@@ -52,6 +52,12 @@ func (m *GameFlowPlugin) Load() error {
 }
 
 func (m *GameFlowPlugin) Unload() error {
+	commandManager := app.GetCommandManager()
+
+	commandManager.RemoveCommand("//skip")
+	commandManager.RemoveCommand("//restart")
+	commandManager.RemoveCommand("//mode")
+
 	return nil
 }
 

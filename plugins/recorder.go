@@ -58,6 +58,11 @@ func (m *RecorderPlugin) Load() error {
 }
 
 func (m *RecorderPlugin) Unload() error {
+	commandManager := app.GetCommandManager()
+
+	commandManager.RemoveCommand("//recorder")
+	commandManager.RemoveCommand("//export")
+
 	return nil
 }
 

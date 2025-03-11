@@ -1,7 +1,9 @@
 package app
 
 import (
+	"errors"
 	"reflect"
+	"strings"
 	"sync"
 
 	"go.uber.org/zap"
@@ -80,6 +82,42 @@ func (pm *PluginManager) LoadPlugins() {
 		p.FieldByName("Loaded").SetBool(true)
 		zap.L().Info("Loaded plugin", zap.String("plugin", p.FieldByName("Name").String()))
 	}
+}
+
+func (pm *PluginManager) LoadPlugin(name string) error {
+	for _, plugin := range pm.Plugins {
+		p := reflect.ValueOf(plugin).Elem()
+		if strings.ToLower(p.FieldByName("Name").String()) == name {
+			pl, _ := plugin.(interface{ Load() error })
+			err := pl.Load()
+			if err != nil {
+				zap.L().Error("Failed to load plugin", zap.String("plugin", p.FieldByName("Name").String()), zap.Error(err))
+			}
+			p.FieldByName("Loaded").SetBool(true)
+			zap.L().Info("Loaded plugin", zap.String("plugin", p.FieldByName("Name").String()))
+			return nil
+		}
+	}
+
+	return errors.New("plugin not found")
+}
+
+func (pm *PluginManager) UnloadPlugin(name string) error {
+	for _, plugin := range pm.Plugins {
+		p := reflect.ValueOf(plugin).Elem()
+		if strings.ToLower(p.FieldByName("Name").String()) == name {
+			pl, _ := plugin.(interface{ Unload() error })
+			err := pl.Unload()
+			if err != nil {
+				zap.L().Error("Failed to unload plugin", zap.String("plugin", p.FieldByName("Name").String()), zap.Error(err))
+			}
+			p.FieldByName("Loaded").SetBool(false)
+			zap.L().Info("Unloaded plugin", zap.String("plugin", p.FieldByName("Name").String()))
+			return nil
+		}
+	}
+
+	return errors.New("plugin not found")
 }
 
 func isPlugin(plugin any) (string, bool) {

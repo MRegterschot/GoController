@@ -63,6 +63,20 @@ func (cm *CommandManager) addDefaultCommands() {
 		Admin:    true,
 		Help:     "Shuts down the controller",
 	})
+
+	cm.AddCommand(ChatCommand{
+		Name:     "//load",
+		Callback: cm.LoadPluginCommand,
+		Admin:    true,
+		Help:     "Loads a plugin",
+	})
+
+	cm.AddCommand(ChatCommand{
+		Name:     "//unload",
+		Callback: cm.UnloadPluginCommand,
+		Admin:    true,
+		Help:     "Unloads a plugin",
+	})
 }
 
 // The default commands
@@ -97,14 +111,44 @@ func (cm *CommandManager) ShutdownCommand(login string, args []string) {
 	GetGoController().Shutdown()
 }
 
+func (cm *CommandManager) LoadPluginCommand(login string, args []string) {
+	if len(args) < 1 {
+		go GetGoController().Chat("Usage: //loadplugin [*plugin]", login)
+		return
+	}
+
+	pluginName := args[0]
+	if err := GetPluginManager().LoadPlugin(args[0]); err != nil {
+		go GetGoController().Chat(fmt.Sprintf("Plugin %s not found", pluginName), login)
+	} else {
+		go GetGoController().Chat(fmt.Sprintf("Plugin %s loaded", pluginName), login)
+	}
+}
+
+func (cm *CommandManager) UnloadPluginCommand(login string, args []string) {
+	if len(args) < 1 {
+		go GetGoController().Chat("Usage: //unloadplugin [*plugin]", login)
+		return
+	}
+
+	pluginName := args[0]
+	if err := GetPluginManager().UnloadPlugin(args[0]); err != nil {
+		go GetGoController().Chat(fmt.Sprintf("Plugin %s not found", pluginName), login)
+	} else {
+		go GetGoController().Chat(fmt.Sprintf("Plugin %s unloaded", pluginName), login)
+	}
+}
+
 // Adds a command to the CommandManager
 func (cm *CommandManager) AddCommand(command ChatCommand) {
 	cm.Commands[command.Name] = command
+	zap.L().Debug("Command added", zap.String("command", command.Name))
 }
 
 // Removes a command from the CommandManager
 func (cm *CommandManager) RemoveCommand(command string) {
 	delete(cm.Commands, command)
+	zap.L().Debug("Command removed", zap.String("command", command))
 }
 
 // Executes a command
@@ -145,6 +189,7 @@ func (cm *CommandManager) ExecuteCommand(login string, text string) {
 
 				// Execute command
 				go command.Callback(login, params) // Run in a goroutine to mimic async behavior
+				zap.L().Debug("Command executed", zap.String("command", command.Name), zap.String("login", login))
 				return
 			} else {
 				for _, alias := range command.Aliases {
@@ -162,6 +207,7 @@ func (cm *CommandManager) ExecuteCommand(login string, text string) {
 
 						// Execute command
 						go command.Callback(login, params) // Run in a goroutine to mimic async behavior
+						zap.L().Debug("Command executed", zap.String("command", alias), zap.String("login", login))
 						return
 					}
 				}

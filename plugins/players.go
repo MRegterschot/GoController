@@ -45,6 +45,11 @@ func (m *PlayersPlugin) Load() error {
 }
 
 func (m *PlayersPlugin) Unload() error {
+	commandManager := app.GetCommandManager()
+
+	commandManager.RemoveCommand("//ban")
+	commandManager.RemoveCommand("//kick")
+
 	return nil
 }
 

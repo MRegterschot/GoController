@@ -57,6 +57,12 @@ func (m *ScriptPlugin) Load() error {
 }
 
 func (m *ScriptPlugin) Unload() error {
+	commandManager := app.GetCommandManager()
+
+	commandManager.RemoveCommand("//modesettings")
+	commandManager.RemoveCommand("//loadmatchsettings")
+	commandManager.RemoveCommand("//savematchsettings")
+
 	return nil
 }
 
