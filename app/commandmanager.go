@@ -34,10 +34,13 @@ func GetCommandManager() *CommandManager {
 
 func (cm *CommandManager) Init() {
 	zap.L().Info("Initializing CommandManager")
+
 	cm.addDefaultCommands()
+	
 	GetClient().OnPlayerChat = append(GetClient().OnPlayerChat, gbxclient.GbxCallbackStruct[events.PlayerChatEventArgs]{
 		Key:  "cmPlayerChat",
 		Call: cm.onPlayerChat})
+
 	zap.L().Info("CommandManager initialized")
 }
 
