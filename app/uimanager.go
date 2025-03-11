@@ -86,9 +86,6 @@ func (uim *UIManager) Init() {
 
 func (uim *UIManager) AfterInit() {
 	uim.setUIProperty("Race_RespawnHelper", "Visible", false)
-	uim.setUIProperty("Race_DisplayMessage", "Visible", false)
-	uim.setUIProperty("Race_BestRaceViewer", "Visible", false)
-	uim.setUIProperty("Race_LapsCounter", "Visible", false)
 	uim.sendUIProperties()
 }
 
