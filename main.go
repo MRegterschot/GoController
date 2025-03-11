@@ -15,7 +15,7 @@ func main() {
 	controller := app.GetGoController()
 	controller.Start()
 
-	go utils.MemoryChecker(1 * time.Minute)
+	go utils.MemoryChecker(5 * time.Minute)
 
 	select {}
 }

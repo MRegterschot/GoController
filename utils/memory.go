@@ -26,7 +26,7 @@ func roundTo2Decimals(val float64) float64 {
 }
 
 // Create log message
-func logMemoryUsage(currentMemory uint64, diff int64, intervals int) {
+func logMemoryUsage(currentMemory uint64, diff int64, minutes float64) {
 	currentMemoryMB := roundTo2Decimals(bytesToMB(currentMemory))
 	diffMB := roundTo2Decimals(bytesToMB(uint64(abs(diff))))
 
@@ -35,7 +35,7 @@ func logMemoryUsage(currentMemory uint64, diff int64, intervals int) {
 		sign = "-"
 	}
 
-	zap.L().Info(fmt.Sprintf("Memory Usage: Current %.3f MB, Diff %s%.3f MB. Running for %d intervals.", currentMemoryMB, sign, diffMB, intervals))
+	zap.L().Info(fmt.Sprintf("Memory Usage: Current %.3f MB, Diff %s%.3f MB. Running for %.0f min.", currentMemoryMB, sign, diffMB, minutes))
 }
 
 // Absolute value function for int64
@@ -48,17 +48,17 @@ func abs(x int64) int64 {
 
 // Start checking memory every minute
 func MemoryChecker(interval time.Duration) {
-	intervals := 0
+	minutes := 0.0
 	initialMemory := getMemoryStats()
-	logMemoryUsage(initialMemory, 0, intervals)
+	logMemoryUsage(initialMemory, 0, minutes)
 
 	for {
 		time.Sleep(interval)
-		intervals++
+		minutes += interval.Minutes()
 
 		currentMemory := getMemoryStats()
 		diff := int64(currentMemory) - int64(initialMemory)
 
-		logMemoryUsage(currentMemory, diff, intervals)
+		logMemoryUsage(currentMemory, diff, minutes)
 	}
 }
