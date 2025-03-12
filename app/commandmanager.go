@@ -91,7 +91,12 @@ func (cm *CommandManager) helpCommand(login string, args []string) {
 			continue
 		}
 
-		outCommands = append(outCommands, fmt.Sprintf("$0C6%s - %s$FFF %s", command.Name, strings.Join(command.Aliases, " - "), command.Help))
+		msg := "$0C6" + command.Name
+		if len(command.Aliases) > 0 {
+			msg += " - " + strings.Join(command.Aliases, " - ")
+		}
+		msg += "$FFF " + command.Help
+		outCommands = append(outCommands, msg)
 	}
 
 	go GetGoController().Chat("Available commands: "+strings.Join(outCommands, ", "), login)
@@ -103,8 +108,12 @@ func (cm *CommandManager) adminHelpCommand(login string, args []string) {
 		if !command.Admin {
 			continue
 		}
-
-		outCommands = append(outCommands, fmt.Sprintf("$0C6%s - %s$FFF %s", command.Name, strings.Join(command.Aliases, " - "), command.Help))
+		msg := "$0C6" + command.Name
+		if len(command.Aliases) > 0 {
+			msg += " - " + strings.Join(command.Aliases, " - ")
+		}
+		msg += "$FFF " + command.Help
+		outCommands = append(outCommands, msg)
 	}
 
 	go GetGoController().Chat("Available admin commands: "+strings.Join(outCommands, ", "), login)
