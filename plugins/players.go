@@ -24,33 +24,33 @@ func CreatePlayersPlugin() *PlayersPlugin {
 	}
 }
 
-func (m *PlayersPlugin) Load() error {
+func (p *PlayersPlugin) Load() error {
 	commandManager := app.GetCommandManager()
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//ban",
-		Callback: m.banCommand,
+		Callback: p.banCommand,
 		Admin:    true,
 		Help:     "Bans a player",
 	})
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//unban",
-		Callback: m.unBanCommand,
+		Callback: p.unBanCommand,
 		Admin:    true,
 		Help:     "Unbans a player",
 	})
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//banlist",
-		Callback: m.banListCommand,
+		Callback: p.banListCommand,
 		Admin:    true,
 		Help:     "Lists all bans",
 	})
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//cleanbanlist",
-		Callback: m.cleanBanListCommand,
+		Callback: p.cleanBanListCommand,
 		Admin:    true,
 		Help:     "Cleans the ban list",
 		Aliases: []string{"//cbl"},
@@ -58,7 +58,7 @@ func (m *PlayersPlugin) Load() error {
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//kick",
-		Callback: m.kickCommand,
+		Callback: p.kickCommand,
 		Admin:    true,
 		Help:     "Kicks a player",
 	})
@@ -66,7 +66,7 @@ func (m *PlayersPlugin) Load() error {
 	return nil
 }
 
-func (m *PlayersPlugin) Unload() error {
+func (p *PlayersPlugin) Unload() error {
 	commandManager := app.GetCommandManager()
 
 	commandManager.RemoveCommand("//ban")
@@ -78,9 +78,9 @@ func (m *PlayersPlugin) Unload() error {
 	return nil
 }
 
-func (m *PlayersPlugin) banCommand(login string, args []string) {
+func (p *PlayersPlugin) banCommand(login string, args []string) {
 	if len(args) < 1 {
-		go m.GoController.Chat("Usage: //ban [*login] [reason]", login)
+		go p.GoController.Chat("Usage: //ban [*login] [reason]", login)
 		return
 	}
 
@@ -89,37 +89,37 @@ func (m *PlayersPlugin) banCommand(login string, args []string) {
 	if len(args) > 1 {
 		reason = strings.Join(args[1:], " ")
 	}
-	if err := m.GoController.Server.Client.Ban(targetLogin, reason); err != nil {
-		go m.GoController.Chat("Error banning player: "+err.Error(), login)
+	if err := p.GoController.Server.Client.Ban(targetLogin, reason); err != nil {
+		go p.GoController.Chat("Error banning player: "+err.Error(), login)
 		return
 	}
 
-	go m.GoController.Chat(fmt.Sprintf("Banned: %s, Reason: %s", targetLogin, reason))
+	go p.GoController.Chat(fmt.Sprintf("Banned: %s, Reason: %s", targetLogin, reason))
 }
 
-func (m *PlayersPlugin) unBanCommand(login string, args []string) {
+func (p *PlayersPlugin) unBanCommand(login string, args []string) {
 	if len(args) < 1 {
-		go m.GoController.Chat("Usage: //unban [*login]", login)
+		go p.GoController.Chat("Usage: //unban [*login]", login)
 		return
 	}
 
 	targetLogin := args[0]
-	if err := m.GoController.Server.Client.UnBan(targetLogin); err != nil {
-		go m.GoController.Chat("Error unbanning player: "+err.Error(), login)
+	if err := p.GoController.Server.Client.UnBan(targetLogin); err != nil {
+		go p.GoController.Chat("Error unbanning player: "+err.Error(), login)
 		return
 	}
-	go m.GoController.Chat(fmt.Sprintf("Unbanned: %s", targetLogin))
+	go p.GoController.Chat(fmt.Sprintf("Unbanned: %s", targetLogin))
 }
 
-func (m *PlayersPlugin) banListCommand(login string, args []string) {
-	banList, err := m.GoController.Server.Client.GetBanList(100, 0)
+func (p *PlayersPlugin) banListCommand(login string, args []string) {
+	banList, err := p.GoController.Server.Client.GetBanList(100, 0)
 	if err != nil {
-		go m.GoController.Chat("Error getting ban list: "+err.Error(), login)
+		go p.GoController.Chat("Error getting ban list: "+err.Error(), login)
 		return
 	}
 
 	if len(banList) == 0 {
-		go m.GoController.Chat("No bans found", login)
+		go p.GoController.Chat("No bans found", login)
 		return
 	}
 
@@ -130,21 +130,21 @@ func (m *PlayersPlugin) banListCommand(login string, args []string) {
 
 	msg := fmt.Sprintf("Bans (%d): %s", len(banList), strings.Join(logins, ", "))
 
-	go m.GoController.Chat(msg, login)
+	go p.GoController.Chat(msg, login)
 }
 
-func (m *PlayersPlugin) cleanBanListCommand(login string, args []string) {
-	if err := m.GoController.Server.Client.CleanBanList(); err != nil {
-		go m.GoController.Chat("Error cleaning ban list: "+err.Error(), login)
+func (p *PlayersPlugin) cleanBanListCommand(login string, args []string) {
+	if err := p.GoController.Server.Client.CleanBanList(); err != nil {
+		go p.GoController.Chat("Error cleaning ban list: "+err.Error(), login)
 		return
 	}
 
-	go m.GoController.Chat("Ban list cleaned", login)
+	go p.GoController.Chat("Ban list cleaned", login)
 }
 
-func (m *PlayersPlugin) kickCommand(login string, args []string) {
+func (p *PlayersPlugin) kickCommand(login string, args []string) {
 	if len(args) < 1 {
-		go m.GoController.Chat("Usage: //kick [*login] [reason]", login)
+		go p.GoController.Chat("Usage: //kick [*login] [reason]", login)
 		return
 	}
 
@@ -153,8 +153,8 @@ func (m *PlayersPlugin) kickCommand(login string, args []string) {
 	if len(args) > 1 {
 		reason = strings.Join(args[1:], " ")
 	}
-	m.GoController.Server.Client.Kick(targetLogin, reason)
-	go m.GoController.Chat(fmt.Sprintf("Kicked: %s, Reason: %s", targetLogin, reason))
+	p.GoController.Server.Client.Kick(targetLogin, reason)
+	go p.GoController.Chat(fmt.Sprintf("Kicked: %s, Reason: %s", targetLogin, reason))
 }
 
 func init() {

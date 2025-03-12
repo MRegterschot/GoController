@@ -35,12 +35,12 @@ func CreateRecorderPlugin() *RecorderPlugin {
 	}
 }
 
-func (m *RecorderPlugin) Load() error {
+func (p *RecorderPlugin) Load() error {
 	commandManager := app.GetCommandManager()
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//recorder",
-		Callback: m.recorderCommand,
+		Callback: p.recorderCommand,
 		Admin:    true,
 		Help:     "Start or stop recording",
 		Aliases:  []string{"//rec"},
@@ -48,7 +48,7 @@ func (m *RecorderPlugin) Load() error {
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//export",
-		Callback: m.exportToCSVCommand,
+		Callback: p.exportToCSVCommand,
 		Admin:    true,
 		Help:     "Export recording to CSV",
 		Aliases:  []string{"//exp"},
@@ -57,7 +57,7 @@ func (m *RecorderPlugin) Load() error {
 	return nil
 }
 
-func (m *RecorderPlugin) Unload() error {
+func (p *RecorderPlugin) Unload() error {
 	commandManager := app.GetCommandManager()
 
 	commandManager.RemoveCommand("//recorder")
@@ -66,32 +66,32 @@ func (m *RecorderPlugin) Unload() error {
 	return nil
 }
 
-func (m *RecorderPlugin) startRecording(name string) {
-	mode := m.GoController.MapManager.CurrentMode
+func (p *RecorderPlugin) startRecording(name string) {
+	mode := p.GoController.MapManager.CurrentMode
 	if mode == "Trackmania/TM_TimeAttack_Online.Script.txt" {
-		m.GoController.Server.Client.OnPlayerFinish = append(m.GoController.Server.Client.OnPlayerFinish, gbxclient.GbxCallbackStruct[events.PlayerWayPointEventArgs]{
+		p.GoController.Server.Client.OnPlayerFinish = append(p.GoController.Server.Client.OnPlayerFinish, gbxclient.GbxCallbackStruct[events.PlayerWayPointEventArgs]{
 			Key:  "recording",
-			Call: m.onPlayerFinish})
-		m.createRecording(name, "TimeAttack")
+			Call: p.onPlayerFinish})
+		p.createRecording(name, "TimeAttack")
 	} else if mode == "Trackmania/TM_Rounds_Online.Script.txt" {
-		m.GoController.Server.Client.OnPreEndRound = append(m.GoController.Server.Client.OnPreEndRound, gbxclient.GbxCallbackStruct[events.ScoresEventArgs]{
+		p.GoController.Server.Client.OnPreEndRound = append(p.GoController.Server.Client.OnPreEndRound, gbxclient.GbxCallbackStruct[events.ScoresEventArgs]{
 			Key:  "recording",
-			Call: m.onPreEndRound})
-		m.createRecording(name, "Rounds")
+			Call: p.onPreEndRound})
+		p.createRecording(name, "Rounds")
 	} else {
-		m.GoController.Server.Client.OnPreEndRound = append(m.GoController.Server.Client.OnPreEndRound, gbxclient.GbxCallbackStruct[events.ScoresEventArgs]{
+		p.GoController.Server.Client.OnPreEndRound = append(p.GoController.Server.Client.OnPreEndRound, gbxclient.GbxCallbackStruct[events.ScoresEventArgs]{
 			Key:  "recording",
-			Call: m.onPreEndRoundMatch})
-		m.createRecording(name, "Match")
+			Call: p.onPreEndRoundMatch})
+		p.createRecording(name, "Match")
 	}
 
-	m.IsRecording = true
+	p.IsRecording = true
 }
 
-func (m *RecorderPlugin) createRecording(name string, modeType string) {
+func (p *RecorderPlugin) createRecording(name string, modeType string) {
 	newRecording := database.NewRecording(database.Recording{
 		Name: name,
-		Mode: m.GoController.MapManager.CurrentMode,
+		Mode: p.GoController.MapManager.CurrentMode,
 		Type: modeType,
 		Maps: []database.MapRecords{},
 	})
@@ -102,49 +102,49 @@ func (m *RecorderPlugin) createRecording(name string, modeType string) {
 		return
 	}
 
-	m.Recording = &newRecording
+	p.Recording = &newRecording
 	zap.L().Info("Recording started")
 }
 
-func (m *RecorderPlugin) stopRecording() {
-	for i, callback := range m.GoController.Server.Client.OnPlayerFinish {
+func (p *RecorderPlugin) stopRecording() {
+	for i, callback := range p.GoController.Server.Client.OnPlayerFinish {
 		if callback.Key == "recording" {
-			m.GoController.Server.Client.OnPlayerFinish = append(m.GoController.Server.Client.OnPlayerFinish[:i], m.GoController.Server.Client.OnPlayerFinish[i+1:]...)
+			p.GoController.Server.Client.OnPlayerFinish = append(p.GoController.Server.Client.OnPlayerFinish[:i], p.GoController.Server.Client.OnPlayerFinish[i+1:]...)
 		}
 	}
 
-	for i, callback := range m.GoController.Server.Client.OnPreEndRound {
+	for i, callback := range p.GoController.Server.Client.OnPreEndRound {
 		if callback.Key == "recording" {
-			m.GoController.Server.Client.OnPreEndRound = append(m.GoController.Server.Client.OnPreEndRound[:i], m.GoController.Server.Client.OnPreEndRound[i+1:]...)
+			p.GoController.Server.Client.OnPreEndRound = append(p.GoController.Server.Client.OnPreEndRound[:i], p.GoController.Server.Client.OnPreEndRound[i+1:]...)
 		}
 	}
 
-	m.IsRecording = false
+	p.IsRecording = false
 	zap.L().Info("Recording stopped")
 }
 
-func (m *RecorderPlugin) onPlayerFinish(playerFinishEvent events.PlayerWayPointEventArgs) {
-	mapId := m.GoController.MapManager.CurrentMapDB.ID
+func (p *RecorderPlugin) onPlayerFinish(playerFinishEvent events.PlayerWayPointEventArgs) {
+	mapId := p.GoController.MapManager.CurrentMapDB.ID
 
-	if len(m.Recording.Maps) == 0 {
+	if len(p.Recording.Maps) == 0 {
 		mapRecords := database.MapRecords{
 			ID:       primitive.NewObjectID(),
 			MapID:    mapId,
 			Finishes: []database.PlayerFinish{},
 		}
 
-		m.Recording.Maps = append(m.Recording.Maps, mapRecords)
+		p.Recording.Maps = append(p.Recording.Maps, mapRecords)
 	}
 
-	last := len(m.Recording.Maps) - 1
-	if m.Recording.Maps[last].MapID != mapId {
+	last := len(p.Recording.Maps) - 1
+	if p.Recording.Maps[last].MapID != mapId {
 		mapRecords := database.MapRecords{
 			ID:       primitive.NewObjectID(),
 			MapID:    mapId,
 			Finishes: []database.PlayerFinish{},
 		}
 
-		m.Recording.Maps = append(m.Recording.Maps, mapRecords)
+		p.Recording.Maps = append(p.Recording.Maps, mapRecords)
 		last++
 	}
 
@@ -165,10 +165,10 @@ func (m *RecorderPlugin) onPlayerFinish(playerFinishEvent events.PlayerWayPointE
 		Timestamp:   primitive.NewDateTimeFromTime(time.Now()),
 	}
 
-	m.Recording.Maps[last].Finishes = append(m.Recording.Maps[last].Finishes, playerFinish)
-	m.Recording.Update(*m.Recording)
+	p.Recording.Maps[last].Finishes = append(p.Recording.Maps[last].Finishes, playerFinish)
+	p.Recording.Update(*p.Recording)
 
-	_, err := database.UpdateRecording(context.Background(), *m.Recording)
+	_, err := database.UpdateRecording(context.Background(), *p.Recording)
 	if err != nil {
 		zap.L().Error("Failed to update match recording", zap.Error(err))
 		return
@@ -177,28 +177,28 @@ func (m *RecorderPlugin) onPlayerFinish(playerFinishEvent events.PlayerWayPointE
 	zap.L().Info("Finish recorded")
 }
 
-func (m *RecorderPlugin) onPreEndRound(preEndRoundEvent events.ScoresEventArgs) {
-	mapId := m.GoController.MapManager.CurrentMapDB.ID
+func (p *RecorderPlugin) onPreEndRound(preEndRoundEvent events.ScoresEventArgs) {
+	mapId := p.GoController.MapManager.CurrentMapDB.ID
 
-	if len(m.Recording.Maps) == 0 {
+	if len(p.Recording.Maps) == 0 {
 		mapRecords := database.MapRecords{
 			ID:     primitive.NewObjectID(),
 			MapID:  mapId,
 			Rounds: []database.Round{},
 		}
 
-		m.Recording.Maps = append(m.Recording.Maps, mapRecords)
+		p.Recording.Maps = append(p.Recording.Maps, mapRecords)
 	}
 
-	last := len(m.Recording.Maps) - 1
-	if m.Recording.Maps[last].MapID != mapId {
+	last := len(p.Recording.Maps) - 1
+	if p.Recording.Maps[last].MapID != mapId {
 		mapRecords := database.MapRecords{
 			ID:     primitive.NewObjectID(),
 			MapID:  mapId,
 			Rounds: []database.Round{},
 		}
 
-		m.Recording.Maps = append(m.Recording.Maps, mapRecords)
+		p.Recording.Maps = append(p.Recording.Maps, mapRecords)
 		last++
 	}
 
@@ -225,14 +225,14 @@ func (m *RecorderPlugin) onPreEndRound(preEndRoundEvent events.ScoresEventArgs) 
 
 	round := database.Round{
 		ID:          primitive.NewObjectID(),
-		RoundNumber: len(m.Recording.Maps[last].Rounds) + 1,
+		RoundNumber: len(p.Recording.Maps[last].Rounds) + 1,
 		Players:     playerRounds,
 	}
 
-	m.Recording.Maps[last].Rounds = append(m.Recording.Maps[last].Rounds, round)
-	m.Recording.Update(*m.Recording)
+	p.Recording.Maps[last].Rounds = append(p.Recording.Maps[last].Rounds, round)
+	p.Recording.Update(*p.Recording)
 
-	_, err := database.UpdateRecording(context.Background(), *m.Recording)
+	_, err := database.UpdateRecording(context.Background(), *p.Recording)
 	if err != nil {
 		zap.L().Error("Failed to update match recording", zap.Error(err))
 		return
@@ -241,28 +241,28 @@ func (m *RecorderPlugin) onPreEndRound(preEndRoundEvent events.ScoresEventArgs) 
 	zap.L().Info("Round recorded")
 }
 
-func (m *RecorderPlugin) onPreEndRoundMatch(preEndRoundEvent events.ScoresEventArgs) {
-	mapId := m.GoController.MapManager.CurrentMapDB.ID
+func (p *RecorderPlugin) onPreEndRoundMatch(preEndRoundEvent events.ScoresEventArgs) {
+	mapId := p.GoController.MapManager.CurrentMapDB.ID
 
-	if len(m.Recording.Maps) == 0 {
+	if len(p.Recording.Maps) == 0 {
 		mapRecords := database.MapRecords{
 			ID:     primitive.NewObjectID(),
 			MapID:  mapId,
 			Rounds: []database.Round{},
 		}
 
-		m.Recording.Maps = append(m.Recording.Maps, mapRecords)
+		p.Recording.Maps = append(p.Recording.Maps, mapRecords)
 	}
 
-	last := len(m.Recording.Maps) - 1
-	if m.Recording.Maps[last].MapID != mapId {
+	last := len(p.Recording.Maps) - 1
+	if p.Recording.Maps[last].MapID != mapId {
 		mapRecords := database.MapRecords{
 			ID:          primitive.NewObjectID(),
 			MapID:       mapId,
 			MatchRounds: []database.MatchRound{},
 		}
 
-		m.Recording.Maps = append(m.Recording.Maps, mapRecords)
+		p.Recording.Maps = append(p.Recording.Maps, mapRecords)
 		last++
 	}
 
@@ -305,14 +305,14 @@ func (m *RecorderPlugin) onPreEndRoundMatch(preEndRoundEvent events.ScoresEventA
 
 	matchRound := database.MatchRound{
 		ID:          primitive.NewObjectID(),
-		RoundNumber: len(m.Recording.Maps[last].MatchRounds) + 1,
+		RoundNumber: len(p.Recording.Maps[last].MatchRounds) + 1,
 		Teams:       teams,
 	}
 
-	m.Recording.Maps[last].MatchRounds = append(m.Recording.Maps[last].MatchRounds, matchRound)
-	m.Recording.Update(*m.Recording)
+	p.Recording.Maps[last].MatchRounds = append(p.Recording.Maps[last].MatchRounds, matchRound)
+	p.Recording.Update(*p.Recording)
 
-	_, err := database.UpdateRecording(context.Background(), *m.Recording)
+	_, err := database.UpdateRecording(context.Background(), *p.Recording)
 	if err != nil {
 		zap.L().Error("Failed to update match recording", zap.Error(err))
 		return
@@ -321,16 +321,16 @@ func (m *RecorderPlugin) onPreEndRoundMatch(preEndRoundEvent events.ScoresEventA
 	zap.L().Info("Match round recorded")
 }
 
-func (m *RecorderPlugin) recorderCommand(login string, args []string) {
+func (p *RecorderPlugin) recorderCommand(login string, args []string) {
 	if len(args) < 1 {
-		go m.GoController.Chat("Usage: //recorder [start | stop] [*name]", login)
+		go p.GoController.Chat("Usage: //recorder [start | stop] [*name]", login)
 		return
 	}
 
 	switch args[0] {
 	case "start":
-		if m.IsRecording {
-			go m.GoController.Chat("Already recording", login)
+		if p.IsRecording {
+			go p.GoController.Chat("Already recording", login)
 			return
 		}
 
@@ -339,24 +339,24 @@ func (m *RecorderPlugin) recorderCommand(login string, args []string) {
 			name = strings.Join(args[1:], " ")
 		}
 
-		m.startRecording(name)
-		go m.GoController.Chat("Recording started", login)
+		p.startRecording(name)
+		go p.GoController.Chat("Recording started", login)
 	case "stop":
-		if !m.IsRecording {
-			go m.GoController.Chat("Not recording", login)
+		if !p.IsRecording {
+			go p.GoController.Chat("Not recording", login)
 			return
 		}
 
-		m.stopRecording()
-		go m.GoController.Chat("Recording stopped with id "+m.Recording.ID.Hex(), login)
+		p.stopRecording()
+		go p.GoController.Chat("Recording stopped with id "+p.Recording.ID.Hex(), login)
 	default:
-		go m.GoController.Chat("Usage: //recorder [start | stop]", login)
+		go p.GoController.Chat("Usage: //recorder [start | stop]", login)
 	}
 }
 
-func (m *RecorderPlugin) exportToCSVCommand(login string, args []string) {
+func (p *RecorderPlugin) exportToCSVCommand(login string, args []string) {
 	if len(args) < 1 {
-		go m.GoController.Chat("Usage: //export [*recording id]", login)
+		go p.GoController.Chat("Usage: //export [*recording id]", login)
 		return
 	}
 
@@ -364,13 +364,13 @@ func (m *RecorderPlugin) exportToCSVCommand(login string, args []string) {
 	objectID, err := primitive.ObjectIDFromHex(recordingID)
 	if err != nil {
 		zap.L().Error("Invalid recording ID", zap.Error(err))
-		go m.GoController.Chat("Invalid recording ID", login)
+		go p.GoController.Chat("Invalid recording ID", login)
 		return
 	}
 	recording, err := database.GetRecordingByID(context.Background(), objectID)
 	if err != nil {
 		zap.L().Error("Failed to get recording", zap.Error(err))
-		go m.GoController.Chat("Failed to get recording", login)
+		go p.GoController.Chat("Failed to get recording", login)
 		return
 	}
 
@@ -450,11 +450,11 @@ func (m *RecorderPlugin) exportToCSVCommand(login string, args []string) {
 	filePath := "recording_" + recordingID + ".csv"
 	if err := utils.ExportCSV("./exports/"+filePath, data); err != nil {
 		zap.L().Error("Failed to export to CSV", zap.Error(err))
-		go m.GoController.Chat("Failed to export to CSV", login)
+		go p.GoController.Chat("Failed to export to CSV", login)
 		return
 	}
 
-	go m.GoController.Chat("Exported to "+filePath, login)
+	go p.GoController.Chat("Exported to "+filePath, login)
 }
 
 func init() {

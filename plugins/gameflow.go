@@ -23,19 +23,19 @@ func CreateGameFlowPlugin() *GameFlowPlugin {
 	}
 }
 
-func (m *GameFlowPlugin) Load() error {
+func (p *GameFlowPlugin) Load() error {
 	commandManager := app.GetCommandManager()
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//skip",
-		Callback: m.skipCommand,
+		Callback: p.skipCommand,
 		Admin:    true,
 		Help:     "Skips map",
 	})
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//restart",
-		Callback: m.restartCommand,
+		Callback: p.restartCommand,
 		Admin:    true,
 		Help:     "Restarts map",
 		Aliases:  []string{"//res"},
@@ -43,7 +43,7 @@ func (m *GameFlowPlugin) Load() error {
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//mode",
-		Callback: m.modeCommand,
+		Callback: p.modeCommand,
 		Admin:    true,
 		Help:     "Get or set gamemode",
 	})
@@ -51,7 +51,7 @@ func (m *GameFlowPlugin) Load() error {
 	return nil
 }
 
-func (m *GameFlowPlugin) Unload() error {
+func (p *GameFlowPlugin) Unload() error {
 	commandManager := app.GetCommandManager()
 
 	commandManager.RemoveCommand("//skip")
@@ -61,30 +61,30 @@ func (m *GameFlowPlugin) Unload() error {
 	return nil
 }
 
-func (m *GameFlowPlugin) skipCommand(login string, args []string) {
-	m.GoController.Server.Client.NextMap()
+func (p *GameFlowPlugin) skipCommand(login string, args []string) {
+	p.GoController.Server.Client.NextMap()
 }
 
-func (m *GameFlowPlugin) restartCommand(login string, args []string) {
-	m.GoController.Server.Client.RestartMap()
+func (p *GameFlowPlugin) restartCommand(login string, args []string) {
+	p.GoController.Server.Client.RestartMap()
 }
 
-func (m *GameFlowPlugin) modeCommand(login string, args []string) {
+func (p *GameFlowPlugin) modeCommand(login string, args []string) {
 	if len(args) < 1 {
-		if mode, err := m.GoController.Server.Client.GetScriptName(); err != nil {
-			go m.GoController.Chat("Error getting mode: "+err.Error(), login)
+		if mode, err := p.GoController.Server.Client.GetScriptName(); err != nil {
+			go p.GoController.Chat("Error getting mode: "+err.Error(), login)
 		} else {
-			go m.GoController.Chat(fmt.Sprintf("Current mode: %s, Next mode: %s", mode.CurrentValue, mode.NextValue), login)
+			go p.GoController.Chat(fmt.Sprintf("Current mode: %s, Next mode: %s", mode.CurrentValue, mode.NextValue), login)
 		}
 		return
 	}
 
-	if err := m.GoController.Server.Client.SetScriptName(args[0]); err != nil {
-		go m.GoController.Chat("Error setting mode: "+err.Error(), login)
+	if err := p.GoController.Server.Client.SetScriptName(args[0]); err != nil {
+		go p.GoController.Chat("Error setting mode: "+err.Error(), login)
 		return
 	}
 
-	go m.GoController.Chat("Mode set to "+args[0], login)
+	go p.GoController.Chat("Mode set to "+args[0], login)
 }
 
 func init() {

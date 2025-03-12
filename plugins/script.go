@@ -26,12 +26,12 @@ func CreateScriptPlugin() *ScriptPlugin {
 	}
 }
 
-func (m *ScriptPlugin) Load() error {
+func (p *ScriptPlugin) Load() error {
 	commandManager := app.GetCommandManager()
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//modesettings",
-		Callback: m.modeSettingsCommand,
+		Callback: p.modeSettingsCommand,
 		Admin:    true,
 		Help:     "Get mode settings",
 		Aliases:  []string{"//ms"},
@@ -39,7 +39,7 @@ func (m *ScriptPlugin) Load() error {
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//loadmatchsettings",
-		Callback: m.loadMatchSettingsCommand,
+		Callback: p.loadMatchSettingsCommand,
 		Admin:    true,
 		Help:     "Load match settings",
 		Aliases:  []string{"//lms"},
@@ -47,7 +47,7 @@ func (m *ScriptPlugin) Load() error {
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//savematchsettings",
-		Callback: m.saveMatchSettingsCommand,
+		Callback: p.saveMatchSettingsCommand,
 		Admin:    true,
 		Help:     "Save match settings",
 		Aliases:  []string{"//sms"},
@@ -56,7 +56,7 @@ func (m *ScriptPlugin) Load() error {
 	return nil
 }
 
-func (m *ScriptPlugin) Unload() error {
+func (p *ScriptPlugin) Unload() error {
 	commandManager := app.GetCommandManager()
 
 	commandManager.RemoveCommand("//modesettings")
@@ -66,16 +66,16 @@ func (m *ScriptPlugin) Unload() error {
 	return nil
 }
 
-func (m *ScriptPlugin) modeSettingsCommand(login string, args []string) {
-	settings, err := m.GoController.Server.Client.GetModeScriptSettings()
+func (p *ScriptPlugin) modeSettingsCommand(login string, args []string) {
+	settings, err := p.GoController.Server.Client.GetModeScriptSettings()
 	if err != nil {
-		go m.GoController.Chat("Error getting mode settings: "+err.Error(), login)
+		go p.GoController.Chat("Error getting mode settings: "+err.Error(), login)
 		return
 	}
 
-	info, err := m.GoController.Server.Client.GetModeScriptInfo()
+	info, err := p.GoController.Server.Client.GetModeScriptInfo()
 	if err != nil {
-		go m.GoController.Chat("Error getting mode script info: "+err.Error(), login)
+		go p.GoController.Chat("Error getting mode script info: "+err.Error(), login)
 		return
 	}
 
@@ -117,36 +117,36 @@ func (m *ScriptPlugin) modeSettingsCommand(login string, args []string) {
 	go window.Display()
 }
 
-func (m *ScriptPlugin) loadMatchSettingsCommand(login string, args []string) {
+func (p *ScriptPlugin) loadMatchSettingsCommand(login string, args []string) {
 	if len(args) < 1 {
-		go m.GoController.Chat("Usage: //loadmatchsettings [*filename]", login)
+		go p.GoController.Chat("Usage: //loadmatchsettings [*filename]", login)
 		return
 	}
 
 	filename := args[0]
-	_, err := m.GoController.Server.Client.LoadMatchSettings("MatchSettings/" + filename)
+	_, err := p.GoController.Server.Client.LoadMatchSettings("MatchSettings/" + filename)
 	if err != nil {
-		go m.GoController.Chat("Error loading match settings: "+err.Error(), login)
+		go p.GoController.Chat("Error loading match settings: "+err.Error(), login)
 		return
 	}
 
-	go m.GoController.Chat("Match settings loaded", login)
+	go p.GoController.Chat("Match settings loaded", login)
 }
 
-func (m *ScriptPlugin) saveMatchSettingsCommand(login string, args []string) {
+func (p *ScriptPlugin) saveMatchSettingsCommand(login string, args []string) {
 	file := "tracklist.txt"
 	if len(args) > 0 {
 		cleanFile, _ := strings.CutSuffix(args[0], ".txt")
 		file = cleanFile + ".txt"
 	}
 
-	_, err := m.GoController.Server.Client.SaveMatchSettings("MatchSettings/" + file)
+	_, err := p.GoController.Server.Client.SaveMatchSettings("MatchSettings/" + file)
 	if err != nil {
-		go m.GoController.Chat("Error saving match settings: "+err.Error(), login)
+		go p.GoController.Chat("Error saving match settings: "+err.Error(), login)
 		return
 	}
 
-	go m.GoController.Chat("Match settings saved to "+file, login)
+	go p.GoController.Chat("Match settings saved to "+file, login)
 }
 
 func init() {

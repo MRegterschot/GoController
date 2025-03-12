@@ -21,12 +21,12 @@ func CreateServerPlugin() *ServerPlugin {
 	}
 }
 
-func (m *ServerPlugin) Load() error {
+func (p *ServerPlugin) Load() error {
 	commandManager := app.GetCommandManager()
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//setpassword",
-		Callback: m.setPasswordCommand,
+		Callback: p.setPasswordCommand,
 		Admin:    true,
 		Help:     "Set server password",
 		Aliases:  []string{"//setpw"},
@@ -35,7 +35,7 @@ func (m *ServerPlugin) Load() error {
 	return nil
 }
 
-func (m *ServerPlugin) Unload() error {
+func (p *ServerPlugin) Unload() error {
 	commandManager := app.GetCommandManager()
 
 	commandManager.RemoveCommand("//setpassword")
@@ -43,23 +43,23 @@ func (m *ServerPlugin) Unload() error {
 	return nil
 }
 
-func (m *ServerPlugin) setPasswordCommand(login string, args []string) {
+func (p *ServerPlugin) setPasswordCommand(login string, args []string) {
 	if len(args) < 1 {
-		err := m.GoController.Server.Client.SetServerPassword("")
+		err := p.GoController.Server.Client.SetServerPassword("")
 		if err != nil {
-			go m.GoController.Chat("Error removing server password: "+err.Error(), login)
+			go p.GoController.Chat("Error removing server password: "+err.Error(), login)
 			return
 		}
-		go m.GoController.Chat("Server password removed", login)
+		go p.GoController.Chat("Server password removed", login)
 		return
 	}
 
-	err := m.GoController.Server.Client.SetServerPassword(args[0])
+	err := p.GoController.Server.Client.SetServerPassword(args[0])
 	if err != nil {
-		go m.GoController.Chat("Error setting server password: "+err.Error(), login)
+		go p.GoController.Chat("Error setting server password: "+err.Error(), login)
 		return
 	}
-	go m.GoController.Chat("Server password set", login)
+	go p.GoController.Chat("Server password set", login)
 }
 
 func init() {
