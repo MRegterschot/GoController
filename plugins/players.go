@@ -45,7 +45,7 @@ func (p *PlayersPlugin) Load() error {
 		Name:     "//banlist",
 		Callback: p.banListCommand,
 		Admin:    true,
-		Help:     "Lists all bans",
+		Help:     "Lists all players on ban list",
 	})
 
 	commandManager.AddCommand(models.ChatCommand{
@@ -59,14 +59,14 @@ func (p *PlayersPlugin) Load() error {
 		Name:     "//blacklist",
 		Callback: p.blackListCommand,
 		Admin:    true,
-		Help:     "Blacklists a player",
+		Help:     "Adds player to black list",
 	})
 
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//unblacklist",
 		Callback: p.unBlackListCommand,
 		Admin:    true,
-		Help:     "Unblacklists a player",
+		Help:     "Removes player from black list",
 	})
 
 	commandManager.AddCommand(models.ChatCommand{
@@ -98,6 +98,48 @@ func (p *PlayersPlugin) Load() error {
 	})
 
 	commandManager.AddCommand(models.ChatCommand{
+		Name:     "//addguest",
+		Callback: p.addGuestCommand,
+		Admin:    true,
+		Help:     "Adds player to guest list",
+	})
+
+	commandManager.AddCommand(models.ChatCommand{
+		Name:     "//removeguest",
+		Callback: p.removeGuestCommand,
+		Admin:    true,
+		Help:     "Removes player from guest list",
+	})
+
+	commandManager.AddCommand(models.ChatCommand{
+		Name:     "//guestlist",
+		Callback: p.guestListCommand,
+		Admin:    true,
+		Help:     "Lists all players on guest list",
+	})
+
+	commandManager.AddCommand(models.ChatCommand{
+		Name:     "//loadguestlist",
+		Callback: p.loadGuestListCommand,
+		Admin:    true,
+		Help:     "Loads a guest list",
+	})
+
+	commandManager.AddCommand(models.ChatCommand{
+		Name:     "//saveguestlist",
+		Callback: p.saveGuestListCommand,
+		Admin:    true,
+		Help:     "Saves the guest list",
+	})
+
+	commandManager.AddCommand(models.ChatCommand{
+		Name:     "//cleanguestlist",
+		Callback: p.cleanGuestListCommand,
+		Admin:    true,
+		Help:     "Cleans the guest list",
+	})
+
+	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//kick",
 		Callback: p.kickCommand,
 		Admin:    true,
@@ -120,6 +162,12 @@ func (p *PlayersPlugin) Unload() error {
 	commandManager.RemoveCommand("//saveblacklist")
 	commandManager.RemoveCommand("//cleanblacklist")
 	commandManager.RemoveCommand("//fakeplayer")
+	commandManager.RemoveCommand("//addguest")
+	commandManager.RemoveCommand("//removeguest")
+	commandManager.RemoveCommand("//guestlist")
+	commandManager.RemoveCommand("//loadguestlist")
+	commandManager.RemoveCommand("//saveguestlist")
+	commandManager.RemoveCommand("//cleanguestlist")
 	commandManager.RemoveCommand("//kick")
 
 	return nil
@@ -296,6 +344,99 @@ func (p *PlayersPlugin) fakePlayerCommand(login string, args []string) {
 	}
 
 	go p.GoController.Chat("Fake player connected", login)
+}
+
+func (p *PlayersPlugin) addGuestCommand(login string, args []string) {
+	if len(args) < 1 {
+		go p.GoController.Chat("Usage: //addguest [*login]", login)
+		return
+	}
+
+	targetLogin := args[0]
+	if err := p.GoController.Server.Client.AddGuest(targetLogin); err != nil {
+		go p.GoController.Chat("Error adding guest: "+err.Error(), login)
+		return
+	}
+
+	go p.GoController.Chat(fmt.Sprintf("Guest added: %s", targetLogin), login)
+}
+
+func (p *PlayersPlugin) removeGuestCommand(login string, args []string) {
+	if len(args) < 1 {
+		go p.GoController.Chat("Usage: //removeguest [*login]", login)
+		return
+	}
+
+	targetLogin := args[0]
+	if err := p.GoController.Server.Client.RemoveGuest(targetLogin); err != nil {
+		go p.GoController.Chat("Error removing guest: "+err.Error(), login)
+		return
+	}
+
+	go p.GoController.Chat(fmt.Sprintf("Guest removed: %s", targetLogin), login)
+}
+
+func (p *PlayersPlugin) guestListCommand(login string, args []string) {
+	guestList, err := p.GoController.Server.Client.GetGuestList(100, 0)
+	if err != nil {
+		go p.GoController.Chat("Error getting guest list: "+err.Error(), login)
+		return
+	}
+
+	if len(guestList) == 0 {
+		go p.GoController.Chat("No guests found", login)
+		return
+	}
+
+	logins := make([]string, len(guestList))
+	for i, guest := range guestList {
+		logins[i] = guest.Login
+	}
+
+	msg := fmt.Sprintf("Guests (%d): %s", len(guestList), strings.Join(logins, ", "))
+
+	go p.GoController.Chat(msg, login)
+}
+
+func (p *PlayersPlugin) loadGuestListCommand(login string, args []string) {
+	if len(args) < 1 {
+		go p.GoController.Chat("Usage: //loadguestlist [*file]", login)
+		return
+	}
+
+	file := args[0]
+
+	if err := p.GoController.Server.Client.LoadGuestList(file); err != nil {
+		go p.GoController.Chat("Error loading guest list: "+err.Error(), login)
+		return
+	}
+
+	go p.GoController.Chat(fmt.Sprintf("Guest list %s loaded", file), login)
+}
+
+func (p *PlayersPlugin) saveGuestListCommand(login string, args []string) {
+	if len(args) < 1 {
+		go p.GoController.Chat("Usage: //saveguestlist [*file]", login)
+		return
+	}
+
+	file := args[0]
+
+	if err := p.GoController.Server.Client.SaveGuestList(file); err != nil {
+		go p.GoController.Chat("Error saving guest list: "+err.Error(), login)
+		return
+	}
+
+	go p.GoController.Chat(fmt.Sprintf("Guest list saved to %s", file), login)
+}
+
+func (p *PlayersPlugin) cleanGuestListCommand(login string, args []string) {
+	if err := p.GoController.Server.Client.CleanGuestList(); err != nil {
+		go p.GoController.Chat("Error cleaning guest list: "+err.Error(), login)
+		return
+	}
+
+	go p.GoController.Chat("Guest list cleaned", login)
 }
 
 func (p *PlayersPlugin) kickCommand(login string, args []string) {
