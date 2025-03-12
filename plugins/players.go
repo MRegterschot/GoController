@@ -91,6 +91,13 @@ func (p *PlayersPlugin) Load() error {
 	})
 
 	commandManager.AddCommand(models.ChatCommand{
+		Name:     "//fakeplayer",
+		Callback: p.fakePlayerCommand,
+		Admin:    true,
+		Help:     "Connects or disconnects a fake player",
+	})
+
+	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//kick",
 		Callback: p.kickCommand,
 		Admin:    true,
@@ -112,6 +119,7 @@ func (p *PlayersPlugin) Unload() error {
 	commandManager.RemoveCommand("//loadblacklist")
 	commandManager.RemoveCommand("//saveblacklist")
 	commandManager.RemoveCommand("//cleanblacklist")
+	commandManager.RemoveCommand("//fakeplayer")
 	commandManager.RemoveCommand("//kick")
 
 	return nil
@@ -268,6 +276,26 @@ func (p *PlayersPlugin) cleanBlackListCommand(login string, args []string) {
 	}
 
 	go p.GoController.Chat("Black list cleaned", login)
+}
+
+func (p *PlayersPlugin) fakePlayerCommand(login string, args []string) {
+	if len(args) > 0 {
+		targetLogin := args[0]
+		if err := p.GoController.Server.Client.DisconnectFakePlayer(targetLogin); err != nil {
+			go p.GoController.Chat("Error disconnecting fake player: "+err.Error(), login)
+			return
+		}
+
+		go p.GoController.Chat(fmt.Sprintf("Fake player %s disconnected", targetLogin), login)
+		return
+	}
+
+	if err := p.GoController.Server.Client.ConnectFakePlayer(); err != nil {
+		go p.GoController.Chat("Error connecting fake player: "+err.Error(), login)
+		return
+	}
+
+	go p.GoController.Chat("Fake player connected", login)
 }
 
 func (p *PlayersPlugin) kickCommand(login string, args []string) {
