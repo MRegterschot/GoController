@@ -192,7 +192,7 @@ func (cm *CommandManager) ExecuteCommand(login string, text string) {
 
 				// Execute command
 				go command.Callback(login, params) // Run in a goroutine to mimic async behavior
-				zap.L().Debug("Command executed", zap.String("command", command.Name), zap.String("login", login))
+				zap.L().Debug("Command executed", zap.String("command", command.Name), zap.String("login", login), zap.Strings("params", params))
 				return
 			} else {
 				for _, alias := range command.Aliases {
@@ -210,7 +210,7 @@ func (cm *CommandManager) ExecuteCommand(login string, text string) {
 
 						// Execute command
 						go command.Callback(login, params) // Run in a goroutine to mimic async behavior
-						zap.L().Debug("Command executed", zap.String("command", alias), zap.String("login", login))
+						zap.L().Debug("Command executed", zap.String("command", alias), zap.String("login", login), zap.Strings("params", params))
 						return
 					}
 				}
