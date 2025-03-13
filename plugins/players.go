@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/MRegterschot/GoController/app"
@@ -14,6 +15,8 @@ type PlayersPlugin struct {
 	Dependencies []string
 	Loaded bool
 }
+
+var statuses = [4]string{"Selectable", "Spectator", "Player", "Spectator but selectable"}
 
 func CreatePlayersPlugin() *PlayersPlugin {
 	return &PlayersPlugin{
@@ -146,6 +149,20 @@ func (p *PlayersPlugin) Load() error {
 		Help:     "Kicks a player",
 	})
 
+	commandManager.AddCommand(models.ChatCommand{
+		Name:     "//players",
+		Callback: p.getPlayersCommand,
+		Admin:    true,
+		Help:     "Lists all players",
+	})
+
+	commandManager.AddCommand(models.ChatCommand{
+		Name:     "//forcestatus",
+		Callback: p.forceStatusCommand,
+		Admin:    true,
+		Help:     "Forces a player to status",
+	})
+
 	return nil
 }
 
@@ -169,6 +186,7 @@ func (p *PlayersPlugin) Unload() error {
 	commandManager.RemoveCommand("//saveguestlist")
 	commandManager.RemoveCommand("//cleanguestlist")
 	commandManager.RemoveCommand("//kick")
+	commandManager.RemoveCommand("//players")
 
 	return nil
 }
@@ -452,6 +470,54 @@ func (p *PlayersPlugin) kickCommand(login string, args []string) {
 	}
 	p.GoController.Server.Client.Kick(targetLogin, reason)
 	go p.GoController.Chat(fmt.Sprintf("Kicked: %s, Reason: %s", targetLogin, reason))
+}
+
+func (p *PlayersPlugin) getPlayersCommand(login string, args []string) {
+	players, err := p.GoController.Server.Client.GetPlayerList(100, 1)
+	if err != nil {
+		go p.GoController.Chat("Error getting players: "+err.Error(), login)
+		return
+	}
+
+	if len(players) == 0 {
+		go p.GoController.Chat("No players found", login)
+		return
+	}
+
+	nickNames := make([]string, len(players))
+	for i, player := range players {
+		nickNames[i] = player.NickName
+	}
+
+	msg := fmt.Sprintf("Players (%d): %s", len(players), strings.Join(nickNames, ", "))
+
+	go p.GoController.Chat(msg, login)
+}
+
+func (p *PlayersPlugin) forceStatusCommand(login string, args []string) {
+	if len(args) < 1 {
+		go p.GoController.Chat("Usage: //forcestatus [*login] [status]", login)
+		return
+	}
+
+	status := 3
+	if len(args) > 1 {
+		argInt, err := strconv.Atoi(args[1])
+		if err != nil || argInt < 0 || argInt > len(statuses) - 1 {
+			go p.GoController.Chat("Invalid status", login)
+			return
+		}
+
+		status = argInt
+	}
+
+	targetLogin := args[0]
+	if err := p.GoController.Server.Client.ForceSpectator(targetLogin, status); err != nil {
+		go p.GoController.Chat("Error forcing status: "+err.Error(), login)
+		return
+	}
+
+	go p.GoController.Chat(fmt.Sprintf("Forced %s into status: %s", targetLogin, statuses[status]))
 }
 
 func init() {
