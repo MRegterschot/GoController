@@ -55,7 +55,7 @@ func GetUIManager() *UIManager {
 func (uim *UIManager) Init() {
 	zap.L().Info("Initializing UIManager")
 
-	uim.Templates = jet.NewSet(jet.NewOSFileSystemLoader("./templates"))
+	uim.Templates = jet.NewSet(jet.NewOSFileSystemLoader("./ui/templates"))
 	uim.Templates.AddGlobal("Colors", map[string]string{
 		"Primary": "00CC66",
 	})
