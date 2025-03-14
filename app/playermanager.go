@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"regexp"
 	"sync"
 
 	"github.com/MRegterschot/GbxRemoteGo/events"
@@ -9,6 +10,8 @@ import (
 	"github.com/MRegterschot/GoController/models"
 	"go.uber.org/zap"
 )
+
+var fakeplayerRe = regexp.MustCompile(`^\*fakeplayer\d+\*$`)
 
 type PlayerManager struct {
 	Players []models.Player
@@ -86,6 +89,10 @@ func (plm *PlayerManager) GetPlayer(login string) *models.Player {
 }
 
 func (plm *PlayerManager) onPlayerConnect(playerConnectEvent events.PlayerConnectEventArgs) {
+	if fakeplayerRe.MatchString(playerConnectEvent.Login) {
+		return
+	}
+
 	for _, player := range plm.Players {
 		if player.Login == playerConnectEvent.Login {
 			go GetClient().Kick(player.Login, "You are already connected")
