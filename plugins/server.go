@@ -344,13 +344,9 @@ func (p *ServerPlugin) keepPlayerSlotsCommand(login string, args []string) {
 		return
 	}
 
-	keepPlayerSlots := false
-	if args[0] == "1" || args[0] == "true" {
-		keepPlayerSlots = true
-	}
+	keepPlayerSlots := args[0] == "1" || args[0] == "true"
 
-	err := p.GoController.Server.Client.KeepPlayerSlots(keepPlayerSlots)
-	if err != nil {
+	if err := p.GoController.Server.Client.KeepPlayerSlots(keepPlayerSlots); err != nil {
 		go p.GoController.Chat("Error setting keep player slots: "+err.Error(), login)
 		return
 	}
