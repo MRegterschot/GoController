@@ -35,7 +35,7 @@ func (dbm *DatabaseManager) Init() {
 	zap.L().Info("DatabaseManager initialized")
 }
 
-func (dbm *DatabaseManager) SyncPlayer(player models.Player) {
+func (dbm *DatabaseManager) SyncPlayer(player models.DetailedPlayer) {
 	ctx := context.Background()
 	dbPlayer, err := database.GetPlayerByLogin(ctx, player.Login)
 	if err != nil {

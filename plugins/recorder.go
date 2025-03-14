@@ -367,92 +367,19 @@ func (p *RecorderPlugin) recordingsCommand(login string, args []string) {
 	window := CreateRecorderGridWindow(&login)
 	window.Title = "Recordings"
 	window.Template = "recorder/recording.jet"
-	window.Items = []any{
-		struct {
-			Title string
-		}{
-			Title: "RecordingsRecordingsRecordingsRecordings",
-		},
-		struct {
-			Title string
-		}{
-			Title: "Recordings1Recordings1Recordings1Recordings1",
-		},
-		struct {
-			Title string
-		}{
-			Title: "Recordings2Recordings2Recordings2Recordings2",
-		},
-		struct {
-			Title string
-		}{
-			Title: "Recordings3Recordings3Recordings3Recordings3",
-		},
-		struct {
-			Title string
-		}{
-			Title: "Recordings4Recordings4Recordings4Recordings4",
-		},
-		struct {
-			Title string
-		}{
-			Title: "Recordings2Recordings2Recordings2Recordings2",
-		},
-		struct {
-			Title string
-		}{
-			Title: "Recordings3Recordings3Recordings3Recordings3",
-		},
-		struct {
-			Title string
-		}{
-			Title: "Recordings4Recordings4Recordings4Recordings4",
-		},
-		struct {
-			Title string
-		}{
-			Title: "Recordings2Recordings2Recordings2Recordings2",
-		},
-		struct {
-			Title string
-		}{
-			Title: "Recordings3Recordings3Recordings3Recordings3",
-		},
-		struct {
-			Title string
-		}{
-			Title: "Recordings4Recordings4Recordings4Recordings4",
-		},
-		struct {
-			Title string
-		}{
-			Title: "Recordings2Recordings2Recordings2Recordings2",
-		},
-		struct {
-			Title string
-		}{
-			Title: "Recordings3Recordings3Recordings3Recordings3",
-		},
-		struct {
-			Title string
-		}{
-			Title: "Recordings4Recordings4Recordings4Recordings4",
-		},
-		struct {
-			Title string
-		}{
-			Title: "Recordings2Recordings2Recordings2Recordings2",
-		},
-		struct {
-			Title string
-		}{
-			Title: "Recordings3Recordings3Recordings3Recordings3",
-		},
-		struct {
-			Title string
-		}{
-			Title: "Recordings4Recordings4Recordings4Recordings4",
-		},
+	window.Items = make([]any, 0)
+
+	recordingsDB, err := database.GetRecordings(context.Background())
+	if err != nil {
+		zap.L().Error("Failed to get recordings", zap.Error(err))
+		go p.GoController.Chat("Failed to get recordings", login)
+		return
+	}
+
+	for _, recordingDB := range recordingsDB {
+		var recording models.Recording
+		recordingDB.ToModel(&recording)
+		window.Items = append(window.Items, recording)
 	}
 
 	go window.Display()

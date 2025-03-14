@@ -15,7 +15,7 @@ import (
 var fakeplayerRe = regexp.MustCompile(`^\*fakeplayer\d+\*$`)
 
 type PlayerManager struct {
-	Players []models.Player
+	Players []models.DetailedPlayer
 }
 
 var (
@@ -58,7 +58,7 @@ func (plm *PlayerManager) SyncPlayers() {
 			zap.L().Error("Failed to get detailed player info", zap.Error(err))
 			continue
 		}
-		plm.Players = append(plm.Players, models.Player{
+		plm.Players = append(plm.Players, models.DetailedPlayer{
 			TMPlayerDetailedInfo: detailedInfo,
 			IsAdmin:              GetGoController().IsAdmin(player.Login),
 		})
@@ -67,7 +67,7 @@ func (plm *PlayerManager) SyncPlayers() {
 	GetDatabaseManager().SyncPlayers()
 }
 
-func (plm *PlayerManager) GetPlayer(login string) *models.Player {
+func (plm *PlayerManager) GetPlayer(login string) *models.DetailedPlayer {
 	for i := range plm.Players {
 		if plm.Players[i].Login == login {
 			return &plm.Players[i] // Return the actual struct reference
@@ -78,7 +78,7 @@ func (plm *PlayerManager) GetPlayer(login string) *models.Player {
 	if err != nil {
 		return nil
 	}
-	player := models.Player{
+	player := models.DetailedPlayer{
 		TMPlayerDetailedInfo: detailedInfo,
 		IsAdmin:              GetGoController().IsAdmin(login),
 	}
