@@ -367,11 +367,21 @@ func (p *RecorderPlugin) exportToCSVCommand(login string, args []string) {
 		go p.GoController.Chat("Invalid recording ID", login)
 		return
 	}
-	recording, err := database.GetRecordingByID(context.Background(), objectID)
+
+	err = p.exportToCSV(objectID)
+	if err != nil {
+		go p.GoController.Chat("Failed to export recording to CSV", login)
+		return
+	}
+
+	go p.GoController.Chat("Recording exported to CSV", login)
+}
+
+func (p *RecorderPlugin) exportToCSV(id primitive.ObjectID) error {
+	recording, err := database.GetRecordingByID(context.Background(), id)
 	if err != nil {
 		zap.L().Error("Failed to get recording", zap.Error(err))
-		go p.GoController.Chat("Failed to get recording", login)
-		return
+		return err
 	}
 
 	data := [][]string{
@@ -447,14 +457,13 @@ func (p *RecorderPlugin) exportToCSVCommand(login string, args []string) {
 		}
 	}
 
-	filePath := "recording_" + recordingID + ".csv"
+	filePath := "recording_" + id.Hex() + ".csv"
 	if err := utils.ExportCSV("./exports/"+filePath, data); err != nil {
 		zap.L().Error("Failed to export to CSV", zap.Error(err))
-		go p.GoController.Chat("Failed to export to CSV", login)
-		return
+		return err
 	}
 
-	go p.GoController.Chat("Exported to "+filePath, login)
+	return nil
 }
 
 func init() {

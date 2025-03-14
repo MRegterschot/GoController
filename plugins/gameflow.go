@@ -62,11 +62,21 @@ func (p *GameFlowPlugin) Unload() error {
 }
 
 func (p *GameFlowPlugin) skipCommand(login string, args []string) {
-	p.GoController.Server.Client.NextMap()
+	dontClearCupScores := false
+	if len(args) > 0 && args[0] == "true" {
+		dontClearCupScores = true
+	}
+	
+	p.GoController.Server.Client.NextMap(dontClearCupScores)
 }
 
 func (p *GameFlowPlugin) restartCommand(login string, args []string) {
-	p.GoController.Server.Client.RestartMap()
+	dontClearCupScores := false
+	if len(args) > 0 && args[0] == "true" {
+		dontClearCupScores = true
+	}
+	
+	p.GoController.Server.Client.RestartMap(dontClearCupScores)
 }
 
 func (p *GameFlowPlugin) modeCommand(login string, args []string) {
