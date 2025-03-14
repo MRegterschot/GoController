@@ -3,7 +3,6 @@ package ui
 import (
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
-	"github.com/MRegterschot/GoController/utils"
 )
 
 type Column struct {
@@ -55,27 +54,9 @@ func (lw *ListWindow) paginate(_ string, data any, entries any) {
 		return
 	}
 
-	switch action {
-	case "start":
-		lw.Pagination.CurrentPage = 0
-	case "previous":
-		if lw.Pagination.CurrentPage > 0 {
-			lw.Pagination.CurrentPage--
-		} else {
-			return
-		}
-	case "next":
-		if lw.Pagination.CurrentPage < lw.Pagination.TotalPages-1 {
-			lw.Pagination.CurrentPage++
-		} else {
-			return
-		}
-	case "end":
-		lw.Pagination.CurrentPage = lw.Pagination.TotalPages - 1
-	}
-
+	lw.Pagination.UpdatePage(action)
 	lw.UpdateItems(lw.Items, entries)
-	lw.Pagination = utils.Paginate(lw.Items, lw.Pagination.CurrentPage, lw.Pagination.PageSize)
+	lw.Pagination.Paginate(lw.Items, lw.Pagination.CurrentPage, lw.Pagination.PageSize)
 
 	lw.Data = struct {
 		Columns    []Column

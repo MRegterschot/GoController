@@ -37,23 +37,7 @@
     </frame>
   {{ end }}
 
-  <frame pos="{{ .Size.Width / 10 * 3 - 1 }} -{{ .Size.Height - 18.5 }}">
-    <frame>
-      <quad pos="0 0" z-index="0" size="6 6" action="{{ .Actions.start }}" opacity="1" style="Icons64x64_1" substyle="ShowLeft2" modulatecolor="{{ Colors.Primary }}"/>
-      <quad pos="2 0" z-index="0" size="6 6" action="{{ .Actions.start }}" opacity="1" style="Icons64x64_1" substyle="ShowLeft2" modulatecolor="{{ Colors.Primary }}"/>
-      <quad pos="10 0" z-index="0" size="6 6" action="{{ .Actions.previous }}" opacity="1" style="Icons64x64_1" substyle="ShowLeft2" modulatecolor="{{ Colors.Primary }}"/>
-    </frame>
-    <frame pos="{{ .Size.Width / 5 }}">
-      <label
-      pos="0 -1.5" z-index="0" size="20 4" text="{{ .Data.Pagination.CurrentPage + 1 }} / {{ .Data.Pagination.TotalPages }}" textfont="{{ Fonts.Regular }}" halign="center" textsize="2" />
-    </frame>
-    <frame pos="{{ .Size.Width / 5 * 2 - 16 }}">
-      <quad pos="10 0" z-index="0" size="6 6" action="{{ .Actions.end }}" opacity="1" style="Icons64x64_1" substyle="ShowRight2" modulatecolor="{{ Colors.Primary }}"/>
-      <quad pos="8 0" z-index="0" size="6 6" action="{{ .Actions.end }}" opacity="1" style="Icons64x64_1" substyle="ShowRight2" modulatecolor="{{ Colors.Primary }}"/>
-      <quad pos="0 0" z-index="0" size="6 6" action="{{ .Actions.next }}" opacity="1" style="Icons64x64_1" substyle="ShowRight2" modulatecolor="{{ Colors.Primary }}"/>
-    </frame>
-  </frame>
-
+  {{ include "pagination.jet" }}
 
   {{ if exists := .Actions.cancel; exists }}
     <frame pos="2 -{{ .Size.Height - 18.75 }}">

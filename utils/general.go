@@ -5,8 +5,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/MRegterschot/GoController/models"
 )
 
 // Checks if an element is present in the slice
@@ -60,26 +58,6 @@ func ChunkArray[T any](array []T, chunkSize int) [][]T {
 		chunks = append(chunks, array[i:end])
 	}
 	return chunks
-}
-
-// Paginate an array
-func Paginate[T any](array []T, page int, pageSize int) models.PaginationResult[T] {
-	start := page * pageSize
-	end := start + pageSize
-	if start > len(array) {
-		start = len(array)
-	}
-	if end > len(array) {
-		end = len(array)
-	}
-
-	return models.PaginationResult[T]{
-		Items:       array[start:end],
-		TotalItems:  len(array),
-		CurrentPage: page,
-		TotalPages:  (len(array) + pageSize - 1) / pageSize,
-		PageSize:    pageSize,
-	}
 }
 
 // Converts a string to an appropriate type dynamically

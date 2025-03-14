@@ -3,6 +3,8 @@ package app
 import (
 	"encoding/json"
 	"fmt"
+	"math"
+	"reflect"
 	"sync"
 
 	"github.com/CloudyKit/jet/v6"
@@ -61,6 +63,10 @@ func (uim *UIManager) Init() {
 		"Regular":   "GameFont",
 		"SemiBold":  "GameFontSemiBold",
 		"ExtraBold": "GameFontExtraBold",
+	})
+	uim.Templates.AddGlobalFunc("floor", func(args jet.Arguments) reflect.Value {
+		args.RequireNumOfArguments("floor", 1, 1)
+		return reflect.ValueOf(math.Floor(float64(args.Get(0).Int())))
 	})
 
 	GetClient().OnPlayerManialinkPageAnswer = append(GetClient().OnPlayerManialinkPageAnswer, gbxclient.GbxCallbackStruct[events.PlayerManialinkPageAnswerEventArgs]{

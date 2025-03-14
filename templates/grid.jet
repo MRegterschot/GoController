@@ -1,0 +1,18 @@
+{{ extends "window.jet" }}
+
+{{ block body() }}
+  {{ width := (.Size.Width - 2 - (.Data.Grid.Cols - 1) * .Data.Grid.Gap) / .Data.Grid.Cols }}
+  {{ height := (.Size.Height - 11 - (.Data.Grid.Rows - 1) * .Data.Grid.Gap) / .Data.Grid.Rows }}
+
+  <frame>
+    {{ range i, item := .Data.Pagination.Items }}
+      {{ posX := (i % .Data.Grid.Cols) * width + (i % .Data.Grid.Cols) * .Data.Grid.Gap }}
+      {{ posY := floor(i / .Data.Grid.Cols) * height + floor(i / .Data.Grid.Cols) * .Data.Grid.Gap }}
+      <frame pos="{{ posX }} -{{ posY }}" size="{{ width }} {{ height }}">
+        {{ includeIfExists(.Data.Template, item) }}
+      </frame>
+    {{ end }}
+  </frame>
+
+  {{ include "pagination.jet" }}
+{{ end }}

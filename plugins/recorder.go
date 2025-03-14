@@ -54,6 +54,14 @@ func (p *RecorderPlugin) Load() error {
 		Aliases:  []string{"//exp"},
 	})
 
+	commandManager.AddCommand(models.ChatCommand{
+		Name:     "//recordings",
+		Callback: p.recordingsCommand,
+		Admin:    true,
+		Help:     "Show recordings",
+		Aliases:  []string{"//recs"},
+	})
+
 	return nil
 }
 
@@ -62,6 +70,7 @@ func (p *RecorderPlugin) Unload() error {
 
 	commandManager.RemoveCommand("//recorder")
 	commandManager.RemoveCommand("//export")
+	commandManager.RemoveCommand("//recordings")
 
 	return nil
 }
@@ -352,6 +361,101 @@ func (p *RecorderPlugin) recorderCommand(login string, args []string) {
 	default:
 		go p.GoController.Chat("Usage: //recorder [start | stop]", login)
 	}
+}
+
+func (p *RecorderPlugin) recordingsCommand(login string, args []string) {
+	window := CreateRecorderGridWindow(&login)
+	window.Title = "Recordings"
+	window.Template = "recorder/recording.jet"
+	window.Items = []any{
+		struct {
+			Title string
+		}{
+			Title: "RecordingsRecordingsRecordingsRecordings",
+		},
+		struct {
+			Title string
+		}{
+			Title: "Recordings1Recordings1Recordings1Recordings1",
+		},
+		struct {
+			Title string
+		}{
+			Title: "Recordings2Recordings2Recordings2Recordings2",
+		},
+		struct {
+			Title string
+		}{
+			Title: "Recordings3Recordings3Recordings3Recordings3",
+		},
+		struct {
+			Title string
+		}{
+			Title: "Recordings4Recordings4Recordings4Recordings4",
+		},
+		struct {
+			Title string
+		}{
+			Title: "Recordings2Recordings2Recordings2Recordings2",
+		},
+		struct {
+			Title string
+		}{
+			Title: "Recordings3Recordings3Recordings3Recordings3",
+		},
+		struct {
+			Title string
+		}{
+			Title: "Recordings4Recordings4Recordings4Recordings4",
+		},
+		struct {
+			Title string
+		}{
+			Title: "Recordings2Recordings2Recordings2Recordings2",
+		},
+		struct {
+			Title string
+		}{
+			Title: "Recordings3Recordings3Recordings3Recordings3",
+		},
+		struct {
+			Title string
+		}{
+			Title: "Recordings4Recordings4Recordings4Recordings4",
+		},
+		struct {
+			Title string
+		}{
+			Title: "Recordings2Recordings2Recordings2Recordings2",
+		},
+		struct {
+			Title string
+		}{
+			Title: "Recordings3Recordings3Recordings3Recordings3",
+		},
+		struct {
+			Title string
+		}{
+			Title: "Recordings4Recordings4Recordings4Recordings4",
+		},
+		struct {
+			Title string
+		}{
+			Title: "Recordings2Recordings2Recordings2Recordings2",
+		},
+		struct {
+			Title string
+		}{
+			Title: "Recordings3Recordings3Recordings3Recordings3",
+		},
+		struct {
+			Title string
+		}{
+			Title: "Recordings4Recordings4Recordings4Recordings4",
+		},
+	}
+
+	go window.Display()
 }
 
 func (p *RecorderPlugin) exportToCSVCommand(login string, args []string) {
