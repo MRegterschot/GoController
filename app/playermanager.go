@@ -9,6 +9,7 @@ import (
 	"github.com/MRegterschot/GbxRemoteGo/gbxclient"
 	"github.com/MRegterschot/GoController/models"
 	"go.uber.org/zap"
+	"slices"
 )
 
 var fakeplayerRe = regexp.MustCompile(`^\*fakeplayer\d+\*$`)
@@ -108,7 +109,7 @@ func (plm *PlayerManager) onPlayerConnect(playerConnectEvent events.PlayerConnec
 func (plm *PlayerManager) onPlayerDisconnect(playerDisconnectEvent events.PlayerDisconnectEventArgs) {
 	for i, player := range plm.Players {
 		if player.Login == playerDisconnectEvent.Login {
-			plm.Players = append(plm.Players[:i], plm.Players[i+1:]...)
+			plm.Players = slices.Delete(plm.Players, i, i+1)
 			go GetGoController().Chat(fmt.Sprintf("%s disconnected", player.NickName))
 			return
 		}
