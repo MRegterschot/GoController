@@ -2,6 +2,6 @@
 
 {{ block item(item, width=0, height=0) }}
   <frame>
-    {{ include "../components/download.jet" .Actions[item["ID"]] }}
+    <label pos="{{ width - 6 }} -{{ height - 2 }}" z-index="0" size="5 5" text="{{ Icons.Download }}" halign="center" valign="center" scriptevents="1" focusareacolor1="fff0" focusareacolor2="fff0" action="{{ .Actions[item["ID"]] }}" />
   </frame>
 {{ end }}

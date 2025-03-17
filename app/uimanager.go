@@ -64,6 +64,10 @@ func (uim *UIManager) Init() {
 		"SemiBold":  "GameFontSemiBold",
 		"ExtraBold": "GameFontExtraBold",
 	})
+	uim.Templates.AddGlobal("Icons", map[string]string{
+		"Download": "",
+		"Map":      "",
+	})
 	uim.Templates.AddGlobalFunc("floor", func(args jet.Arguments) reflect.Value {
 		args.RequireNumOfArguments("floor", 1, 1)
 		return reflect.ValueOf(math.Floor(float64(args.Get(0).Int())))
@@ -175,7 +179,7 @@ func (uim *UIManager) onUIModulesProperties(event any) {
 	if !ok {
 		return
 	}
-	
+
 	uim.Modules = moduleProperties.UIModules
 
 	var reset []string
