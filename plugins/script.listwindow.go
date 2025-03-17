@@ -43,7 +43,6 @@ func (slw *ScriptListWindow) onApply(login string, _ any, entries any) {
 		return
 	}
 
-	go app.GetUIManager().DestroyManialink(slw.Manialink)
 	go app.GetGoController().Chat("Mode settings applied", login)
 }
 

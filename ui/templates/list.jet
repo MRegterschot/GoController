@@ -1,15 +1,5 @@
 {{ extends "window.jet" }}
 
-{{ block rowField(type="text", totalWidth, colWidth, value, name="")}}
-  {{ if col.Type == "text" }}
-    <label pos="{{ totalWidth + 2 }} -2.5" z-index="1" size="{{ colWidth }} 5" text="{{ value }}" valign="center" textcolor="FFFFFFFF" textfont="{{ Fonts.Regular }}" textsize="1.5" textemboss="1"/>
-  {{ else if col.Type == "input" }}
-    <textedit pos="{{ totalWidth + 2 }} -2.5" z-index="0" name="{{ name }}" size="{{ colWidth }} 3.5" maxline="1" default="{{ value }}"  textsize="1.5" valign="center" textfont="{{ Fonts.Regular }}" scriptevents="1"/>
-  {{ else }}
-    <label pos="{{ totalWidth + 2 }} -2.5" z-index="1" size="{{ colWidth }} 5" text="{{ value }}" valign="center" textcolor="FFFFFFFF" textfont="{{ Fonts.Regular }}" textsize="1.5" textemboss="1"/>
-  {{ end }}
-{{ end }}
-
 {{ block body() }}
   {{ maxWidth := (.Size.Width - 6 - ((len(.Data.Columns) - 1) * 2)) }}
 
@@ -29,7 +19,13 @@
       {{ range i, col := .Data.Columns }}
         {{ colWidth := maxWidth / ( 100 / col.Width ) }}
 
-        {{ yield rowField(type=col.Type, totalWidth=totalWidth, colWidth=colWidth, value=item[i], name=item[0]) }}
+        {{ if col.Type == "text" }}
+          <label pos="{{ totalWidth + 2 }} -2.5" z-index="1" size="{{ colWidth }} 5" text="{{ item[i] }}" valign="center" textcolor="FFFFFFFF" textfont="{{ Fonts.Regular }}" textsize="1.5" textemboss="1"/>
+        {{ else if col.Type == "input" }}
+          <textedit pos="{{ totalWidth + 2 }} -2.5" z-index="0" name="{{ item[0] }}" size="{{ colWidth }} 3.5" maxline="1" default="{{ item[i] }}"  textsize="1.5" valign="center" textfont="{{ Fonts.Regular }}" scriptevents="1"/>
+        {{ else }}
+          <label pos="{{ totalWidth + 2 }} -2.5" z-index="1" size="{{ colWidth }} 5" text="{{ item[i] }}" valign="center" textcolor="FFFFFFFF" textfont="{{ Fonts.Regular }}" textsize="1.5" textemboss="1"/>
+        {{ end }}
 
         {{ totalWidth = totalWidth + colWidth + 2 }}
       {{ end }}
