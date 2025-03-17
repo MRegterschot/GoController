@@ -49,7 +49,7 @@ func (gw *GridWindow) SetTemplate(template string) {
 	gw.Window.SetTemplate(template)
 }
 
-func (gw *GridWindow) paginate(_ string, data any, entries any) {
+func (gw *GridWindow) paginate(_ string, data any, _ any) {
 	action, ok := data.(string)
 	if !ok {
 		return
@@ -72,6 +72,8 @@ func (gw *GridWindow) paginate(_ string, data any, entries any) {
 
 	gw.Window.Display()
 }
+
+
 
 func (gw *GridWindow) Display() {
 	gw.paginate("", "start", nil)

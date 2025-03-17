@@ -378,6 +378,7 @@ func (p *RecorderPlugin) recordingsCommand(login string, args []string) {
 	for _, recordingDB := range recordingsDB {
 		var recording models.Recording
 		recordingDB.ToModel(&recording)
+		window.Actions[recording.ID] = app.GetUIManager().AddAction(p.handleDownloadAnswer, recording.ID)
 		window.Items = append(window.Items, recording)
 	}
 	
@@ -405,6 +406,15 @@ func (p *RecorderPlugin) exportToCSVCommand(login string, args []string) {
 	}
 
 	go p.GoController.Chat("Recording exported to CSV", login)
+}
+
+func (p *RecorderPlugin) handleDownloadAnswer(_ string, data any, _ any) {
+	if id, err := primitive.ObjectIDFromHex(data.(string)); err != nil {
+		zap.L().Error("Invalid recording ID", zap.Error(err))
+		go p.GoController.Chat("Invalid recording ID", "")
+	} else {
+		go p.exportToCSV(id)
+	}
 }
 
 func (p *RecorderPlugin) exportToCSV(id primitive.ObjectID) error {
