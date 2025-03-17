@@ -413,8 +413,11 @@ func (p *RecorderPlugin) handleDownloadAnswer(login string, data any, _ any) {
 		zap.L().Error("Invalid recording ID", zap.Error(err))
 		go p.GoController.Chat("Invalid recording ID", login)
 	} else {
-		go p.exportToCSV(id)
-		go p.GoController.Chat("Recording exported to CSV", login)
+		if err = p.exportToCSV(id); err != nil {
+			go p.GoController.Chat("Failed to export recording to CSV", login)
+		} else {
+			go p.GoController.Chat("Recording exported to CSV", login)
+		}
 	}
 }
 
