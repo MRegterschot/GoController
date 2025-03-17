@@ -2,24 +2,24 @@
 
 {{ block item(item, width=0, height=0) }}
   <frame pos="1 -1">
-    <label pos="0 0" size="{{ width - 2 }} 5" text="{{ item["Name"] }}" />
+    <label pos="0 0" size="{{ width - 2 }} 5" text="{{ item["Name"] }}" textemboss="1" />
     <quad pos="-1 -5" z-index="0" size="{{ width }} 0.2" bgcolor="FFF" opacity="0.7" />
-    <label pos="0 -6.5" z-index="0" size="{{ width - 2 }} 5" text="{{ item["Type"] }}" />
+    <label pos="0 -6.5" z-index="0" size="{{ width - 2 }} 5" text="{{ item["Type"] }}" textemboss="1" />
 
     <frame pos="0 -{{ (height - 4 ) / 2 }}">
-      <label pos="0 " z-index="0" size="5 5" text="{{ Icons.Map }}"/>
-      <label pos="6 -2" z-index="0" size="20 4" text="{{ len(item.Maps) }}" valign="center"/>
+      <label pos="0 " z-index="0" size="5 5" text="{{ Icons.Map }}" textemboss="1" />
+      <label pos="6 -2" z-index="0" size="20 4" text="{{ len(item.Maps) }}" valign="center" textemboss="1" />
 
       {{ records := 0 }}
       {{ range i, map := item.Maps }}
         {{ records = records + len(map["MatchRounds"]) + len(map["Rounds"]) + len(map["Finishes"]) }}
       {{ end }}
       
-      <label pos="0 -6" z-index="0" size="20 5" text="{{ Icons.Clock }}"/>
-      <label pos="6 -8" z-index="0" size="20 4" text="{{ records }}" valign="center"/>
+      <label pos="0 -6" z-index="0" size="20 5" text="{{ Icons.Clock }}" textemboss="1"/>
+      <label pos="6 -8" z-index="0" size="20 4" text="{{ records }}" valign="center" textemboss="1"/>
     </frame>
 
-    <label pos="0 -{{ height - 3 }}" z-index="0" size="{{ width - 10 }} 4" text="{{ item["CreatedAt"]|formatTime }}" textsize="2" valign="center"/>
-    <label pos="{{ width - 4 }} -{{ height - 3 }}" z-index="0" size="5 5" text="{{ Icons.Download }}" halign="center" valign="center" scriptevents="1" focusareacolor1="fff0" focusareacolor2="fff0" action="{{ .Actions[item["ID"]] }}" />
+    <label pos="0 -{{ height - 3 }}" z-index="0" size="{{ width - 10 }} 4" text="{{ item["CreatedAt"]|formatTime }}" textsize="2" valign="center" textemboss="1"/>
+    <label pos="{{ width - 4 }} -{{ height - 3 }}" z-index="0" textcolor="{{ Colors.Primary }}" size="5 5" text="{{ Icons.Download }}" halign="center" valign="center" scriptevents="1" focusareacolor1="fff0" focusareacolor2="fff0" action="{{ .Actions[item["ID"]] }}" textemboss="1" />
   </frame>
 {{ end }}
