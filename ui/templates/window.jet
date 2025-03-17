@@ -2,7 +2,7 @@
 {{ block container() }}
   <frame pos="-{{ .Size.Width / 2 + .Pos.X }} {{ .Size.Height / 2 + .Pos.Y }}" z-index="{{ .Pos.Z }}">
     <quad pos="0 0" z-index="1" size="{{ .Size.Width }} {{ .Size.Height }}" style="Bgs1" substyle="BgList" />
-    <label pos="2 -2" z-index="2" size="{{ .Size.Width - 12 }} 7" text="$i{{ .Title }}" textcolor="{{ Colors.Primary }}" textsize="6" textfont="{{ Fonts.ExtraBold }}"/>
+    <label pos="2 -2" z-index="2" size="{{ .Size.Width - 12 }} 7" text="$i{{ .Title }}" textcolor="{{ Colors.Primary }}" textsize="6" textfont="{{ Fonts.ExtraBold }}" textemboss="1"/>
     <quad pos="{{ .Size.Width - 10 }} -1" z-index="2" size="20 20" action="{{ .Actions.close }}" style="Hud3dIcons" substyle="Cross" scale="0.5" />
     <quad pos="1 -10" z-index="0" size="{{ .Size.Width - 2}} 0.2" bgcolor="FFF" opacity="0.7" />
     

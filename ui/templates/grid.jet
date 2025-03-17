@@ -15,5 +15,5 @@
     {{ end }}
   </frame>
 
-  {{ include "pagination.jet" }}
+  {{ include "components/pagination.jet" }}
 {{ end }}
