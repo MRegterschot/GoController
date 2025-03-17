@@ -408,10 +408,10 @@ func (p *RecorderPlugin) exportToCSVCommand(login string, args []string) {
 	go p.GoController.Chat("Recording exported to CSV", login)
 }
 
-func (p *RecorderPlugin) handleDownloadAnswer(_ string, data any, _ any) {
+func (p *RecorderPlugin) handleDownloadAnswer(login string, data any, _ any) {
 	if id, err := primitive.ObjectIDFromHex(data.(string)); err != nil {
 		zap.L().Error("Invalid recording ID", zap.Error(err))
-		go p.GoController.Chat("Invalid recording ID", "")
+		go p.GoController.Chat("Invalid recording ID", login)
 	} else {
 		go p.exportToCSV(id)
 	}
