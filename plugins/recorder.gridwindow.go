@@ -12,6 +12,8 @@ func CreateRecorderGridWindow(login *string) *RecorderGridWindow {
 	rgw := &RecorderGridWindow{
 		GridWindow: ui.NewGridWindow(login),
 	}
-
+	
+	rgw.SetTemplate("recorder/recording.jet")
+	
 	return rgw
 }

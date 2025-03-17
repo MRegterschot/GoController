@@ -45,6 +45,10 @@ func NewGridWindow(login *string) *GridWindow {
 	return gw
 }
 
+func (gw *GridWindow) SetTemplate(template string) {
+	gw.Window.SetTemplate(template)
+}
+
 func (gw *GridWindow) paginate(_ string, data any, entries any) {
 	action, ok := data.(string)
 	if !ok {
@@ -61,11 +65,9 @@ func (gw *GridWindow) paginate(_ string, data any, entries any) {
 	gw.Data = struct {
 		Pagination models.PaginationResult[any]
 		Grid       Grid
-		Template   string
 	}{
 		Pagination: gw.Pagination,
 		Grid:       gw.Grid,
-		Template:   gw.Template,
 	}
 
 	gw.Window.Display()

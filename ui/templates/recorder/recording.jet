@@ -1,3 +1,7 @@
-<frame>
-  <label text="{{ .Name }}" />
-</frame>
+{{ extends "../grid.jet" }}
+
+{{ block item(item, width=0, height=0) }}
+  <frame>
+    {{ include "../components/download.jet" "bla" }}
+  </frame>
+{{ end }}

@@ -20,6 +20,10 @@ func NewWindow(login *string) *Window {
 	return w
 }
 
+func (w *Window) SetTemplate(template string) {
+	w.Manialink.Template = template
+}
+
 func (w *Window) Destroy(_ string, _ any, _ any) {
 	w.Manialink.Destroy()
 }

@@ -366,7 +366,6 @@ func (p *RecorderPlugin) recorderCommand(login string, args []string) {
 func (p *RecorderPlugin) recordingsCommand(login string, args []string) {
 	window := CreateRecorderGridWindow(&login)
 	window.Title = "Recordings"
-	window.Template = "recorder/recording.jet"
 	window.Items = make([]any, 0)
 
 	recordingsDB, err := database.GetRecordings(context.Background())
@@ -381,7 +380,7 @@ func (p *RecorderPlugin) recordingsCommand(login string, args []string) {
 		recordingDB.ToModel(&recording)
 		window.Items = append(window.Items, recording)
 	}
-
+	
 	go window.Display()
 }
 
