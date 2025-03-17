@@ -6,6 +6,7 @@ import (
 	"math"
 	"reflect"
 	"sync"
+	"time"
 
 	"github.com/CloudyKit/jet/v6"
 	"github.com/MRegterschot/GbxRemoteGo/events"
@@ -67,10 +68,20 @@ func (uim *UIManager) Init() {
 	uim.Templates.AddGlobal("Icons", map[string]string{
 		"Download": "",
 		"Map":      "",
+		"Clock":    "",
 	})
 	uim.Templates.AddGlobalFunc("floor", func(args jet.Arguments) reflect.Value {
 		args.RequireNumOfArguments("floor", 1, 1)
 		return reflect.ValueOf(math.Floor(float64(args.Get(0).Int())))
+	})
+	uim.Templates.AddGlobalFunc("formatTime", func(args jet.Arguments) reflect.Value {
+		args.RequireNumOfArguments("formatTime", 1, 1)
+		value := args.Get(0)
+		if value.Type() == reflect.TypeOf(time.Time{}) {
+			extractedTime := value.Interface().(time.Time)
+			return reflect.ValueOf(extractedTime.Format("02 January, 15:04"))
+		}
+		return reflect.ValueOf("")
 	})
 
 	GetClient().OnPlayerManialinkPageAnswer = append(GetClient().OnPlayerManialinkPageAnswer, gbxclient.GbxCallbackStruct[events.PlayerManialinkPageAnswerEventArgs]{

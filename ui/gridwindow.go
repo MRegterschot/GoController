@@ -60,7 +60,7 @@ func (gw *GridWindow) paginate(_ string, data any, _ any) {
 	}
 
 	gw.Pagination.UpdatePage(action)
-	gw.Pagination.Paginate(gw.Items, gw.Pagination.CurrentPage, gw.Pagination.PageSize)
+	gw.Pagination.Paginate(gw.Items, gw.Pagination.CurrentPage, gw.Grid.Cols * gw.Grid.Rows)
 
 	gw.Data = struct {
 		Pagination models.PaginationResult[any]
