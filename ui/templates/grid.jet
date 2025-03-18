@@ -1,6 +1,5 @@
 {{ extends "window.jet" }}
 
-
 {{ block body() }}
   {{ width := (.Size.Width - 2 - (.Data.Grid.Cols - 1) * .Data.Grid.Gap) / .Data.Grid.Cols }}
   {{ height := (.Size.Height - 11 - 9.25 - (.Data.Grid.Rows - 1) * .Data.Grid.Gap) / .Data.Grid.Rows }}
