@@ -1,0 +1,7 @@
+{{ extends "manialink.jet" }}
+
+{{ block container() }}
+  <frame pos="{{ .Pos.X }} {{ .Pos.Y }}" z-index="{{ .Pos.Z }}">
+    {{ yield body() }}
+  </frame>
+{{ end }}

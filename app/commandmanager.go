@@ -23,6 +23,8 @@ var (
 	cmOnce     sync.Once
 )
 
+var re = regexp.MustCompile(`^/{1,2}`)
+
 func GetCommandManager() *CommandManager {
 	cmOnce.Do(func() {
 		cmInstance = &CommandManager{
@@ -36,7 +38,7 @@ func (cm *CommandManager) Init() {
 	zap.L().Info("Initializing CommandManager")
 
 	cm.addDefaultCommands()
-	
+
 	GetClient().OnPlayerChat = append(GetClient().OnPlayerChat, gbxclient.GbxCallbackStruct[events.PlayerChatEventArgs]{
 		Key:  "cmPlayerChat",
 		Call: cm.onPlayerChat})
@@ -164,87 +166,53 @@ func (cm *CommandManager) RemoveCommand(command string) {
 }
 
 // Executes a command
-func (cm *CommandManager) ExecuteCommand(login string, text string) {
+func (cm *CommandManager) ExecuteCommand(login string, command string, params []string, admin bool) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
-	if strings.HasPrefix(text, "/") {
-		controller := GetGoController()
+	controller := GetGoController()
 
-		for _, command := range cm.Commands {
-			if command.Name == "" && len(command.Aliases) == 0 {
-				continue
-			}
+	if admin && !utils.Includes(*controller.Admins, login) {
+		return
+	}
 
-			if strings.HasPrefix(text, "//") && !utils.Includes(*controller.Admins, login) {
-				go controller.Chat("$C00Not allowed.", login)
-				return
-			}
+	for _, com := range cm.Commands {
+		if com.Name == "" && len(com.Aliases) == 0 {
+			continue
+		}
 
-			// Prepare regex
-			prefix := `[/]`
-			if strings.HasPrefix(command.Name, "//") {
-				prefix = `[/]{2}`
-			}
-			exp := regexp.MustCompile(fmt.Sprintf(`^%s\b%s\b`, prefix, EscapeRegex(strings.TrimLeft(command.Name, "/"))))
-
-			// Match command
-			if exp.MatchString(text) {
-				// Extract parameters
-				words := strings.TrimSpace(strings.Replace(text, command.Name, "", 1))
-				params := regexp.MustCompile(`(?:[^"\s]+|"[^"]*")`).FindAllString(words, -1)
-
-				// Remove surrounding quotes
-				for i, word := range params {
-					params[i] = strings.Trim(word, `"`)
-				}
-
-				// Execute command
-				go command.Callback(login, params) // Run in a goroutine to mimic async behavior
-				zap.L().Debug("Command executed", zap.String("command", command.Name), zap.String("login", login), zap.Strings("params", params))
-				return
-			} else {
-				for _, alias := range command.Aliases {
-					exp = regexp.MustCompile(fmt.Sprintf(`^%s\b%s\b`, prefix, EscapeRegex(strings.TrimLeft(alias, "/"))))
-
-					if exp.MatchString(text) {
-						// Extract parameters
-						words := strings.TrimSpace(strings.Replace(text, alias, "", 1))
-						params := regexp.MustCompile(`(?:[^"\s]+|"[^"]*")`).FindAllString(words, -1)
-
-						// Remove surrounding quotes
-						for i, word := range params {
-							params[i] = strings.Trim(word, `"`)
-						}
-
-						// Execute command
-						go command.Callback(login, params) // Run in a goroutine to mimic async behavior
-						zap.L().Debug("Command executed", zap.String("command", alias), zap.String("login", login), zap.Strings("params", params))
-						return
-					}
+		if command == com.Name {
+			go com.Callback(login, params)
+			zap.L().Debug("Command executed", zap.String("command", com.Name), zap.String("login", login), zap.Strings("params", params))
+			return
+		} else {
+			for _, alias := range com.Aliases {
+				if command == alias {
+					go com.Callback(login, params)
+					zap.L().Debug("Command executed", zap.String("command", alias), zap.String("login", login), zap.Strings("params", params))
+					return
 				}
 			}
 		}
-		go controller.Chat(fmt.Sprintf("$fffCommand $0C6%s $fffnot found.", text), login)
 	}
-
 }
 
 func (cm *CommandManager) onPlayerChat(chatEvent events.PlayerChatEventArgs) {
+	// Check if the player is the server
 	if chatEvent.PlayerUid == 0 {
 		return
 	}
 
-	cm.ExecuteCommand(chatEvent.Login, chatEvent.Text)
-}
+	// Check if the message is a command
+	if !re.MatchString(chatEvent.Text) {
+		return
+	}
 
-// EscapeRegex escapes special regex characters
-func EscapeRegex(text string) string {
-	replacer := strings.NewReplacer(
-		".", `\.`, "*", `\*`, "+", `\+`, "?", `\?`,
-		"{", `\{`, "}", `\}`, "(", `\(`, ")", `\)`,
-		"[", `\[`, "]", `\]`, "|", `\|`, "^", `\^`,
-		"$", `\$`,
-	)
-	return replacer.Replace(text)
+	admin := false
+	if strings.HasPrefix(chatEvent.Text, "//") {
+		admin = true
+	}
+		
+	splitText := strings.Split(chatEvent.Text, " ")
+	cm.ExecuteCommand(chatEvent.Login, splitText[0], splitText[1:], admin)
 }
