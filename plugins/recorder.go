@@ -332,7 +332,7 @@ func (p *RecorderPlugin) onPreEndRoundMatch(preEndRoundEvent events.ScoresEventA
 
 func (p *RecorderPlugin) recorderCommand(login string, args []string) {
 	if len(args) < 1 {
-		go p.GoController.Chat("Usage: //recorder [start | stop] [*name]", login)
+		go p.GoController.Chat("Usage: //recorder [*start | stop] [name]", login)
 		return
 	}
 
@@ -359,7 +359,7 @@ func (p *RecorderPlugin) recorderCommand(login string, args []string) {
 		p.stopRecording()
 		go p.GoController.Chat("Recording stopped with id "+p.Recording.ID.Hex(), login)
 	default:
-		go p.GoController.Chat("Usage: //recorder [start | stop]", login)
+		go p.GoController.Chat("Usage: //recorder [*start | stop] [name]", login)
 	}
 }
 

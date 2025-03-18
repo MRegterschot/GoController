@@ -33,7 +33,7 @@ func NewGridWindow(login *string) *GridWindow {
 			TotalPages:  0,
 			PageSize:    12,
 		},
-		Grid:   Grid{Cols: 4, Rows: 3, Gap: 4},
+		Grid:   Grid{Cols: 4, Rows: 3, Gap: 2},
 	}
 
 	uim := app.GetUIManager()

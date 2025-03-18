@@ -6,7 +6,7 @@
   </frame>
   <frame pos="{{ .Size.Width / 5 }}">
     <label
-    pos="0 -1.5" z-index="0" size="20 4" text="{{ .Data.Pagination.CurrentPage + 1 }} / {{ .Data.Pagination.TotalPages }}" textfont="{{ Fonts.Regular }}" halign="center" textsize="2" />
+    pos="0 -1.5" z-index="0" size="20 4" text="{{ .Data.Pagination.CurrentPage + 1 }} / {{ .Data.Pagination.TotalPages }}" textemboss="1" textfont="{{ Fonts.Regular }}" halign="center" textsize="2" />
   </frame>
   <frame pos="{{ .Size.Width / 5 * 2 - 16 }}">
     <quad pos="10 0" z-index="0" size="6 6" action="{{ .Actions.end }}" opacity="1" style="Icons64x64_1" substyle="ShowRight2" modulatecolor="{{ Colors.Primary }}"/>
