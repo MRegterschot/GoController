@@ -70,6 +70,13 @@ func (cm *CommandManager) addDefaultCommands() {
 	})
 
 	cm.AddCommand(ChatCommand{
+		Name:     "//reboot",
+		Callback: cm.rebootCommand,
+		Admin:    true,
+		Help:     "Reboots the controller",
+	})
+
+	cm.AddCommand(ChatCommand{
 		Name:     "//load",
 		Callback: cm.loadPluginCommand,
 		Admin:    true,
@@ -123,6 +130,12 @@ func (cm *CommandManager) adminHelpCommand(login string, args []string) {
 
 func (cm *CommandManager) shutdownCommand(login string, args []string) {
 	GetGoController().Shutdown()
+}
+
+func (cm *CommandManager) rebootCommand(login string, args []string) {
+	if err := GetGoController().Reboot(); err != nil {
+		go GetGoController().Chat("Failed to reboot", login)
+	}
 }
 
 func (cm *CommandManager) loadPluginCommand(login string, args []string) {

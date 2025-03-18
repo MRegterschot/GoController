@@ -3,8 +3,10 @@ package app
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 	"sync"
+	"syscall"
 
 	"github.com/MRegterschot/GbxRemoteGo/gbxclient"
 	"github.com/MRegterschot/GoController/utils"
@@ -141,4 +143,38 @@ func (c *GoController) Shutdown() {
 
 	zap.L().Info("GoController shutdown")
 	os.Exit(0)
+}
+
+// Reboot the GoController
+func (c *GoController) Reboot() error {
+	exe, err := os.Executable()
+	if err != nil {
+		zap.L().Error("Failed to get executable path", zap.Error(err))
+		return err
+	}
+
+	zap.L().Info("Rebooting GoController")
+	go c.Chat("GoController rebooting...")
+
+	args := os.Args
+	var cmd *exec.Cmd
+	if len(args) > 1 {
+		cmd = exec.Command(exe, args[1:]...)
+	} else {
+		cmd = exec.Command(exe)
+	}
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
+
+	if err := cmd.Start(); err != nil {
+		zap.L().Error("Failed to start new process", zap.Error(err))
+		return err
+	}
+
+	zap.L().Info("Started new process", zap.String("pid", fmt.Sprintf("%d", cmd.Process.Pid)))
+
+	os.Exit(0)
+	return nil
 }

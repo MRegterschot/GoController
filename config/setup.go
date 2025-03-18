@@ -2,8 +2,6 @@ package config
 
 import (
 	"os"
-
-	"go.uber.org/zap"
 )
 
 func Setup() {
@@ -15,6 +13,4 @@ func Setup() {
 
 	// setup logger
 	SetupLogger()
-
-	defer zap.L().Sync()
 }
