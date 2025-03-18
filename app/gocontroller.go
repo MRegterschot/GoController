@@ -146,6 +146,7 @@ func (c *GoController) Shutdown() {
 }
 
 // Reboot the GoController
+// Logging does not work with Air after reboot
 func (c *GoController) Reboot() error {
 	exe, err := os.Executable()
 	if err != nil {
@@ -172,8 +173,6 @@ func (c *GoController) Reboot() error {
 		zap.L().Error("Failed to start new process", zap.Error(err))
 		return err
 	}
-
-	zap.L().Info("Started new process", zap.String("pid", fmt.Sprintf("%d", cmd.Process.Pid)))
 
 	os.Exit(0)
 	return nil
