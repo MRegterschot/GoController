@@ -146,6 +146,7 @@ func (c *GoController) Shutdown() {
 }
 
 // Reboot the GoController
+//
 // Logging does not work with Air after reboot
 func (c *GoController) Reboot() error {
 	exe, err := os.Executable()
