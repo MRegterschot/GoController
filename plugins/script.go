@@ -7,6 +7,7 @@ import (
 
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
+	"github.com/MRegterschot/GoController/plugins/windows"
 	"github.com/MRegterschot/GoController/ui"
 )
 
@@ -109,7 +110,7 @@ func (p *ScriptPlugin) modeSettingsCommand(login string, args []string) {
 		{Name: "Value", Width: 30, Type: "input"},
 	}
 
-	window := CreateScriptListWindow(&login)
+	window := windows.CreateScriptListWindow(&login)
 	window.Title = "Mode settings"
 	window.Columns = columns
 	window.Items = items

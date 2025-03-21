@@ -1,4 +1,4 @@
-package plugins
+package windows
 
 import (
 	"github.com/MRegterschot/GbxRemoteGo/structs"

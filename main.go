@@ -6,6 +6,7 @@ import (
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/config"
 	_ "github.com/MRegterschot/GoController/plugins"
+	_ "github.com/MRegterschot/GoController/plugins/widgets"
 	"github.com/MRegterschot/GoController/utils"
 	"go.uber.org/zap"
 )

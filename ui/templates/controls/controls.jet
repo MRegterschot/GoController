@@ -1,0 +1,10 @@
+{{ extends "../widget.jet" }}
+
+{{ block body() }}
+  <label text="bla" />
+  <quad bgcolor="FFF" opacity="0.7" size="20 10" />
+
+  {{ range .Controls }}
+    
+  {{ end }}
+{{ end }}
