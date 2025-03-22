@@ -49,15 +49,15 @@ func (p *GameFlowPlugin) Load() error {
 		Help:     "Get or set gamemode",
 	})
 
-	cw := widgets.GetControlsWidget()
+	acw := widgets.GetAdminControlsWidget()
 
-	cw.AddAction(widgets.Action{
+	acw.AddAction(widgets.Action{
 		Name:    "Skip",
 		Icon:    "Skip",
 		Command: "//skip",
 	})
 
-	cw.AddAction(widgets.Action{
+	acw.AddAction(widgets.Action{
 		Name:    "Restart",
 		Icon:    "Restart",
 		Command: "//restart",

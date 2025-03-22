@@ -1,9 +1,0 @@
-{{ extends "../widget.jet" }}
-
-{{ block body() }}
-  <quad bgcolor="000" opacity="0.6" size="24 12" />
-
-  {{ range i, action := .Data.Actions }}
-    <label size="4 4" pos="3 -{{ (i % 2 * 6) + 1 }}" text="{{ Icons[action.Icon] }}" textsize="3" halign="center" />
-  {{ end }}
-{{ end }}
