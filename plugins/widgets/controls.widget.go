@@ -53,6 +53,7 @@ func GetControlsWidget() *ControlsWidget {
 }
 
 func (cw *ControlsWidget) Load() error {
+	cw.reload()
 	cw.Display()
 
 	return nil
@@ -64,12 +65,20 @@ func (cw *ControlsWidget) Unload() error {
 	return nil
 }
 
+func (cw *ControlsWidget) reload() {
+	cw.Data = map[string]any{
+		"Actions": cw.Actions,
+	}
+	cw.Display()
+}
+
 func (cw *ControlsWidget) AddAction(action Action) error {
 	if utils.Includes(cw.Actions, action) {
 		return errors.New("Action already exists")
 	}
 
 	cw.Actions = append(cw.Actions, action)
+	cw.reload()
 
 	return nil
 }
@@ -85,6 +94,8 @@ func (cw *ControlsWidget) RemoveAction(action Action) error {
 			break
 		}
 	}
+
+	cw.reload()
 
 	return nil
 }

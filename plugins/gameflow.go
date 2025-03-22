@@ -5,6 +5,7 @@ import (
 
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
+	"github.com/MRegterschot/GoController/plugins/widgets"
 )
 
 type GameFlowPlugin struct {
@@ -46,6 +47,20 @@ func (p *GameFlowPlugin) Load() error {
 		Callback: p.modeCommand,
 		Admin:    true,
 		Help:     "Get or set gamemode",
+	})
+
+	cw := widgets.GetControlsWidget()
+
+	cw.AddAction(widgets.Action{
+		Name:    "Skip",
+		Icon:    "Skip",
+		Command: "//skip",
+	})
+
+	cw.AddAction(widgets.Action{
+		Name:    "Restart",
+		Icon:    "Restart",
+		Command: "//restart",
 	})
 
 	return nil
