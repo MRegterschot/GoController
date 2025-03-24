@@ -12,7 +12,6 @@ import (
 )
 
 type ScriptPlugin struct {
-	app.BasePlugin
 	Name         string
 	Dependencies []string
 	Loaded       bool
@@ -23,7 +22,6 @@ func CreateScriptPlugin() *ScriptPlugin {
 		Name:         "Script",
 		Dependencies: []string{},
 		Loaded:       false,
-		BasePlugin:   app.GetBasePlugin(),
 	}
 }
 
@@ -68,15 +66,17 @@ func (p *ScriptPlugin) Unload() error {
 }
 
 func (p *ScriptPlugin) modeSettingsCommand(login string, args []string) {
-	settings, err := p.GoController.Server.Client.GetModeScriptSettings()
+	c := app.GetGoController()
+	
+	settings, err := c.Server.Client.GetModeScriptSettings()
 	if err != nil {
-		go p.GoController.Chat("Error getting mode settings: "+err.Error(), login)
+		go c.Chat("Error getting mode settings: "+err.Error(), login)
 		return
 	}
 
-	info, err := p.GoController.Server.Client.GetModeScriptInfo()
+	info, err := c.Server.Client.GetModeScriptInfo()
 	if err != nil {
-		go p.GoController.Chat("Error getting mode script info: "+err.Error(), login)
+		go c.Chat("Error getting mode script info: "+err.Error(), login)
 		return
 	}
 
@@ -119,35 +119,39 @@ func (p *ScriptPlugin) modeSettingsCommand(login string, args []string) {
 }
 
 func (p *ScriptPlugin) loadMatchSettingsCommand(login string, args []string) {
+	c := app.GetGoController()
+	
 	if len(args) < 1 {
-		go p.GoController.Chat("Usage: //loadmatchsettings [*filename]", login)
+		go c.Chat("Usage: //loadmatchsettings [*filename]", login)
 		return
 	}
 
 	filename := args[0]
-	_, err := p.GoController.Server.Client.LoadMatchSettings("MatchSettings/" + filename)
+	_, err := c.Server.Client.LoadMatchSettings("MatchSettings/" + filename)
 	if err != nil {
-		go p.GoController.Chat("Error loading match settings: "+err.Error(), login)
+		go c.Chat("Error loading match settings: "+err.Error(), login)
 		return
 	}
 
-	go p.GoController.Chat("Match settings loaded", login)
+	go c.Chat("Match settings loaded", login)
 }
 
 func (p *ScriptPlugin) saveMatchSettingsCommand(login string, args []string) {
+	c := app.GetGoController()
+	
 	file := "tracklist.txt"
 	if len(args) > 0 {
 		cleanFile, _ := strings.CutSuffix(args[0], ".txt")
 		file = cleanFile + ".txt"
 	}
 
-	_, err := p.GoController.Server.Client.SaveMatchSettings("MatchSettings/" + file)
+	_, err := c.Server.Client.SaveMatchSettings("MatchSettings/" + file)
 	if err != nil {
-		go p.GoController.Chat("Error saving match settings: "+err.Error(), login)
+		go c.Chat("Error saving match settings: "+err.Error(), login)
 		return
 	}
 
-	go p.GoController.Chat("Match settings saved to "+file, login)
+	go c.Chat("Match settings saved to "+file, login)
 }
 
 func init() {

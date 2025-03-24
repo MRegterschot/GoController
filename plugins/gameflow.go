@@ -9,7 +9,6 @@ import (
 )
 
 type GameFlowPlugin struct {
-	app.BasePlugin
 	Name         string
 	Dependencies []string
 	Loaded       bool
@@ -20,7 +19,6 @@ func CreateGameFlowPlugin() *GameFlowPlugin {
 		Name:         "GameFlow",
 		Dependencies: []string{},
 		Loaded:       false,
-		BasePlugin:   app.GetBasePlugin(),
 	}
 }
 
@@ -81,8 +79,8 @@ func (p *GameFlowPlugin) skipCommand(login string, args []string) {
 	if len(args) > 0 && args[0] == "true" {
 		dontClearCupScores = true
 	}
-	
-	p.GoController.Server.Client.NextMap(dontClearCupScores)
+
+	app.GetGoController().Server.Client.NextMap(dontClearCupScores)
 }
 
 func (p *GameFlowPlugin) restartCommand(login string, args []string) {
@@ -90,26 +88,28 @@ func (p *GameFlowPlugin) restartCommand(login string, args []string) {
 	if len(args) > 0 && args[0] == "true" {
 		dontClearCupScores = true
 	}
-	
-	p.GoController.Server.Client.RestartMap(dontClearCupScores)
+
+	app.GetGoController().Server.Client.RestartMap(dontClearCupScores)
 }
 
 func (p *GameFlowPlugin) modeCommand(login string, args []string) {
+	c := app.GetGoController()
+
 	if len(args) < 1 {
-		if mode, err := p.GoController.Server.Client.GetScriptName(); err != nil {
-			go p.GoController.Chat("Error getting mode: "+err.Error(), login)
+		if mode, err := c.Server.Client.GetScriptName(); err != nil {
+			go c.Chat("Error getting mode: "+err.Error(), login)
 		} else {
-			go p.GoController.Chat(fmt.Sprintf("Current mode: %s, Next mode: %s", mode.CurrentValue, mode.NextValue), login)
+			go c.Chat(fmt.Sprintf("Current mode: %s, Next mode: %s", mode.CurrentValue, mode.NextValue), login)
 		}
 		return
 	}
 
-	if err := p.GoController.Server.Client.SetScriptName(args[0]); err != nil {
-		go p.GoController.Chat("Error setting mode: "+err.Error(), login)
+	if err := c.Server.Client.SetScriptName(args[0]); err != nil {
+		go c.Chat("Error setting mode: "+err.Error(), login)
 		return
 	}
 
-	go p.GoController.Chat("Mode set to "+args[0], login)
+	go c.Chat("Mode set to "+args[0], login)
 }
 
 func init() {

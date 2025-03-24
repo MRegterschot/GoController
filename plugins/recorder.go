@@ -18,7 +18,6 @@ import (
 )
 
 type RecorderPlugin struct {
-	app.BasePlugin
 	Name         string
 	Dependencies []string
 	Loaded       bool
@@ -32,7 +31,6 @@ func CreateRecorderPlugin() *RecorderPlugin {
 		Name:         "Recorder",
 		Dependencies: []string{},
 		Loaded:       false,
-		BasePlugin:   app.GetBasePlugin(),
 	}
 }
 
@@ -77,19 +75,21 @@ func (p *RecorderPlugin) Unload() error {
 }
 
 func (p *RecorderPlugin) startRecording(name string) {
-	mode := p.GoController.MapManager.CurrentMode
+	c := app.GetGoController()
+	
+	mode := c.MapManager.CurrentMode
 	if mode == "Trackmania/TM_TimeAttack_Online.Script.txt" {
-		p.GoController.Server.Client.OnPlayerFinish = append(p.GoController.Server.Client.OnPlayerFinish, gbxclient.GbxCallbackStruct[events.PlayerWayPointEventArgs]{
+		c.Server.Client.OnPlayerFinish = append(c.Server.Client.OnPlayerFinish, gbxclient.GbxCallbackStruct[events.PlayerWayPointEventArgs]{
 			Key:  "recording",
 			Call: p.onPlayerFinish})
 		p.createRecording(name, "TimeAttack")
 	} else if mode == "Trackmania/TM_Rounds_Online.Script.txt" {
-		p.GoController.Server.Client.OnPreEndRound = append(p.GoController.Server.Client.OnPreEndRound, gbxclient.GbxCallbackStruct[events.ScoresEventArgs]{
+		c.Server.Client.OnPreEndRound = append(c.Server.Client.OnPreEndRound, gbxclient.GbxCallbackStruct[events.ScoresEventArgs]{
 			Key:  "recording",
 			Call: p.onPreEndRound})
 		p.createRecording(name, "Rounds")
 	} else {
-		p.GoController.Server.Client.OnPreEndRound = append(p.GoController.Server.Client.OnPreEndRound, gbxclient.GbxCallbackStruct[events.ScoresEventArgs]{
+		c.Server.Client.OnPreEndRound = append(c.Server.Client.OnPreEndRound, gbxclient.GbxCallbackStruct[events.ScoresEventArgs]{
 			Key:  "recording",
 			Call: p.onPreEndRoundMatch})
 		p.createRecording(name, "Match")
@@ -99,9 +99,11 @@ func (p *RecorderPlugin) startRecording(name string) {
 }
 
 func (p *RecorderPlugin) createRecording(name string, modeType string) {
+	c := app.GetGoController()
+	
 	newRecording := database.NewRecording(database.Recording{
 		Name: name,
-		Mode: p.GoController.MapManager.CurrentMode,
+		Mode: c.MapManager.CurrentMode,
 		Type: modeType,
 		Maps: []database.MapRecords{},
 	})
@@ -117,15 +119,17 @@ func (p *RecorderPlugin) createRecording(name string, modeType string) {
 }
 
 func (p *RecorderPlugin) stopRecording() {
-	for i, callback := range p.GoController.Server.Client.OnPlayerFinish {
+	c := app.GetGoController()
+	
+	for i, callback := range c.Server.Client.OnPlayerFinish {
 		if callback.Key == "recording" {
-			p.GoController.Server.Client.OnPlayerFinish = append(p.GoController.Server.Client.OnPlayerFinish[:i], p.GoController.Server.Client.OnPlayerFinish[i+1:]...)
+			c.Server.Client.OnPlayerFinish = append(c.Server.Client.OnPlayerFinish[:i], c.Server.Client.OnPlayerFinish[i+1:]...)
 		}
 	}
 
-	for i, callback := range p.GoController.Server.Client.OnPreEndRound {
+	for i, callback := range c.Server.Client.OnPreEndRound {
 		if callback.Key == "recording" {
-			p.GoController.Server.Client.OnPreEndRound = append(p.GoController.Server.Client.OnPreEndRound[:i], p.GoController.Server.Client.OnPreEndRound[i+1:]...)
+			c.Server.Client.OnPreEndRound = append(c.Server.Client.OnPreEndRound[:i], c.Server.Client.OnPreEndRound[i+1:]...)
 		}
 	}
 
@@ -134,7 +138,9 @@ func (p *RecorderPlugin) stopRecording() {
 }
 
 func (p *RecorderPlugin) onPlayerFinish(playerFinishEvent events.PlayerWayPointEventArgs) {
-	mapId := p.GoController.MapManager.CurrentMapDB.ID
+	c := app.GetGoController()
+	
+	mapId := c.MapManager.CurrentMapDB.ID
 
 	if len(p.Recording.Maps) == 0 {
 		mapRecords := database.MapRecords{
@@ -188,7 +194,9 @@ func (p *RecorderPlugin) onPlayerFinish(playerFinishEvent events.PlayerWayPointE
 }
 
 func (p *RecorderPlugin) onPreEndRound(preEndRoundEvent events.ScoresEventArgs) {
-	mapId := p.GoController.MapManager.CurrentMapDB.ID
+	c := app.GetGoController()
+	
+	mapId := c.MapManager.CurrentMapDB.ID
 
 	if len(p.Recording.Maps) == 0 {
 		mapRecords := database.MapRecords{
@@ -252,7 +260,9 @@ func (p *RecorderPlugin) onPreEndRound(preEndRoundEvent events.ScoresEventArgs) 
 }
 
 func (p *RecorderPlugin) onPreEndRoundMatch(preEndRoundEvent events.ScoresEventArgs) {
-	mapId := p.GoController.MapManager.CurrentMapDB.ID
+	c := app.GetGoController()
+	
+	mapId := c.MapManager.CurrentMapDB.ID
 
 	if len(p.Recording.Maps) == 0 {
 		mapRecords := database.MapRecords{
@@ -332,15 +342,17 @@ func (p *RecorderPlugin) onPreEndRoundMatch(preEndRoundEvent events.ScoresEventA
 }
 
 func (p *RecorderPlugin) recorderCommand(login string, args []string) {
+	c := app.GetGoController()
+	
 	if len(args) < 1 {
-		go p.GoController.Chat("Usage: //recorder [*start | stop] [name]", login)
+		go c.Chat("Usage: //recorder [*start | stop] [name]", login)
 		return
 	}
 
 	switch args[0] {
 	case "start":
 		if p.IsRecording {
-			go p.GoController.Chat("Already recording", login)
+			go c.Chat("Already recording", login)
 			return
 		}
 
@@ -350,21 +362,23 @@ func (p *RecorderPlugin) recorderCommand(login string, args []string) {
 		}
 
 		p.startRecording(name)
-		go p.GoController.Chat("Recording started", login)
+		go c.Chat("Recording started", login)
 	case "stop":
 		if !p.IsRecording {
-			go p.GoController.Chat("Not recording", login)
+			go c.Chat("Not recording", login)
 			return
 		}
 
 		p.stopRecording()
-		go p.GoController.Chat("Recording stopped with id "+p.Recording.ID.Hex(), login)
+		go c.Chat("Recording stopped with id "+p.Recording.ID.Hex(), login)
 	default:
-		go p.GoController.Chat("Usage: //recorder [*start | stop] [name]", login)
+		go c.Chat("Usage: //recorder [*start | stop] [name]", login)
 	}
 }
 
 func (p *RecorderPlugin) recordingsCommand(login string, args []string) {
+	c := app.GetGoController()
+	
 	window := windows.CreateRecorderGridWindow(&login)
 	window.Title = "Recordings"
 	window.Items = make([]any, 0)
@@ -372,7 +386,7 @@ func (p *RecorderPlugin) recordingsCommand(login string, args []string) {
 	recordingsDB, err := database.GetRecordings(context.Background())
 	if err != nil {
 		zap.L().Error("Failed to get recordings", zap.Error(err))
-		go p.GoController.Chat("Failed to get recordings", login)
+		go c.Chat("Failed to get recordings", login)
 		return
 	}
 
@@ -387,8 +401,10 @@ func (p *RecorderPlugin) recordingsCommand(login string, args []string) {
 }
 
 func (p *RecorderPlugin) exportToCSVCommand(login string, args []string) {
+	c := app.GetGoController()
+	
 	if len(args) < 1 {
-		go p.GoController.Chat("Usage: //export [*recording id]", login)
+		go c.Chat("Usage: //export [*recording id]", login)
 		return
 	}
 
@@ -396,28 +412,30 @@ func (p *RecorderPlugin) exportToCSVCommand(login string, args []string) {
 	objectID, err := primitive.ObjectIDFromHex(recordingID)
 	if err != nil {
 		zap.L().Error("Invalid recording ID", zap.Error(err))
-		go p.GoController.Chat("Invalid recording ID", login)
+		go c.Chat("Invalid recording ID", login)
 		return
 	}
 
 	err = p.exportToCSV(objectID)
 	if err != nil {
-		go p.GoController.Chat("Failed to export recording to CSV", login)
+		go c.Chat("Failed to export recording to CSV", login)
 		return
 	}
 
-	go p.GoController.Chat("Recording exported to CSV", login)
+	go c.Chat("Recording exported to CSV", login)
 }
 
 func (p *RecorderPlugin) handleDownloadAnswer(login string, data any, _ any) {
+	c := app.GetGoController()
+	
 	if id, err := primitive.ObjectIDFromHex(data.(string)); err != nil {
 		zap.L().Error("Invalid recording ID", zap.Error(err))
-		go p.GoController.Chat("Invalid recording ID", login)
+		go c.Chat("Invalid recording ID", login)
 	} else {
 		if err = p.exportToCSV(id); err != nil {
-			go p.GoController.Chat("Failed to export recording to CSV", login)
+			go c.Chat("Failed to export recording to CSV", login)
 		} else {
-			go p.GoController.Chat("Recording exported to CSV", login)
+			go c.Chat("Recording exported to CSV", login)
 		}
 	}
 }

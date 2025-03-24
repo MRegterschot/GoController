@@ -2,16 +2,18 @@ package plugins
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
 )
 
 type JukeboxPlugin struct {
-	app.BasePlugin
 	Name         string
 	Dependencies []string
 	Loaded       bool
+
+	Queue []models.QueueMap
 }
 
 func CreateJukeboxPlugin() *JukeboxPlugin {
@@ -19,7 +21,6 @@ func CreateJukeboxPlugin() *JukeboxPlugin {
 		Name:         "Jukebox",
 		Dependencies: []string{},
 		Loaded:       false,
-		BasePlugin:   app.GetBasePlugin(),
 	}
 }
 
@@ -53,49 +54,81 @@ func (p *JukeboxPlugin) Unload() error {
 }
 
 func (p *JukeboxPlugin) nextCommand(login string, args []string) {
+	c := app.GetGoController()
+
 	if len(args) < 1 {
-		if index, err := p.GoController.Server.Client.GetNextMapIndex(); err != nil {
-			go p.GoController.Chat("Error getting next map index", login)
+		if mapInfo, err := c.Server.Client.GetNextMapInfo(); err != nil {
+			go c.Chat("Error getting next map info", login)
 		} else {
-			go p.GoController.Chat("Next map index is " + strconv.Itoa(index), login)
+			go c.Chat("Next map: "+mapInfo.Name, login)
 		}
 		return
 	}
 
 	index, err := strconv.Atoi(args[0])
 	if err != nil {
-		go p.GoController.Chat("Invalid index", login)
+		go c.Chat("Invalid index", login)
 		return
 	}
 
-	err = p.GoController.Server.Client.SetNextMapIndex(index)
+	err = c.Server.Client.SetNextMapIndex(index)
 	if err != nil {
-		go p.GoController.Chat("Error setting next map", login)
+		go c.Chat("Error setting next map", login)
 		return
 	}
 
-	go p.GoController.Chat("Next map set to index " + args[0], login)
+	go c.Chat("Next map set to index "+args[0], login)
+}
+
+func (p *JukeboxPlugin) previousCommand(login string, args []string) {
+	c := app.GetGoController()
+
+	previousMap := c.MapManager.PreviousMap
+	if previousMap == nil {
+		go c.Chat("No previous map", login)
+		return
+	}
+
+	if previousMap.UId == c.MapManager.CurrentMap.UId {
+		go c.Chat("Previous map is current map", login)
+		return
+	}
+
+	p.Queue = append([]models.QueueMap{{
+		Name:             previousMap.Name,
+		UId:              previousMap.UId,
+		FileName:         previousMap.FileName,
+		Author:           previousMap.Author,
+		AuthorNickname:   previousMap.AuthorNickname,
+		QueuedBy:         login,
+		QueuedByNickname: c.PlayerManager.GetPlayer(login).NickName,
+		QueuedAt:         time.Now(),
+	}}, p.Queue...)
+
+	go c.Server.Client.NextMap(false)
 }
 
 func (p *JukeboxPlugin) jumpCommand(login string, args []string) {
+	c := app.GetGoController()
+
 	if len(args) < 1 {
-		go p.GoController.Chat("Usage: //jump [*index]", login)
+		go c.Chat("Usage: //jump [*index]", login)
 		return
 	}
 
 	index, err := strconv.Atoi(args[0])
 	if err != nil {
-		go p.GoController.Chat("Invalid index", login)
+		go c.Chat("Invalid index", login)
 		return
 	}
 
-	err = p.GoController.Server.Client.JumpToMapIndex(index)
+	err = c.Server.Client.JumpToMapIndex(index)
 	if err != nil {
-		go p.GoController.Chat("Error jumping to map", login)
+		go c.Chat("Error jumping to map", login)
 		return
 	}
 
-	go p.GoController.Chat("Jumped to map index " + args[0], login)
+	go c.Chat("Jumped to map index "+args[0], login)
 }
 
 func init() {

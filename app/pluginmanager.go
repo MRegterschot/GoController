@@ -14,20 +14,6 @@ type PluginManager struct {
 	Plugins          []any
 }
 
-type BasePlugin struct {
-	CommandManager  *CommandManager
-	SettingsManager *SettingsManager
-	GoController    *GoController
-}
-
-func GetBasePlugin() BasePlugin {
-	return BasePlugin{
-		CommandManager:  GetCommandManager(),
-		SettingsManager: GetSettingsManager(),
-		GoController:    GetGoController(),
-	}
-}
-
 var (
 	pmInstance *PluginManager
 	pmOnce     sync.Once

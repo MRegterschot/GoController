@@ -8,7 +8,6 @@ import (
 )
 
 type TeamsPlugin struct {
-	app.BasePlugin
 	Name         string
 	Dependencies []string
 	Loaded       bool
@@ -19,7 +18,6 @@ func CreateTeamsPlugin() *TeamsPlugin {
 		Name:         "Teams",
 		Dependencies: []string{},
 		Loaded:       false,
-		BasePlugin:   app.GetBasePlugin(),
 	}
 }
 
@@ -53,50 +51,54 @@ func (p *TeamsPlugin) Unload() error {
 }
 
 func (p *TeamsPlugin) forcedTeamsCommand(login string, args []string) {
+	c := app.GetGoController()
+	
 	if len(args) < 1 {
-		if forcedTeams, err := p.GoController.Server.Client.GetForcedTeams(); err != nil {
-			go p.GoController.Chat("Error getting forced teams", login)
+		if forcedTeams, err := c.Server.Client.GetForcedTeams(); err != nil {
+			go c.Chat("Error getting forced teams", login)
 		} else {
 			if forcedTeams {
-				go p.GoController.Chat("Forced teams are enabled", login)
+				go c.Chat("Forced teams are enabled", login)
 			} else {
-				go p.GoController.Chat("Forced teams are disabled", login)
+				go c.Chat("Forced teams are disabled", login)
 			}
 		}
 		return
 	}
 
 	forcedTeams := args[0] == "true" || args[0] == "1"
-	if err := p.GoController.Server.Client.SetForcedTeams(forcedTeams); err != nil {
-		go p.GoController.Chat("Error setting forced teams", login)
+	if err := c.Server.Client.SetForcedTeams(forcedTeams); err != nil {
+		go c.Chat("Error setting forced teams", login)
 		return
 	}
 
 	if forcedTeams {
-		go p.GoController.Chat("Forced teams are enabled", login)
+		go c.Chat("Forced teams are enabled", login)
 	} else {
-		go p.GoController.Chat("Forced teams are disabled", login)
+		go c.Chat("Forced teams are disabled", login)
 	}
 }
 
 func (p *TeamsPlugin) forcePlayerTeamCommand(login string, args []string) {
+	c := app.GetGoController()
+	
 	if len(args) < 2 {
-		go p.GoController.Chat("Usage: //forceteam [*login] [*team]", login)
+		go c.Chat("Usage: //forceteam [*login] [*team]", login)
 		return
 	}
 
 	team, err := strconv.Atoi(args[1])
 	if err != nil {
-		go p.GoController.Chat("Invalid team", login)
+		go c.Chat("Invalid team", login)
 		return
 	}
 
-	if err := p.GoController.Server.Client.ForcePlayerTeam(args[0], team); err != nil {
-		go p.GoController.Chat("Error forcing player team: "+err.Error(), login)
+	if err := c.Server.Client.ForcePlayerTeam(args[0], team); err != nil {
+		go c.Chat("Error forcing player team: "+err.Error(), login)
 		return
 	}
 
-	go p.GoController.Chat("Player team forced", login)
+	go c.Chat("Player team forced", login)
 }
 
 func init() {

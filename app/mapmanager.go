@@ -16,6 +16,7 @@ type MapManager struct {
 	CurrentMap   structs.TMMapInfo
 	CurrentMapDB database.Map
 	NextMap      structs.TMMapInfo
+	PreviousMap  *structs.TMMapInfo
 	CurrentMode  string
 }
 
@@ -36,8 +37,11 @@ func (mm *MapManager) Init() {
 
 	mm.SyncMaps()
 	GetClient().OnBeginMap = append(GetClient().OnBeginMap, gbxclient.GbxCallbackStruct[events.MapEventArgs]{
-		Key:  "mmBeginMap",
+		Key:  "mapmanager",
 		Call: mm.onBeginMap})
+	GetClient().OnMapListModified = append(GetClient().OnMapListModified, gbxclient.GbxCallbackStruct[events.MapListModifiedEventArgs]{
+		Key:  "mapmanager",
+		Call: mm.onMapListModified})
 
 	mode, err := GetClient().GetScriptName()
 	if err != nil {
@@ -106,6 +110,26 @@ func (mm *MapManager) GetMap(uid string) *structs.TMMapInfo {
 }
 
 func (mm *MapManager) onBeginMap(mapEvent events.MapEventArgs) {
+	mm.PreviousMap = &structs.TMMapInfo{
+		UId:            mm.CurrentMap.UId,
+		Name:           mm.CurrentMap.Name,
+		FileName:       mm.CurrentMap.FileName,
+		Author:         mm.CurrentMap.Author,
+		AuthorNickname: mm.CurrentMap.AuthorNickname,
+		Environnement:  mm.CurrentMap.Environnement,
+		Mood:           mm.CurrentMap.Mood,
+		BronzeTime:     mm.CurrentMap.BronzeTime,
+		SilverTime:     mm.CurrentMap.SilverTime,
+		GoldTime:       mm.CurrentMap.GoldTime,
+		AuthorTime:     mm.CurrentMap.AuthorTime,
+		CopperPrice:    mm.CurrentMap.CopperPrice,
+		LapRace:        mm.CurrentMap.LapRace,
+		NbLaps:         mm.CurrentMap.NbLaps,
+		NbCheckpoints:  mm.CurrentMap.NbCheckpoints,
+		MapType:        mm.CurrentMap.MapType,
+		MapStyle:       mm.CurrentMap.MapStyle,
+	}
+
 	mm.CurrentMap = structs.TMMapInfo{
 		UId:            mapEvent.Map.Uid,
 		Name:           mapEvent.Map.Name,

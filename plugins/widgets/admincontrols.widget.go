@@ -19,7 +19,6 @@ type Action struct {
 
 type AdminControlsWidget struct {
 	*ui.Widget
-	app.BasePlugin
 	Name         string
 	Dependencies []string
 	Loaded       bool
@@ -44,7 +43,6 @@ func GetAdminControlsWidget() *AdminControlsWidget {
 			Name:         "AdminControlsWidget",
 			Dependencies: []string{},
 			Loaded:       false,
-			BasePlugin:   app.GetBasePlugin(),
 			Widget:       widget,
 		}
 	})
