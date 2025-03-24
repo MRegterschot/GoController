@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/MRegterschot/GbxRemoteGo/structs"
+)
 
 type Map struct {
 	ID             string
@@ -28,4 +32,13 @@ type QueueMap struct {
 	QueuedBy         string
 	QueuedByNickname string
 	QueuedAt         time.Time
+}
+
+func (qm *QueueMap) ToQueueMap(m structs.TMMapInfo) {
+	qm.Name = m.Name
+	qm.UId = m.UId
+	qm.FileName = m.FileName
+	qm.Author = m.Author
+	qm.AuthorNickname = m.AuthorNickname
+	qm.QueuedAt = time.Now()
 }

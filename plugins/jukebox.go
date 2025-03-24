@@ -1,9 +1,10 @@
 package plugins
 
 import (
+	"fmt"
 	"strconv"
-	"time"
 
+	"github.com/MRegterschot/GbxRemoteGo/gbxclient"
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
 )
@@ -27,11 +28,24 @@ func CreateJukeboxPlugin() *JukeboxPlugin {
 func (p *JukeboxPlugin) Load() error {
 	commandManager := app.GetCommandManager()
 
+	app.GetClient().ScriptCallbacks["Maniaplanet.Podium_Start"] = append(app.GetClient().ScriptCallbacks["Maniaplanet.Podium_Start"], gbxclient.GbxCallbackStruct[any]{
+		Key:  "jukebox",
+		Call: p.onEndRace,
+	})
+
 	commandManager.AddCommand(models.ChatCommand{
 		Name:     "//next",
 		Callback: p.nextCommand,
 		Admin:    true,
 		Help:     "Manage next map",
+	})
+
+	commandManager.AddCommand(models.ChatCommand{
+		Name:     "//previous",
+		Callback: p.previousCommand,
+		Admin:    true,
+		Help:     "Jump to previous map",
+		Aliases:  []string{"//prev"},
 	})
 
 	commandManager.AddCommand(models.ChatCommand{
@@ -41,6 +55,13 @@ func (p *JukeboxPlugin) Load() error {
 		Help:     "Jump to map",
 	})
 
+	commandManager.AddCommand(models.ChatCommand{
+		Name:     "//requeue",
+		Callback: p.requeueCommand,
+		Admin:    true,
+		Help:     "Requeue current map",
+	})
+
 	return nil
 }
 
@@ -48,7 +69,9 @@ func (p *JukeboxPlugin) Unload() error {
 	commandManager := app.GetCommandManager()
 
 	commandManager.RemoveCommand("//next")
+	commandManager.RemoveCommand("//previous")
 	commandManager.RemoveCommand("//jump")
+	commandManager.RemoveCommand("//requeue")
 
 	return nil
 }
@@ -77,7 +100,7 @@ func (p *JukeboxPlugin) nextCommand(login string, args []string) {
 		return
 	}
 
-	go c.Chat("Next map set to index "+args[0], login)
+	go c.Chat("Next map set to index "+args[0])
 }
 
 func (p *JukeboxPlugin) previousCommand(login string, args []string) {
@@ -94,16 +117,10 @@ func (p *JukeboxPlugin) previousCommand(login string, args []string) {
 		return
 	}
 
-	p.Queue = append([]models.QueueMap{{
-		Name:             previousMap.Name,
-		UId:              previousMap.UId,
-		FileName:         previousMap.FileName,
-		Author:           previousMap.Author,
-		AuthorNickname:   previousMap.AuthorNickname,
-		QueuedBy:         login,
-		QueuedByNickname: c.PlayerManager.GetPlayer(login).NickName,
-		QueuedAt:         time.Now(),
-	}}, p.Queue...)
+	if err := c.Server.Client.ChooseNextMap(previousMap.FileName); err != nil {
+		go c.Chat("Error setting previous map", login)
+		return
+	}
 
 	go c.Server.Client.NextMap(false)
 }
@@ -128,7 +145,61 @@ func (p *JukeboxPlugin) jumpCommand(login string, args []string) {
 		return
 	}
 
-	go c.Chat("Jumped to map index "+args[0], login)
+	go c.Chat("Jumped to map index "+args[0])
+}
+
+func (p *JukeboxPlugin) requeueCommand(login string, args []string) {
+	c := app.GetGoController()
+
+	currentMap := c.MapManager.CurrentMap
+	if currentMap.UId == "" {
+		go c.Chat("No current map", login)
+		return
+	}
+
+	if len(p.Queue) > 0 && p.Queue[0].UId == currentMap.UId {
+		go c.Chat("Map already in queue", login)
+		return
+	}
+
+	player, err := c.Server.Client.GetPlayerInfo(login)
+	if err != nil {
+		go c.Chat("Error getting player info", login)
+		return
+	}
+
+	var queueMap models.QueueMap
+	queueMap.ToQueueMap(currentMap)
+	queueMap.QueuedBy = login
+	queueMap.QueuedByNickname = player.NickName
+
+	p.Queue = append([]models.QueueMap{queueMap}, p.Queue...)
+
+	go c.Chat("Map requeued")
+}
+
+func (p *JukeboxPlugin) onEndRace(_ any) {
+	c := app.GetGoController()
+
+	if len(p.Queue) == 0 {
+		mapInfo, err := c.Server.Client.GetNextMapInfo()
+		if err != nil {
+			return
+		}
+
+		go c.Chat(fmt.Sprintf("Next map %s by %s", mapInfo.Name, mapInfo.AuthorNickname))
+		return
+	}
+
+	nextMap := p.Queue[0]
+	p.Queue = p.Queue[1:]
+
+	if err := c.Server.Client.ChooseNextMap(nextMap.FileName); err != nil {
+		go c.Chat("Error setting next map")
+		return
+	}
+
+	go c.Chat(fmt.Sprintf("Next map %s by %s queued by %s", nextMap.Name, nextMap.AuthorNickname, nextMap.QueuedByNickname))
 }
 
 func init() {
