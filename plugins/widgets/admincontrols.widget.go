@@ -66,7 +66,7 @@ func (acw *AdminControlsWidget) Unload() error {
 
 func (acw *AdminControlsWidget) reload() {
 	acw.Data = map[string]any{
-		"Controls": acw.Actions,
+		"Controls": acw.Controls,
 	}
 
 	acw.Display()

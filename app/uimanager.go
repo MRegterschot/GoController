@@ -74,7 +74,21 @@ func (uim *UIManager) Init() {
 	})
 	uim.Templates.AddGlobalFunc("floor", func(args jet.Arguments) reflect.Value {
 		args.RequireNumOfArguments("floor", 1, 1)
-		return reflect.ValueOf(math.Floor(float64(args.Get(0).Int())))
+		if args.Get(0).Kind() == reflect.Float64 {
+			return reflect.ValueOf(math.Floor(args.Get(0).Float()))
+		} else if args.Get(0).Kind() == reflect.Int64 {
+			return reflect.ValueOf(math.Floor(float64(args.Get(0).Int())))
+		}
+		return reflect.ValueOf("")
+	})
+	uim.Templates.AddGlobalFunc("ceil", func(args jet.Arguments) reflect.Value {
+		args.RequireNumOfArguments("ceil", 1, 1)
+		if args.Get(0).Kind() == reflect.Float64 {
+			return reflect.ValueOf(math.Ceil(args.Get(0).Float()))
+		} else if args.Get(0).Kind() == reflect.Int64 {
+			return reflect.ValueOf(math.Floor(float64(args.Get(0).Int())))
+		}
+		return reflect.ValueOf("")
 	})
 	uim.Templates.AddGlobalFunc("formatTime", func(args jet.Arguments) reflect.Value {
 		args.RequireNumOfArguments("formatTime", 1, 1)
