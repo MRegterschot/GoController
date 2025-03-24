@@ -71,6 +71,8 @@ func (uim *UIManager) Init() {
 		"Clock":    "",
 		"Skip":     "",
 		"Restart":  "",
+		"Previous": "",
+		"Requeue":  "",
 	})
 	uim.Templates.AddGlobalFunc("floor", func(args jet.Arguments) reflect.Value {
 		args.RequireNumOfArguments("floor", 1, 1)

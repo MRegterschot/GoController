@@ -7,6 +7,7 @@ import (
 	"github.com/MRegterschot/GbxRemoteGo/gbxclient"
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
+	"github.com/MRegterschot/GoController/plugins/widgets"
 )
 
 type JukeboxPlugin struct {
@@ -60,6 +61,20 @@ func (p *JukeboxPlugin) Load() error {
 		Callback: p.requeueCommand,
 		Admin:    true,
 		Help:     "Requeue current map",
+	})
+
+	acw := widgets.GetAdminControlsWidget()
+
+	acw.AddAction(widgets.Action{
+		Name: "Previous",
+		Icon: "Previous",
+		Command: "//previous",
+	})
+
+	acw.AddAction(widgets.Action{
+		Name: "Requeue",
+		Icon: "Requeue",
+		Command: "//requeue",
 	})
 
 	return nil
