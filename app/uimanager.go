@@ -73,6 +73,8 @@ func (uim *UIManager) Init() {
 		"Restart":  "",
 		"Previous": "",
 		"Requeue":  "",
+		"StartRecording": "",
+		"StopRecording":  "",
 	})
 	uim.Templates.AddGlobalFunc("floor", func(args jet.Arguments) reflect.Value {
 		args.RequireNumOfArguments("floor", 1, 1)
