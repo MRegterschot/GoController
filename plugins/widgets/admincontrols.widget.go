@@ -2,6 +2,7 @@ package widgets
 
 import (
 	"errors"
+	"strings"
 	"sync"
 
 	"slices"
@@ -101,8 +102,10 @@ func (acw *AdminControlsWidget) RemoveAction(action Action) error {
 
 func (acw *AdminControlsWidget) executeAction(login string, data any, _ any) {
 	command := data.(string)
+	cmd := strings.Split(command, " ")[0]
+	params := strings.Split(command, " ")[1:]
 
-	app.GetCommandManager().ExecuteCommand(login, command, nil, true)
+	app.GetCommandManager().ExecuteCommand(login, cmd, params, true)
 }
 
 func init() {

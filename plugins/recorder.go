@@ -11,6 +11,7 @@ import (
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/database"
 	"github.com/MRegterschot/GoController/models"
+	"github.com/MRegterschot/GoController/plugins/widgets"
 	"github.com/MRegterschot/GoController/plugins/windows"
 	"github.com/MRegterschot/GoController/utils"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -59,6 +60,20 @@ func (p *RecorderPlugin) Load() error {
 		Admin:    true,
 		Help:     "Show recordings",
 		Aliases:  []string{"//recs"},
+	})
+
+	acw := widgets.GetAdminControlsWidget()
+
+	acw.AddAction(widgets.Action{
+		Name: "StartRecording",
+		Icon: "StartRecording",
+		Command: "//recorder start",
+	})
+
+	acw.AddAction(widgets.Action{
+		Name: "StopRecording",
+		Icon: "StopRecording",
+		Command: "//recorder stop",
 	})
 
 	return nil
