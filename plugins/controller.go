@@ -144,30 +144,34 @@ func (p *ControllerPlugin) rebootCommand(login string, args []string) {
 }
 
 func (p *ControllerPlugin) loadPluginCommand(login string, args []string) {
+	c := app.GetGoController()
+
 	if len(args) < 1 {
-		go app.GetGoController().Chat("Usage: //load [*plugin]", login)
+		go c.Chat("Usage: //load [*plugin]", login)
 		return
 	}
 
 	pluginName := args[0]
 	if err := app.GetPluginManager().LoadPlugin(args[0]); err != nil {
-		go app.GetGoController().Chat(fmt.Sprintf("Plugin %s not found", pluginName), login)
+		go c.Chat(fmt.Sprintf("Plugin %s not found", pluginName), login)
 	} else {
-		go app.GetGoController().Chat(fmt.Sprintf("Plugin %s loaded", pluginName), login)
+		go c.Chat(fmt.Sprintf("Plugin %s loaded", pluginName), login)
 	}
 }
 
 func (p *ControllerPlugin) unloadPluginCommand(login string, args []string) {
+	c := app.GetGoController()
+
 	if len(args) < 1 {
-		go app.GetGoController().Chat("Usage: //unload [*plugin]", login)
+		go c.Chat("Usage: //unload [*plugin]", login)
 		return
 	}
 
 	pluginName := args[0]
 	if err := app.GetPluginManager().UnloadPlugin(args[0]); err != nil {
-		go app.GetGoController().Chat(fmt.Sprintf("Couldn't unload %s: %s", pluginName, err.Error()), login)
+		go c.Chat(fmt.Sprintf("Couldn't unload %s: %s", pluginName, err.Error()), login)
 	} else {
-		go app.GetGoController().Chat(fmt.Sprintf("Plugin %s unloaded", pluginName), login)
+		go c.Chat(fmt.Sprintf("Plugin %s unloaded", pluginName), login)
 	}
 }
 
