@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/MRegterschot/GbxRemoteGo/gbxclient"
+	"github.com/MRegterschot/GbxRemoteGo/structs"
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
 	"github.com/MRegterschot/GoController/plugins/widgets"
@@ -76,6 +77,13 @@ func (p *JukeboxPlugin) Load() error {
 		Help:     "Requeue current map",
 	})
 
+	commandManager.AddCommand(models.ChatCommand{
+		Name:     "/queue",
+		Callback: p.queueCommand,
+		Admin:    false,
+		Help:     "Queue map",
+	})
+
 	acw := widgets.GetAdminControlsWidget()
 
 	acw.AddAction(widgets.Action{
@@ -100,6 +108,7 @@ func (p *JukeboxPlugin) Unload() error {
 	commandManager.RemoveCommand("//previous")
 	commandManager.RemoveCommand("//jump")
 	commandManager.RemoveCommand("//requeue")
+	commandManager.RemoveCommand("/queue")
 
 	acw := widgets.GetAdminControlsWidget()
 
@@ -195,20 +204,31 @@ func (p *JukeboxPlugin) requeueCommand(login string, args []string) {
 		return
 	}
 
-	player, err := c.Server.Client.GetPlayerInfo(login)
-	if err != nil {
-		go c.Chat("Error getting player info", login)
+	p.QueueMap(currentMap, login)
+
+	go c.Chat("Map requeued")
+}
+
+func (p *JukeboxPlugin) queueCommand(login string, args []string) {
+	c := app.GetGoController()
+
+	if len(args) < 1 {
+		go c.Chat("Usage: /queue [*filename]", login)
 		return
 	}
 
-	var queueMap models.QueueMap
-	queueMap.ToQueueMap(currentMap)
-	queueMap.QueuedBy = login
-	queueMap.QueuedByNickname = player.NickName
+	mapInfo, err := c.Server.Client.GetMapInfo(args[0])
+	if err != nil {
+		go c.Chat("Error getting map info", login)
+		return
+	}
 
-	p.Queue = append([]models.QueueMap{queueMap}, p.Queue...)
+	if err := p.QueueMap(mapInfo, login); err != nil {
+		go c.Chat("Error queuing map", login)
+		return
+	}
 
-	go c.Chat("Map requeued")
+	go c.Chat("Map queued")
 }
 
 func (p *JukeboxPlugin) onEndRace(_ any) {
@@ -233,6 +253,26 @@ func (p *JukeboxPlugin) onEndRace(_ any) {
 	}
 
 	go c.Chat(fmt.Sprintf("Next map %s by %s queued by %s", nextMap.Name, nextMap.AuthorNickname, nextMap.QueuedByNickname))
+}
+
+func (p *JukeboxPlugin) QueueMap(mapInfo structs.TMMapInfo, login string) error {
+	c := app.GetGoController()
+
+	player, err := c.Server.Client.GetPlayerInfo(login)
+	if err != nil {
+		return err
+	}
+
+	var queueMap models.QueueMap
+	queueMap.ToQueueMap(mapInfo)
+	queueMap.QueuedBy = login
+	queueMap.QueuedByNickname = player.NickName
+
+	p.Queue = append(p.Queue, queueMap)
+
+	go c.Chat(fmt.Sprintf("Map %s by %s queued by %s", mapInfo.Name, mapInfo.AuthorNickname, player.NickName))
+
+	return nil
 }
 
 func init() {

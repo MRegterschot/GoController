@@ -32,9 +32,9 @@ func NewGridWindow(login *string) *GridWindow {
 			TotalItems:  0,
 			CurrentPage: 0,
 			TotalPages:  0,
-			PageSize:    12,
+			PageSize:    1,
 		},
-		Grid: Grid{Cols: 4, Rows: 3, Gap: 2},
+		Grid: Grid{Cols: 1, Rows: 1, Gap: 2},
 		AddData: func() {},
 	}
 
@@ -68,10 +68,16 @@ func (gw *GridWindow) paginate(_ string, data any, _ any) {
 		"Pagination": gw.Pagination,
 		"Grid":       gw.Grid,
 	}
+
+	gw.AddData()
+	gw.Window.Display()
 }
 
 func (gw *GridWindow) Display() {
 	gw.paginate("", "start", nil)
-	gw.AddData()
-	gw.Window.Display()
+}
+
+// Refresh page and keep current page
+func (gw *GridWindow) Refresh() {
+	gw.paginate("", "", nil)
 }

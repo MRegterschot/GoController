@@ -1,8 +1,6 @@
 package plugins
 
 import (
-	"fmt"
-
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
 	"github.com/MRegterschot/GoController/plugins/windows"
@@ -56,21 +54,13 @@ func (p *MapsPlugin) mapsCommand(login string, args []string) {
 
 	for _, m := range c.MapManager.Maps {
 		if isAdmin {
-			window.Actions["remove_"+m.UId] = app.GetUIManager().AddAction(p.handleRemoveAnswer, m)
+			window.Actions["remove_"+m.UId] = app.GetUIManager().AddAction(window.HandleRemoveAnswer, m)
 		}
-		window.Actions["queue_"+m.UId] = app.GetUIManager().AddAction(p.handleQueueAnswer, m)
+		window.Actions["queue_"+m.UId] = app.GetUIManager().AddAction(window.HandleQueueAnswer, m)
 		window.Items = append(window.Items, m)
 	}
 
 	go window.Display()
-}
-
-func (p *MapsPlugin) handleRemoveAnswer(login string, data any, _ any) {
-	fmt.Println(data)
-}
-
-func (p *MapsPlugin) handleQueueAnswer(login string, data any, _ any) {
-	fmt.Println(data)
 }
 
 func init() {
