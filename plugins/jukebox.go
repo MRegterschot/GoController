@@ -3,6 +3,7 @@ package plugins
 import (
 	"fmt"
 	"strconv"
+	"sync"
 
 	"github.com/MRegterschot/GbxRemoteGo/gbxclient"
 	"github.com/MRegterschot/GoController/app"
@@ -18,12 +19,24 @@ type JukeboxPlugin struct {
 	Queue []models.QueueMap
 }
 
+var (
+	jukebox *JukeboxPlugin
+	jukeboxOnce sync.Once
+)
+
 func CreateJukeboxPlugin() *JukeboxPlugin {
 	return &JukeboxPlugin{
 		Name:         "Jukebox",
 		Dependencies: []string{},
 		Loaded:       false,
 	}
+}
+
+func GetJukeboxPlugin() *JukeboxPlugin {
+	jukeboxOnce.Do(func() {
+		jukebox = CreateJukeboxPlugin()
+	})
+	return jukebox
 }
 
 func (p *JukeboxPlugin) Load() error {
@@ -223,6 +236,6 @@ func (p *JukeboxPlugin) onEndRace(_ any) {
 }
 
 func init() {
-	jukeboxPlugin := CreateJukeboxPlugin()
+	jukeboxPlugin := GetJukeboxPlugin()
 	app.GetPluginManager().PreLoadPlugin(jukeboxPlugin)
 }
