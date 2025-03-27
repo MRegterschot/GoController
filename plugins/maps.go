@@ -6,6 +6,7 @@ import (
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
 	"github.com/MRegterschot/GoController/plugins/windows"
+	"github.com/MRegterschot/GoController/utils"
 )
 
 type MapsPlugin struct {
@@ -50,8 +51,13 @@ func (p *MapsPlugin) mapsCommand(login string, args []string) {
 	window.Title = "Maps"
 	window.Items = make([]any, 0)
 
+	isAdmin := utils.Includes(*c.Admins, login)
+	window.IsAdmin = &isAdmin
+
 	for _, m := range c.MapManager.Maps {
-		window.Actions["remove_"+m.UId] = app.GetUIManager().AddAction(p.handleRemoveAnswer, m)
+		if isAdmin {
+			window.Actions["remove_"+m.UId] = app.GetUIManager().AddAction(p.handleRemoveAnswer, m)
+		}
 		window.Actions["queue_"+m.UId] = app.GetUIManager().AddAction(p.handleQueueAnswer, m)
 		window.Items = append(window.Items, m)
 	}

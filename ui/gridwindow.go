@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"fmt"
+
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
 )
@@ -17,6 +19,7 @@ type GridWindow struct {
 	Items      []any
 	Pagination models.PaginationResult[any]
 	Template   string
+	AddData    func()
 }
 
 func NewGridWindow(login *string) *GridWindow {
@@ -33,7 +36,8 @@ func NewGridWindow(login *string) *GridWindow {
 			TotalPages:  0,
 			PageSize:    12,
 		},
-		Grid:   Grid{Cols: 4, Rows: 3, Gap: 2},
+		Grid: Grid{Cols: 4, Rows: 3, Gap: 2},
+		AddData: func() {},
 	}
 
 	uim := app.GetUIManager()
@@ -60,21 +64,17 @@ func (gw *GridWindow) paginate(_ string, data any, _ any) {
 	}
 
 	gw.Pagination.UpdatePage(action)
-	gw.Pagination.Paginate(gw.Items, gw.Pagination.CurrentPage, gw.Grid.Cols * gw.Grid.Rows)
+	gw.Pagination.Paginate(gw.Items, gw.Pagination.CurrentPage, gw.Grid.Cols*gw.Grid.Rows)
 
-	gw.Data = struct {
-		Pagination models.PaginationResult[any]
-		Grid       Grid
-	}{
-		Pagination: gw.Pagination,
-		Grid:       gw.Grid,
+	gw.Data = map[string]any{
+		"Pagination": gw.Pagination,
+		"Grid":       gw.Grid,
 	}
-
-	gw.Window.Display()
 }
-
-
 
 func (gw *GridWindow) Display() {
 	gw.paginate("", "start", nil)
+	gw.AddData()
+	fmt.Println(gw.Data)
+	gw.Window.Display()
 }
