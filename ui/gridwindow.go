@@ -1,8 +1,6 @@
 package ui
 
 import (
-	"fmt"
-
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
 )
@@ -75,6 +73,5 @@ func (gw *GridWindow) paginate(_ string, data any, _ any) {
 func (gw *GridWindow) Display() {
 	gw.paginate("", "start", nil)
 	gw.AddData()
-	fmt.Println(gw.Data)
 	gw.Window.Display()
 }
