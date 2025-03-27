@@ -11,7 +11,7 @@ type PaginationResult[T any] struct {
 // Paginate an array
 func (pr *PaginationResult[T]) Paginate(array []T, page int, pageSize int) {
 	currPage := min(page+1, (len(array)+pageSize-1)/pageSize) - 1
-	start := currPage*pageSize
+	start := max(currPage * pageSize, 0)
 	end := start + pageSize
 	if start > len(array) {
 		start = len(array)

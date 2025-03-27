@@ -1,10 +1,12 @@
 package windows
 
 import (
+	"fmt"
+	"slices"
+
 	"github.com/MRegterschot/GbxRemoteGo/structs"
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/ui"
-	"slices"
 )
 
 type MapsGridWindow struct {
@@ -35,10 +37,10 @@ func (mgw *MapsGridWindow) HandleRemoveAnswer(login string, data any, _ any) {
 	c := app.GetGoController()
 	mapInfo := data.(structs.TMMapInfo)
 
-	// if err := c.Server.Client.RemoveMap(mapInfo.FileName); err != nil {
-	// 	go c.Chat(fmt.Sprintf("Error removing map: %v", err), login)
-	// 	return
-	// }
+	if err := c.Server.Client.RemoveMap(mapInfo.FileName); err != nil {
+		go c.Chat(fmt.Sprintf("Error removing map: %v", err), login)
+		return
+	}
 
 	// Remove item from grid
 	for i, item := range mgw.Items {

@@ -57,10 +57,6 @@ func (gw *GridWindow) paginate(_ string, data any, _ any) {
 		return
 	}
 
-	if len(gw.Items) == 0 {
-		return
-	}
-
 	gw.Pagination.UpdatePage(action)
 	gw.Pagination.Paginate(gw.Items, gw.Pagination.CurrentPage, gw.Grid.Cols*gw.Grid.Rows)
 
