@@ -96,6 +96,7 @@ func (pm *PluginManager) UnloadPlugin(name string) error {
 			err := pl.Unload()
 			if err != nil {
 				zap.L().Error("Failed to unload plugin", zap.String("plugin", p.FieldByName("Name").String()), zap.Error(err))
+				return err
 			}
 			p.FieldByName("Loaded").SetBool(false)
 			zap.L().Info("Unloaded plugin", zap.String("plugin", p.FieldByName("Name").String()))
