@@ -59,6 +59,7 @@ func (uim *UIManager) Init() {
 	uim.Templates = jet.NewSet(jet.NewOSFileSystemLoader("./ui/templates"))
 	uim.Templates.AddGlobal("Colors", map[string]string{
 		"Primary": "00CC66",
+		"Danger":  "CC2222",
 	})
 	uim.Templates.AddGlobal("Fonts", map[string]string{
 		"Regular":   "GameFont",
@@ -75,6 +76,7 @@ func (uim *UIManager) Init() {
 		"Requeue":  "",
 		"StartRecording": "",
 		"StopRecording":  "",
+		"User": "",
 	})
 	uim.Templates.AddGlobalFunc("floor", func(args jet.Arguments) reflect.Value {
 		args.RequireNumOfArguments("floor", 1, 1)
@@ -94,14 +96,24 @@ func (uim *UIManager) Init() {
 		}
 		return reflect.ValueOf("")
 	})
-	uim.Templates.AddGlobalFunc("formatTime", func(args jet.Arguments) reflect.Value {
-		args.RequireNumOfArguments("formatTime", 1, 1)
+	uim.Templates.AddGlobalFunc("formatDate", func(args jet.Arguments) reflect.Value {
+		args.RequireNumOfArguments("formatDate", 1, 1)
 		value := args.Get(0)
 		if value.Type() == reflect.TypeOf(time.Time{}) {
 			extractedTime := value.Interface().(time.Time)
 			return reflect.ValueOf(extractedTime.Format("02 January, 15:04"))
 		}
 		return reflect.ValueOf("")
+	})
+	// Format time in milliseconds to a format like 45.569 or 1:35.535
+	uim.Templates.AddGlobalFunc("formatTime", func(args jet.Arguments) reflect.Value {
+		args.RequireNumOfArguments("formatTime", 1, 1)
+		value := args.Get(0)
+		time := value.Interface().(int) // time is in milliseconds
+		if time < 60000 {
+			return reflect.ValueOf(fmt.Sprintf("%.3f", float64(time)/1000))
+		}
+		return reflect.ValueOf(fmt.Sprintf("%d:%06.3f", time/60000, float64(time%60000)/1000))
 	})
 
 	GetClient().OnPlayerManialinkPageAnswer = append(GetClient().OnPlayerManialinkPageAnswer, gbxclient.GbxCallbackStruct[events.PlayerManialinkPageAnswerEventArgs]{
@@ -281,7 +293,7 @@ func (uim *UIManager) sendManialink(ml *Manialink) {
 
 	if ml.Recipient == nil {
 		GetClient().SendDisplayManialinkPage(gbxclient.CData(xml), 0, false)
-	} else {
+		} else {
 		GetClient().SendDisplayManialinkPageToLogin(*ml.Recipient, gbxclient.CData(xml), 0, false)
 	}
 }
@@ -295,7 +307,7 @@ func (uim *UIManager) DisplayManialink(ml *Manialink) {
 		}
 		uim.PlayerManialinks[*ml.Recipient][ml.ID] = ml
 	}
-
+	
 	uim.sendManialink(ml)
 }
 

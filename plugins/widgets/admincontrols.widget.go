@@ -32,7 +32,7 @@ var (
 
 func GetAdminControlsWidget() *AdminControlsWidget {
 	acwOnce.Do(func() {
-		widget := ui.NewWidget("controls/admincontrols.jet")
+		widget := ui.NewWidget("widgets/admincontrols.jet")
 
 		widget.Pos = app.UIPos{
 			X: -160,

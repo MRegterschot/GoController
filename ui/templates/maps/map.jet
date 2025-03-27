@@ -1,0 +1,19 @@
+{{ extends "../grid.jet" }}
+
+{{ block item(item, width=0, height=0) }}
+  <frame pos="1 -1">
+    <label pos="0 0" size="{{ width - 2 }} 5" text="{{ item["Name"] }}" textemboss="1" font="{{ Fonts.Regular }}" />
+    <quad pos="-1 -5" size="{{ width }} 0.2" bgcolor="FFF" opacity="0.7" />
+    
+    <label pos="2.5 -8" size="5 5" text="{{ Icons.User }}" valign="center" halign="center" textemboss="1" />
+    <label pos="6 -8" size="{{ width - 8 }} 5" text="{{ item["AuthorNickname"] }}" valign="center" textemboss="1" font="{{ Fonts.Regular }}" />
+
+    <label pos="2.5 -13.5" size="5 5" text="{{ Icons.Clock }}" valign="center" halign="center" textemboss="1" />
+    <label pos="6 -13.5" size="{{ width - 8 }} 5" text="{{ item["AuthorTime"]|formatTime }}" valign="center" textemboss="1" font="{{ Fonts.Regular }}" />
+
+    <frame pos="0 -{{ height - 5 }}">
+      <label pos="10" size="20 6" text="Remove" action="{{ .Actions["remove_"+item["UId"]] }}" textsize="2" valign="center" halign="center" focusareacolor1="{{ Colors.Danger }}" focusareacolor2="{{ Colors.Danger }}" scriptevents="1" textemboss="1" font="{{ Fonts.Regular }}" />
+      <label pos="{{ width - 12.5 }}" size="20 6" text="Queue" action="{{ .Actions["queue_"+item["UId"]] }}" textsize="2" halign="center" valign="center" focusareacolor1="{{ Colors.Primary }}" focusareacolor2="{{ Colors.Primary }}" scriptevents="1" textemboss="1" font="{{ Fonts.Regular }}" />
+    </frame>
+  </frame>
+{{ end }}

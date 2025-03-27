@@ -19,7 +19,7 @@
       <label pos="6 -8" z-index="0" size="20 4" text="{{ records }}" valign="center" textemboss="1" font="{{ Fonts.Regular }}" />
     </frame>
 
-    <label pos="0 -{{ height - 3 }}" z-index="0" size="{{ width - 10 }} 4" text="{{ item["CreatedAt"]|formatTime }}" font="{{ Fonts.Regular }}" textsize="2" valign="center" textemboss="1"/>
+    <label pos="0 -{{ height - 3 }}" z-index="0" size="{{ width - 10 }} 4" text="{{ item["CreatedAt"]|formatDate }}" font="{{ Fonts.Regular }}" textsize="2" valign="center" textemboss="1"/>
     <label pos="{{ width - 4 }} -{{ height - 3 }}" z-index="0" textcolor="{{ Colors.Primary }}" size="5 5" text="{{ Icons.Download }}" font="{{ Fonts.Regular }}" halign="center" valign="center" scriptevents="1" focusareacolor1="fff0" focusareacolor2="fff0" action="{{ .Actions[item["ID"]] }}" textemboss="1" />
   </frame>
 {{ end }}
