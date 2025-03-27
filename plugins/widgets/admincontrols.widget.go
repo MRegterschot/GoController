@@ -5,11 +5,10 @@ import (
 	"strings"
 	"sync"
 
-	"slices"
-
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/ui"
 	"github.com/MRegterschot/GoController/utils"
+	"slices"
 )
 
 type Action struct {
@@ -83,18 +82,14 @@ func (acw *AdminControlsWidget) AddAction(action Action) error {
 	return nil
 }
 
-func (acw *AdminControlsWidget) RemoveAction(action Action) error {
-	if !utils.Includes(acw.Controls, action) {
+func (acw *AdminControlsWidget) RemoveAction(actionName string) error {
+	if !utils.Includes(acw.Actions, actionName) {
 		return errors.New("Action does not exist")
 	}
 
-	for i, a := range acw.Controls {
-		if a == action {
-			acw.Controls = slices.Delete(acw.Controls, i, i+1)
-			break
-		}
-	}
-
+	delete(acw.Actions, actionName)
+	acw.Controls = removeActionByName(acw.Controls, actionName)
+	
 	acw.reload()
 
 	return nil
@@ -106,6 +101,15 @@ func (acw *AdminControlsWidget) executeAction(login string, data any, _ any) {
 	params := strings.Split(command, " ")[1:]
 
 	app.GetCommandManager().ExecuteCommand(login, cmd, params, true)
+}
+
+func removeActionByName(actions []Action, name string) []Action {
+	for i, action := range actions {
+		if action.Name == name {
+			return slices.Delete(actions, i, i+1)
+		}
+	}
+	return actions
 }
 
 func init() {
