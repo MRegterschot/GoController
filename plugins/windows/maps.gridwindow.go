@@ -20,7 +20,7 @@ func CreateMapsGridWindow(login *string) *MapsGridWindow {
 	mgw.GridWindow.AddData = mgw.CheckAdmin
 
 	mgw.SetTemplate("maps/map.jet")
-	mgw.Grid.Rows = 1
+	mgw.Grid.Rows = 4
 	
 	return mgw
 }

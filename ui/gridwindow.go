@@ -32,9 +32,9 @@ func NewGridWindow(login *string) *GridWindow {
 			TotalItems:  0,
 			CurrentPage: 0,
 			TotalPages:  0,
-			PageSize:    1,
+			PageSize:    12,
 		},
-		Grid: Grid{Cols: 1, Rows: 1, Gap: 2},
+		Grid: Grid{Cols: 4, Rows: 3, Gap: 2},
 		AddData: func() {},
 	}
 
