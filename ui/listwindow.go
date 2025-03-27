@@ -33,6 +33,7 @@ func NewListWindow(login *string) *ListWindow {
 			TotalPages:  0,
 			PageSize:    14,
 		},
+		UpdateItems: func(items [][]any, updatedItems any) {},
 	}
 
 	uim := app.GetUIManager()

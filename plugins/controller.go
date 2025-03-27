@@ -7,6 +7,7 @@ import (
 
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
+	"github.com/MRegterschot/GoController/ui"
 )
 
 type ControllerPlugin struct {
@@ -76,39 +77,60 @@ func (p *ControllerPlugin) Unload() error {
 }
 
 func (p *ControllerPlugin) helpCommand(login string, args []string) {
-	var outCommands []string
+	items := make([][]any, 0)
 
 	for _, command := range app.GetCommandManager().Commands {
 		if command.Admin {
 			continue
 		}
 
-		msg := "$0C6" + command.Name
-		if len(command.Aliases) > 0 {
-			msg += " - " + strings.Join(command.Aliases, " - ")
-		}
-		msg += "$FFF " + command.Help
-		outCommands = append(outCommands, msg)
+		items = append(items, []any{
+			command.Name,
+			strings.Join(command.Aliases, " - "),
+			command.Help,
+		})
 	}
 
-	go app.GetGoController().Chat("Available commands: "+strings.Join(outCommands, ", "), login)
+	columns := []ui.Column{
+		{Name: "Command", Width: 20},
+		{Name: "Aliases", Width: 30},
+		{Name: "Description", Width: 50},
+	}
+
+	window := ui.NewListWindow(&login)
+	window.Title = "Available commands"
+	window.Columns = columns
+	window.Items = items
+
+	go window.Display()
 }
 
 func (p *ControllerPlugin) adminHelpCommand(login string, args []string) {
-	var outCommands []string
+	items := make([][]any, 0)
 	for _, command := range app.GetCommandManager().Commands {
 		if !command.Admin {
 			continue
 		}
-		msg := "$0C6" + command.Name
-		if len(command.Aliases) > 0 {
-			msg += " - " + strings.Join(command.Aliases, " - ")
-		}
-		msg += "$FFF " + command.Help
-		outCommands = append(outCommands, msg)
+
+		items = append(items, []any{
+			command.Name,
+			strings.Join(command.Aliases, " - "),
+			command.Help,
+		})
 	}
 
-	go app.GetGoController().Chat("Available admin commands: "+strings.Join(outCommands, ", "), login)
+	columns := []ui.Column{
+		{Name: "Command", Width: 20},
+		{Name: "Aliases", Width: 30},
+		{Name: "Description", Width: 50},
+	}
+
+	window := ui.NewListWindow(&login)
+	window.Title = "Available admin commands"
+	window.Columns = columns
+	window.Items = items
+
+	go window.Display()
 }
 
 func (p *ControllerPlugin) shutdownCommand(login string, args []string) {
