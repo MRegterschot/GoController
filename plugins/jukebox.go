@@ -88,6 +88,11 @@ func (p *JukeboxPlugin) Unload() error {
 	commandManager.RemoveCommand("//jump")
 	commandManager.RemoveCommand("//requeue")
 
+	acw := widgets.GetAdminControlsWidget()
+
+	acw.RemoveAction("Previous")
+	acw.RemoveAction("Requeue")
+
 	return nil
 }
 

@@ -86,6 +86,11 @@ func (p *RecorderPlugin) Unload() error {
 	commandManager.RemoveCommand("//export")
 	commandManager.RemoveCommand("//recordings")
 
+	acw := widgets.GetAdminControlsWidget()
+
+	acw.RemoveAction("StartRecording")
+	acw.RemoveAction("StopRecording")
+
 	return nil
 }
 

@@ -71,6 +71,11 @@ func (p *GameFlowPlugin) Unload() error {
 	commandManager.RemoveCommand("//restart")
 	commandManager.RemoveCommand("//mode")
 
+	acw := widgets.GetAdminControlsWidget()
+
+	acw.RemoveAction("Skip")
+	acw.RemoveAction("Restart")
+
 	return nil
 }
 
