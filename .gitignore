@@ -20,5 +20,5 @@
 # air
 tmp/
 
-settings/*.json
+settings/admins.json
 exports/*.csv

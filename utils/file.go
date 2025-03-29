@@ -23,3 +23,20 @@ func CreateFile(file string, data any) error {
 	}
 	return nil
 }
+
+// Read file and decode JSON data
+func ReadFile[T any](file string) (T, error) {
+	var data T
+	f, err := os.Open(file)
+	if err != nil {
+		return data, err
+	}
+	defer f.Close()
+
+	err = json.NewDecoder(f).Decode(&data)
+	if err != nil {
+		return data, err
+	}
+
+	return data, nil
+}

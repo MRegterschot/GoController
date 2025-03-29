@@ -57,27 +57,9 @@ func (uim *UIManager) Init() {
 	zap.L().Info("Initializing UIManager")
 
 	uim.Templates = jet.NewSet(jet.NewOSFileSystemLoader("./ui/templates"))
-	uim.Templates.AddGlobal("Colors", map[string]string{
-		"Primary": "00CC66",
-		"Danger":  "CC2222",
-	})
-	uim.Templates.AddGlobal("Fonts", map[string]string{
-		"Regular":   "GameFont",
-		"SemiBold":  "GameFontSemiBold",
-		"ExtraBold": "GameFontExtraBold",
-	})
-	uim.Templates.AddGlobal("Icons", map[string]string{
-		"Download": "",
-		"Map":      "",
-		"Clock":    "",
-		"Skip":     "",
-		"Restart":  "",
-		"Previous": "",
-		"Requeue":  "",
-		"StartRecording": "",
-		"StopRecording":  "",
-		"User": "",
-	})
+	uim.loadTheme()
+
+	// Add global functions to the template engine
 	uim.Templates.AddGlobalFunc("floor", func(args jet.Arguments) reflect.Value {
 		args.RequireNumOfArguments("floor", 1, 1)
 		if args.Get(0).Kind() == reflect.Float64 {
@@ -87,6 +69,7 @@ func (uim *UIManager) Init() {
 		}
 		return reflect.ValueOf("")
 	})
+
 	uim.Templates.AddGlobalFunc("ceil", func(args jet.Arguments) reflect.Value {
 		args.RequireNumOfArguments("ceil", 1, 1)
 		if args.Get(0).Kind() == reflect.Float64 {
@@ -96,6 +79,7 @@ func (uim *UIManager) Init() {
 		}
 		return reflect.ValueOf("")
 	})
+
 	uim.Templates.AddGlobalFunc("formatDate", func(args jet.Arguments) reflect.Value {
 		args.RequireNumOfArguments("formatDate", 1, 1)
 		value := args.Get(0)
@@ -105,17 +89,18 @@ func (uim *UIManager) Init() {
 		}
 		return reflect.ValueOf("")
 	})
-	// Format time in milliseconds to a format like 45.569 or 1:35.535
+
 	uim.Templates.AddGlobalFunc("formatTime", func(args jet.Arguments) reflect.Value {
 		args.RequireNumOfArguments("formatTime", 1, 1)
 		value := args.Get(0)
-		time := value.Interface().(int) // time is in milliseconds
+		time := value.Interface().(int)
 		if time < 60000 {
 			return reflect.ValueOf(fmt.Sprintf("%.3f", float64(time)/1000))
 		}
 		return reflect.ValueOf(fmt.Sprintf("%d:%06.3f", time/60000, float64(time%60000)/1000))
 	})
 
+	// Add callbacks
 	GetClient().OnPlayerManialinkPageAnswer = append(GetClient().OnPlayerManialinkPageAnswer, gbxclient.GbxCallbackStruct[events.PlayerManialinkPageAnswerEventArgs]{
 		Key:  "uimanager",
 		Call: uim.onManialinkAnswer,
@@ -140,6 +125,38 @@ func (uim *UIManager) Init() {
 func (uim *UIManager) AfterInit() {
 	uim.setUIProperty("Race_RespawnHelper", "Visible", false)
 	uim.sendUIProperties()
+}
+
+func (uim *UIManager) loadTheme() {
+	theme, err := utils.ReadFile[map[string]any]("./settings/theme.json")
+	if err != nil {
+		zap.L().Fatal("Error loading theme.json", zap.Error(err))
+		return
+	}
+	
+	// Set the theme colors
+	if colors, ok := theme["Colors"].(map[string]any); ok {
+		uim.Templates.AddGlobal("Colors", colors)
+	} else {
+		zap.L().Fatal("Error: Colors not found in theme.json")
+		return
+	}
+
+	// Set the theme fonts
+	if fonts, ok := theme["Fonts"].(map[string]any); ok {
+		uim.Templates.AddGlobal("Fonts", fonts)
+	} else {
+		zap.L().Fatal("Error: Fonts not found in theme.json")
+		return
+	}
+
+	// Set the theme icons
+	if icons, ok := theme["Icons"].(map[string]any); ok {
+		uim.Templates.AddGlobal("Icons", icons)
+	} else {
+		zap.L().Fatal("Error: Icons not found in theme.json")
+		return
+	}
 }
 
 func (uim *UIManager) getUIProperties() {

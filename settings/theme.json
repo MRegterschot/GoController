@@ -1,0 +1,23 @@
+{
+  "Colors": {
+    "Primary": "00CC66",
+    "Danger": "CC2222"
+  },
+  "Fonts": {
+    "Regular": "GameFont",
+    "SemiBold": "GameFontSemiBold",
+    "ExtraBold": "GameFontExtraBold"
+  },
+  "Icons": {
+    "Download": "",
+    "Map": "",
+    "Clock": "",
+    "Skip": "",
+    "Restart": "",
+    "Previous": "",
+    "Requeue": "",
+    "StartRecording": "",
+    "StopRecording": "",
+    "User": ""
+  }
+}
