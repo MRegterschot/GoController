@@ -26,6 +26,16 @@ type UIModule struct {
 	VisibleUpdate  bool       `json:"visible_update"`
 }
 
+type Colors map[string]string
+type Fonts map[string]string
+type Icons map[string]string
+
+type Theme struct {
+	Colors Colors
+	Fonts  Fonts
+	Icons  Icons
+}
+
 type UIManager struct {
 	Templates        *jet.Set
 	Actions          map[string]ManialinkAction
@@ -33,6 +43,7 @@ type UIManager struct {
 	PlayerManialinks map[string]map[string]*Manialink
 	Modules          []UIModule
 	ScriptCalls      []string
+	Theme            Theme
 }
 
 var (
@@ -48,6 +59,7 @@ func GetUIManager() *UIManager {
 			PlayerManialinks: make(map[string]map[string]*Manialink),
 			Modules:          make([]UIModule, 0),
 			ScriptCalls:      make([]string, 0),
+			Theme:            Theme{},
 		}
 	})
 	return uiInstance
@@ -128,35 +140,17 @@ func (uim *UIManager) AfterInit() {
 }
 
 func (uim *UIManager) loadTheme() {
-	theme, err := utils.ReadFile[map[string]any]("./settings/theme.json")
+	theme, err := utils.ReadFile[Theme]("./settings/theme.json")
 	if err != nil {
 		zap.L().Fatal("Error loading theme.json", zap.Error(err))
 		return
 	}
-	
-	// Set the theme colors
-	if colors, ok := theme["Colors"].(map[string]any); ok {
-		uim.Templates.AddGlobal("Colors", colors)
-	} else {
-		zap.L().Fatal("Error: Colors not found in theme.json")
-		return
-	}
 
-	// Set the theme fonts
-	if fonts, ok := theme["Fonts"].(map[string]any); ok {
-		uim.Templates.AddGlobal("Fonts", fonts)
-	} else {
-		zap.L().Fatal("Error: Fonts not found in theme.json")
-		return
-	}
-
-	// Set the theme icons
-	if icons, ok := theme["Icons"].(map[string]any); ok {
-		uim.Templates.AddGlobal("Icons", icons)
-	} else {
-		zap.L().Fatal("Error: Icons not found in theme.json")
-		return
-	}
+	uim.Templates.AddGlobal("Colors", theme.Colors)
+	uim.Templates.AddGlobal("Fonts", theme.Fonts)
+	uim.Templates.AddGlobal("Icons", theme.Icons)
+	uim.Theme = theme
+	zap.L().Info("Theme loaded", zap.Any("theme", theme))
 }
 
 func (uim *UIManager) getUIProperties() {
@@ -310,7 +304,7 @@ func (uim *UIManager) sendManialink(ml *Manialink) {
 
 	if ml.Recipient == nil {
 		GetClient().SendDisplayManialinkPage(gbxclient.CData(xml), 0, false)
-		} else {
+	} else {
 		GetClient().SendDisplayManialinkPageToLogin(*ml.Recipient, gbxclient.CData(xml), 0, false)
 	}
 }
@@ -324,7 +318,7 @@ func (uim *UIManager) DisplayManialink(ml *Manialink) {
 		}
 		uim.PlayerManialinks[*ml.Recipient][ml.ID] = ml
 	}
-	
+
 	uim.sendManialink(ml)
 }
 
