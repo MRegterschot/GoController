@@ -14,6 +14,7 @@ import (
 func main() {
 	config.Setup()
 	defer zap.L().Sync()
+	utils.SetTheme()
 
 	controller := app.GetGoController()
 	controller.Start()

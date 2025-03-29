@@ -1,7 +1,11 @@
 {
   "Colors": {
-    "Primary": "00CC66",
-    "Danger": "CC2222"
+    "Primary": "0C6",
+    "Danger": "C22",
+
+    "White": "FFF",
+    "Black": "000",
+    "Gray": "ABC"
   },
   "Fonts": {
     "Regular": "GameFont",

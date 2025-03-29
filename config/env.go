@@ -20,6 +20,9 @@ type Env struct {
 	// Database configuration
 	MongoUri string
 	MongoDb  string
+
+	// Delimiter for theme processing
+	Delimiter string
 }
 
 // Global variable to store the loaded environment configuration
@@ -53,6 +56,8 @@ func LoadEnv() error {
 
 		MongoUri: os.Getenv("MONGO_URI"),
 		MongoDb:  os.Getenv("MONGO_DB"),
+
+		Delimiter: os.Getenv("DELIMITER"),
 	}
 
 	return nil

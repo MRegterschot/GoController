@@ -13,4 +13,7 @@ func Setup() {
 
 	// setup logger
 	SetupLogger()
+	
+	// load theme
+	LoadTheme()
 }

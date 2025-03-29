@@ -44,3 +44,13 @@ func (pr *PaginationResult[T]) UpdatePage(action string) {
 		pr.CurrentPage = pr.TotalPages - 1
 	}
 }
+
+type Colors map[string]string
+type Fonts map[string]string
+type Icons map[string]string
+
+type Theme struct {
+	Colors Colors
+	Fonts  Fonts
+	Icons  Icons
+}

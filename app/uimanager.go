@@ -11,6 +11,8 @@ import (
 	"github.com/CloudyKit/jet/v6"
 	"github.com/MRegterschot/GbxRemoteGo/events"
 	"github.com/MRegterschot/GbxRemoteGo/gbxclient"
+	"github.com/MRegterschot/GoController/config"
+	"github.com/MRegterschot/GoController/models"
 	"github.com/MRegterschot/GoController/utils"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -26,16 +28,6 @@ type UIModule struct {
 	VisibleUpdate  bool       `json:"visible_update"`
 }
 
-type Colors map[string]string
-type Fonts map[string]string
-type Icons map[string]string
-
-type Theme struct {
-	Colors Colors
-	Fonts  Fonts
-	Icons  Icons
-}
-
 type UIManager struct {
 	Templates        *jet.Set
 	Actions          map[string]ManialinkAction
@@ -43,7 +35,7 @@ type UIManager struct {
 	PlayerManialinks map[string]map[string]*Manialink
 	Modules          []UIModule
 	ScriptCalls      []string
-	Theme            Theme
+	Theme            models.Theme
 }
 
 var (
@@ -59,7 +51,7 @@ func GetUIManager() *UIManager {
 			PlayerManialinks: make(map[string]map[string]*Manialink),
 			Modules:          make([]UIModule, 0),
 			ScriptCalls:      make([]string, 0),
-			Theme:            Theme{},
+			Theme:            models.Theme{},
 		}
 	})
 	return uiInstance
@@ -140,17 +132,10 @@ func (uim *UIManager) AfterInit() {
 }
 
 func (uim *UIManager) loadTheme() {
-	theme, err := utils.ReadFile[Theme]("./settings/theme.json")
-	if err != nil {
-		zap.L().Fatal("Error loading theme.json", zap.Error(err))
-		return
-	}
-
-	uim.Templates.AddGlobal("Colors", theme.Colors)
-	uim.Templates.AddGlobal("Fonts", theme.Fonts)
-	uim.Templates.AddGlobal("Icons", theme.Icons)
-	uim.Theme = theme
-	zap.L().Info("Theme loaded", zap.Any("theme", theme))
+	uim.Templates.AddGlobal("Colors", config.Theme.Colors)
+	uim.Templates.AddGlobal("Fonts", config.Theme.Fonts)
+	uim.Templates.AddGlobal("Icons", config.Theme.Icons)
+	uim.Theme = config.Theme
 }
 
 func (uim *UIManager) getUIProperties() {
