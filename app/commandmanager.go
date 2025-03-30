@@ -59,7 +59,7 @@ func (cm *CommandManager) ExecuteCommand(login string, command string, params []
 
 	controller := GetGoController()
 
-	if admin && !utils.Includes(*controller.Admins, login) {
+	if admin && !controller.IsAdmin(login) {
 		return
 	}
 

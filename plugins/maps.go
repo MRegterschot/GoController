@@ -63,7 +63,7 @@ func (p *MapsPlugin) mapsCommand(login string, args []string) {
 	window.Title = "Maps"
 	window.Items = make([]any, 0)
 
-	isAdmin := utils.Includes(*c.Admins, login)
+	isAdmin := c.IsAdmin(login)
 	window.IsAdmin = &isAdmin
 
 	for _, m := range c.MapManager.Maps {

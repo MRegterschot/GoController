@@ -11,6 +11,7 @@ import (
 	"github.com/MRegterschot/GbxRemoteGo/gbxclient"
 	"github.com/MRegterschot/GoController/utils"
 	"go.uber.org/zap"
+	"slices"
 )
 
 type GoController struct {
@@ -127,12 +128,7 @@ func (c *GoController) Chat(message string, login ...string) {
 
 // Checks if a login is an admin
 func (c *GoController) IsAdmin(login string) bool {
-	for _, admin := range *c.Admins {
-		if admin == login {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(*c.Admins, login)
 }
 
 // Shutdown the GoController
