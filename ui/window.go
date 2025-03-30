@@ -6,6 +6,7 @@ import (
 
 type Window struct {
 	*app.Manialink
+	AddData func()
 }
 
 func NewWindow(login *string) *Window {
@@ -13,6 +14,7 @@ func NewWindow(login *string) *Window {
 	ml.Template = "window.jet"
 	w := &Window{
 		Manialink: ml,
+		AddData:   func() {},
 	}
 
 	w.Actions["close"] = app.GetUIManager().AddAction(w.Destroy, nil)
@@ -26,4 +28,9 @@ func (w *Window) SetTemplate(template string) {
 
 func (w *Window) Destroy(_ string, _ any, _ any) {
 	w.Manialink.Destroy()
+}
+
+func (w *Window) Display() {
+	w.AddData()
+	w.Manialink.Display()
 }

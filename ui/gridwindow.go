@@ -17,7 +17,6 @@ type GridWindow struct {
 	Items      []any
 	Pagination models.PaginationResult[any]
 	Template   string
-	AddData    func()
 }
 
 func NewGridWindow(login *string) *GridWindow {
@@ -35,7 +34,6 @@ func NewGridWindow(login *string) *GridWindow {
 			PageSize:    12,
 		},
 		Grid: Grid{Cols: 4, Rows: 3, Gap: 2},
-		AddData: func() {},
 	}
 
 	uim := app.GetUIManager()
@@ -65,7 +63,6 @@ func (gw *GridWindow) paginate(_ string, data any, _ any) {
 		"Grid":       gw.Grid,
 	}
 
-	gw.AddData()
 	gw.Window.Display()
 }
 

@@ -73,3 +73,8 @@ func (lw *ListWindow) paginate(_ string, data any, entries any) {
 func (lw *ListWindow) Display() {
 	lw.paginate("", "start", nil)
 }
+
+// Refresh updates the list window with the current items and pagination.
+func (lw *ListWindow) Refresh() {
+	lw.paginate("", "", nil)
+}
