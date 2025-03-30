@@ -29,7 +29,7 @@
             scriptevents="1"/>
         {{ else if col.Type == "button" }}
           <label pos="{{ totalWidth + 2 + colWidth / 2 }} -2.5" z-index="1" size="{{ colWidth }} 5" 
-            text="{{ col.Name }}" focusareacolor1="{{ Styling.Primary }}" focusareacolor2="{{ Styling.Primary }}" 
+            text="{{ col.Name }}" focusareacolor1="{{ Styling[col.Color] }}" focusareacolor2="{{ Styling[col.Color] }}" 
             halign="center" valign="center" textcolor="FFFF" textfont="{{ Fonts.Regular }}" textsize="1.5" 
             textemboss="1" action="{{ item[i] }}"/>
         {{ else if col.Type == "toggle" }}

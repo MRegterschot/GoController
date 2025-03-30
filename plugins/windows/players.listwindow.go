@@ -7,6 +7,7 @@ import (
 	"github.com/MRegterschot/GoController/models"
 	"github.com/MRegterschot/GoController/ui"
 	"go.uber.org/zap"
+	"slices"
 )
 
 type PlayersListWindow struct {
@@ -39,10 +40,29 @@ func (plw *PlayersListWindow) OnSpectatorToggle(login string, data any, _ any) {
 
 	for _, item := range plw.Items {
 		if item[1] == player.Login {
-			if colorMap, ok := item[3].(models.Toggle); ok {
-				colorMap.Color = "Red"
-				item[3] = colorMap
+			for i, field := range item {
+				if colorMap, ok := field.(models.Toggle); ok {
+					colorMap.Color = "Red"
+					item[i] = colorMap
+				}
 			}
+		}
+	}
+
+	plw.Refresh()
+}
+
+func (plw *PlayersListWindow) OnBan(login string, data any, _ any) {
+	player := data.(models.DetailedPlayer)
+	c := app.GetGoController()
+
+	c.CommandManager.ExecuteCommand(login, "//ban", []string{player.Login}, true)
+
+	// Remove item from list
+	for i, item := range plw.Items {
+		if item[1] == player.Login {
+			plw.Items = slices.Delete(plw.Items, i, i+1)
+			break
 		}
 	}
 

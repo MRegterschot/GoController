@@ -209,7 +209,7 @@ func (p *PlayersPlugin) banCommand(login string, args []string) {
 		return
 	}
 
-	go c.Chat(fmt.Sprintf("#Primary#Banned: #White#%s, #Primary#Reason: #White#%s", targetLogin, reason))
+	go c.Chat(fmt.Sprintf("#Primary#Banned #White#%s, #Primary#Reason: #White#%s", targetLogin, reason))
 }
 
 func (p *PlayersPlugin) unBanCommand(login string, args []string) {
@@ -528,24 +528,24 @@ func (p *PlayersPlugin) getPlayersCommand(login string, args []string) {
 		}
 
 		spec := models.Toggle{
-			Label:   c.UIManager.Theme.Icons["Camera"],
-			Color:   color,
-			Action:  c.UIManager.AddAction(window.OnSpectatorToggle, player),
+			Label:  c.UIManager.Theme.Icons["Camera"],
+			Color:  color,
+			Action: c.UIManager.AddAction(window.OnSpectatorToggle, player),
 		}
 
 		items = append(items, []any{
 			player.NickName,
 			player.Login,
-			player.Path,
 			spec,
+			c.UIManager.AddAction(window.OnBan, player),
 		})
 	}
 
 	columns := []ui.Column{
 		{Name: "Nickname", Width: 20},
 		{Name: "Login", Width: 25},
-		{Name: "Path", Width: 45},
 		{Name: "Spectator", Width: 10, Type: "toggle"},
+		{Name: "Ban", Width: 10, Type: "button", Color: "Danger"},
 	}
 
 	window.Columns = columns

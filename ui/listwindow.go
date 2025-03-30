@@ -9,6 +9,7 @@ type Column struct {
 	Name  string
 	Width int    // percentage of the total width
 	Type  string // text, input
+	Color string // used for type button, determines the color of the button
 }
 
 type ListWindow struct {

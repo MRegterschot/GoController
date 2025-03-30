@@ -117,7 +117,7 @@ func (p *MapsPlugin) localMapsCommand(login string, args []string) {
 	columns := []ui.Column{
 		{Name: "Folder", Width: 40},
 		{Name: "File Name", Width: 50},
-		{Name: "Add", Width: 10, Type: "button"},
+		{Name: "Add", Width: 10, Type: "button", Color: "Primary"},
 	}
 
 	window := ui.NewListWindow(&login)
