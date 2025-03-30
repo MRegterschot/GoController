@@ -508,6 +508,7 @@ func (p *PlayersPlugin) kickCommand(login string, args []string) {
 
 func (p *PlayersPlugin) getPlayersCommand(login string, args []string) {
 	c := app.GetGoController()
+	c.PlayerManager.SyncPlayers()
 
 	players := c.PlayerManager.Players
 

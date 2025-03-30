@@ -57,10 +57,27 @@ func (plm *PlayerManager) SyncPlayers() {
 			zap.L().Error("Failed to get detailed player info", zap.Error(err))
 			continue
 		}
-		plm.Players = append(plm.Players, models.DetailedPlayer{
+
+		
+		detailedPlayer := models.DetailedPlayer{
 			TMPlayerDetailedInfo: detailedInfo,
 			IsAdmin:              GetGoController().IsAdmin(player.Login),
-		})
+		}
+		
+		if utils.Includes(plm.Players, detailedPlayer) {
+			// Replace the player in the list if it already exists
+			for i, existingPlayer := range plm.Players {
+				if existingPlayer.Login == player.Login {
+					plm.Players[i] = models.DetailedPlayer{
+						TMPlayerDetailedInfo: detailedInfo,
+						IsAdmin:              GetGoController().IsAdmin(player.Login),
+					}
+					break
+				}
+			}
+		} else {
+			plm.Players = append(plm.Players, detailedPlayer)
+		}
 	}
 
 	GetDatabaseManager().SyncPlayers()

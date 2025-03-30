@@ -34,8 +34,8 @@ func (plw *PlayersListWindow) OnSpectatorToggle(login string, data any, _ any) {
 		return
 	}
 
-	go c.Chat(fmt.Sprintf("#Primary#Forced %s to spectator", player.NickName), login)
-	zap.L().Debug("Forced player to spectator", zap.String("login", player.Login), zap.String("nickname", player.NickName))
+	go c.Chat(fmt.Sprintf("#Primary#Forced #White#%s #Primary#to spectator", player.NickName), login)
+	zap.L().Debug("Forced player to spectator", zap.String("admin", login), zap.String("player", player.Login))
 
 	for _, item := range plw.Items {
 		if item[1] == player.Login {
