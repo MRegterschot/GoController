@@ -76,14 +76,14 @@ func (p *MapsPlugin) mapsCommand(login string, args []string) {
 	window.Title = "Maps"
 	window.Items = make([]any, 0, len(c.MapManager.Maps))
 
-	isAdmin := c.IsAdmin(login)
+	isAdmin := !c.IsAdmin(login)
 	window.IsAdmin = &isAdmin
 
 	for _, m := range c.MapManager.Maps {
 		if isAdmin {
 			window.Actions["remove_"+m.UId] = app.GetUIManager().AddAction(window.HandleRemoveAnswer, m)
+			window.Actions["queue_"+m.UId] = app.GetUIManager().AddAction(window.HandleQueueAnswer, m)
 		}
-		window.Actions["queue_"+m.UId] = app.GetUIManager().AddAction(window.HandleQueueAnswer, m)
 		window.Items = append(window.Items, m)
 	}
 
@@ -119,14 +119,14 @@ func (p *MapsPlugin) localMapsCommand(login string, args []string) {
 			name,
 			app.GetUIManager().AddAction(p.onAddMap, path),
 		})
-		
+
 		return nil
 	})
 	if err != nil {
 		go c.ChatError("Error walking directory", err, login)
 		return
 	}
-	
+
 	columns := []ui.Column{
 		{Name: "Folder", Width: 40},
 		{Name: "File Name", Width: 50},

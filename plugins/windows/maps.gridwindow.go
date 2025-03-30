@@ -67,5 +67,5 @@ func (mgw *MapsGridWindow) HandleRemoveAnswer(login string, data any, _ any) {
 func (mgw *MapsGridWindow) HandleQueueAnswer(login string, data any, _ any) {
 	mapInfo := data.(structs.TMMapInfo)
 
-	app.GetCommandManager().ExecuteCommand(login, "/queue", []string{mapInfo.FileName}, false)
+	app.GetCommandManager().ExecuteCommand(login, "//queue", []string{mapInfo.FileName}, true)
 }

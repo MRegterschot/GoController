@@ -78,9 +78,9 @@ func (p *JukeboxPlugin) Load() error {
 	})
 
 	commandManager.AddCommand(models.ChatCommand{
-		Name:     "/queue",
+		Name:     "//queue",
 		Callback: p.queueCommand,
-		Admin:    false,
+		Admin:    true,
 		Help:     "Queue map",
 	})
 
@@ -108,7 +108,7 @@ func (p *JukeboxPlugin) Unload() error {
 	commandManager.RemoveCommand("//previous")
 	commandManager.RemoveCommand("//jump")
 	commandManager.RemoveCommand("//requeue")
-	commandManager.RemoveCommand("/queue")
+	commandManager.RemoveCommand("//queue")
 
 	acw := widgets.GetAdminControlsWidget()
 
@@ -210,7 +210,7 @@ func (p *JukeboxPlugin) queueCommand(login string, args []string) {
 	c := app.GetGoController()
 
 	if len(args) < 1 {
-		go c.ChatUsage("/queue [*filename]", login)
+		go c.ChatUsage("//queue [*filename]", login)
 		return
 	}
 
