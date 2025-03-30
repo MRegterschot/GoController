@@ -139,7 +139,7 @@ func (p *ControllerPlugin) shutdownCommand(login string, args []string) {
 
 func (p *ControllerPlugin) rebootCommand(login string, args []string) {
 	if err := app.GetGoController().Reboot(); err != nil {
-		go app.GetGoController().Chat("#Error#Error rebooting, #White#"+err.Error(), login)
+		go app.GetGoController().ChatError("Error rebooting", err, login)
 	}
 }
 
@@ -147,13 +147,13 @@ func (p *ControllerPlugin) loadPluginCommand(login string, args []string) {
 	c := app.GetGoController()
 
 	if len(args) < 1 {
-		go c.Chat("#Primary#Usage: #White#//load [*plugin]", login)
+		go c.ChatUsage("//load [*plugin]", login)
 		return
 	}
 
 	pluginName := args[0]
 	if err := app.GetPluginManager().LoadPlugin(args[0]); err != nil {
-		go c.Chat(fmt.Sprintf("#Error#Couldn't load #White#%s, #Error#%s", pluginName, err.Error()), login)
+		go c.ChatError(fmt.Sprintf("Couldn't load #White#%s", pluginName), err, login)
 	} else {
 		go c.Chat(fmt.Sprintf("#Primary#Plugin #White#%s #Primary#loaded", pluginName), login)
 	}
@@ -163,13 +163,13 @@ func (p *ControllerPlugin) unloadPluginCommand(login string, args []string) {
 	c := app.GetGoController()
 
 	if len(args) < 1 {
-		go c.Chat("#Primary#Usage: #White#//unload [*plugin]", login)
+		go c.ChatUsage("//unload [*plugin]", login)
 		return
 	}
 
 	pluginName := args[0]
 	if err := app.GetPluginManager().UnloadPlugin(args[0]); err != nil {
-		go c.Chat(fmt.Sprintf("#Error#Couldn't unload #White#%s, #Error#%s", pluginName, err.Error()), login)
+		go c.ChatError(fmt.Sprintf("Couldn't unload #White#%s", pluginName), err, login)
 	} else {
 		go c.Chat(fmt.Sprintf("#Primary#Plugin #White#%s #Primary#unloaded", pluginName), login)
 	}

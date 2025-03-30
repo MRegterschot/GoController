@@ -126,6 +126,21 @@ func (c *GoController) Chat(message string, login ...string) {
 	}
 }
 
+// Sends a chat error message to the server
+func (c *GoController) ChatError(message string, err error, login ...string) {
+	message = fmt.Sprintf("#Error#%s", message)
+	if err != nil {
+		message += fmt.Sprintf(", #Error#%s", err.Error())
+	}
+	go c.Chat(message, login...)
+}
+
+// Sends a chat usage message to the server
+func (c *GoController) ChatUsage(message string, login ...string) {
+	message = fmt.Sprintf("#Primary#Usage: #White#%s", message)
+	go c.Chat(message, login...)
+}
+
 // Checks if a login is an admin
 func (c *GoController) IsAdmin(login string) bool {
 	return slices.Contains(*c.Admins, login)
@@ -149,7 +164,7 @@ func (c *GoController) Reboot() error {
 	exe, err := os.Executable()
 	if err != nil {
 		zap.L().Error("Failed to get executable path", zap.Error(err))
-		go c.Chat("#Error#Error rebooting, #White#"+err.Error())
+		go c.ChatError("Error rebooting", err)
 		return err
 	}
 

@@ -1,7 +1,6 @@
 package windows
 
 import (
-	"fmt"
 	"slices"
 
 	"github.com/MRegterschot/GbxRemoteGo/structs"
@@ -38,7 +37,7 @@ func (mgw *MapsGridWindow) HandleRemoveAnswer(login string, data any, _ any) {
 	mapInfo := data.(structs.TMMapInfo)
 
 	if err := c.Server.Client.RemoveMap(mapInfo.FileName); err != nil {
-		go c.Chat(fmt.Sprintf("#Error#Error removing map #White#%v", err), login)
+		go c.ChatError("Error removing map", err, login)
 		return
 	}
 

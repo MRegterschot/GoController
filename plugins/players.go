@@ -193,7 +193,7 @@ func (p *PlayersPlugin) banCommand(login string, args []string) {
 	c := app.GetGoController()
 
 	if len(args) < 1 {
-		go c.Chat("#Primary#Usage: #White#//ban [*login] [reason]", login)
+		go c.ChatUsage("//ban [*login] [reason]", login)
 		return
 	}
 
@@ -203,7 +203,7 @@ func (p *PlayersPlugin) banCommand(login string, args []string) {
 		reason = strings.Join(args[1:], " ")
 	}
 	if err := c.Server.Client.Ban(targetLogin, reason); err != nil {
-		go c.Chat("#Error#Error banning player, "+err.Error(), login)
+		go c.ChatError("Error banning player", err, login)
 		return
 	}
 
@@ -214,13 +214,13 @@ func (p *PlayersPlugin) unBanCommand(login string, args []string) {
 	c := app.GetGoController()
 
 	if len(args) < 1 {
-		go c.Chat("#Primary#Usage: #White#//unban [*login]", login)
+		go c.ChatUsage("//unban [*login]", login)
 		return
 	}
 
 	targetLogin := args[0]
 	if err := c.Server.Client.UnBan(targetLogin); err != nil {
-		go c.Chat("#Error#Error unbanning player, "+err.Error(), login)
+		go c.ChatError("Error unbanning player", err, login)
 		return
 	}
 	go c.Chat(fmt.Sprintf("#Primary#Unbanned #White#%s", targetLogin))
@@ -231,7 +231,7 @@ func (p *PlayersPlugin) banListCommand(login string, args []string) {
 
 	banList, err := c.Server.Client.GetBanList(100, 0)
 	if err != nil {
-		go c.Chat("#Error#Error getting ban list, "+err.Error(), login)
+		go c.ChatError("Error getting ban list", err, login)
 		return
 	}
 
@@ -254,7 +254,7 @@ func (p *PlayersPlugin) cleanBanListCommand(login string, args []string) {
 	c := app.GetGoController()
 
 	if err := c.Server.Client.CleanBanList(); err != nil {
-		go c.Chat("#Error#Error cleaning ban list, "+err.Error(), login)
+		go c.ChatError("Error cleaning ban list", err, login)
 		return
 	}
 
@@ -267,7 +267,7 @@ func (p *PlayersPlugin) blackListCommand(login string, args []string) {
 	if len(args) < 1 {
 		blackList, err := c.Server.Client.GetBlackList(100, 0)
 		if err != nil {
-			go c.Chat("#Error#Error getting black list, "+err.Error(), login)
+			go c.ChatError("Error getting black list", err, login)
 			return
 		}
 
@@ -289,7 +289,7 @@ func (p *PlayersPlugin) blackListCommand(login string, args []string) {
 
 	targetLogin := args[0]
 	if err := c.Server.Client.BlackList(targetLogin); err != nil {
-		go c.Chat("#Error#Error blacklisting player, "+err.Error(), login)
+		go c.ChatError("Error blacklisting player", err, login)
 		return
 	}
 
@@ -300,13 +300,13 @@ func (p *PlayersPlugin) unBlackListCommand(login string, args []string) {
 	c := app.GetGoController()
 
 	if len(args) < 1 {
-		go c.Chat("#Primary#Usage: #White#//unblacklist [*login]", login)
+		go c.ChatUsage("//unblacklist [*login]", login)
 		return
 	}
 
 	targetLogin := args[0]
 	if err := c.Server.Client.UnBlackList(targetLogin); err != nil {
-		go c.Chat("#Error#Error unblacklisting player, "+err.Error(), login)
+		go c.ChatError("Error unblacklisting player", err, login)
 		return
 	}
 
@@ -317,14 +317,14 @@ func (p *PlayersPlugin) loadBlackListCommand(login string, args []string) {
 	c := app.GetGoController()
 
 	if len(args) < 1 {
-		go c.Chat("#Primary#Usage: #White#//loadblacklist [*file]", login)
+		go c.ChatUsage("//loadblacklist [*file]", login)
 		return
 	}
 
 	file := args[0]
 
 	if err := c.Server.Client.LoadBlackList(file); err != nil {
-		go c.Chat("#Error#Error loading black list, "+err.Error(), login)
+		go c.ChatError("Error loading black list", err, login)
 		return
 	}
 
@@ -335,14 +335,14 @@ func (p *PlayersPlugin) saveBlackListCommand(login string, args []string) {
 	c := app.GetGoController()
 
 	if len(args) < 1 {
-		go c.Chat("#Primary#Usage: #White#//saveblacklist [*file]", login)
+		go c.ChatUsage("//saveblacklist [*file]", login)
 		return
 	}
 
 	file := args[0]
 
 	if err := c.Server.Client.SaveBlackList(file); err != nil {
-		go c.Chat("#Error#Error saving black list, "+err.Error(), login)
+		go c.ChatError("Error saving black list", err, login)
 		return
 	}
 
@@ -353,7 +353,7 @@ func (p *PlayersPlugin) cleanBlackListCommand(login string, args []string) {
 	c := app.GetGoController()
 
 	if err := c.Server.Client.CleanBlackList(); err != nil {
-		go c.Chat("#Error#Error cleaning black list, "+err.Error(), login)
+		go c.ChatError("Error cleaning black list", err, login)
 		return
 	}
 
@@ -366,7 +366,7 @@ func (p *PlayersPlugin) fakePlayerCommand(login string, args []string) {
 	if len(args) > 0 {
 		targetLogin := args[0]
 		if err := c.Server.Client.DisconnectFakePlayer(targetLogin); err != nil {
-			go c.Chat("#Error#Error disconnecting fake player, "+err.Error(), login)
+			go c.ChatError("Error disconnecting fake player", err, login)
 			return
 		}
 
@@ -375,7 +375,7 @@ func (p *PlayersPlugin) fakePlayerCommand(login string, args []string) {
 	}
 
 	if err := c.Server.Client.ConnectFakePlayer(); err != nil {
-		go c.Chat("#Error#Error connecting fake player, "+err.Error(), login)
+		go c.ChatError("Error connecting fake player", err, login)
 		return
 	}
 
@@ -386,13 +386,13 @@ func (p *PlayersPlugin) addGuestCommand(login string, args []string) {
 	c := app.GetGoController()
 	
 	if len(args) < 1 {
-		go c.Chat("#Primary#Usage: #White#//addguest [*login]", login)
+		go c.ChatUsage("//addguest [*login]", login)
 		return
 	}
 
 	targetLogin := args[0]
 	if err := c.Server.Client.AddGuest(targetLogin); err != nil {
-		go c.Chat("#Error#Error adding guest, "+err.Error(), login)
+		go c.ChatError("Error adding guest", err, login)
 		return
 	}
 
@@ -403,13 +403,13 @@ func (p *PlayersPlugin) removeGuestCommand(login string, args []string) {
 	c := app.GetGoController()
 	
 	if len(args) < 1 {
-		go c.Chat("#Primary#Usage: #White#//removeguest [*login]", login)
+		go c.ChatUsage("//removeguest [*login]", login)
 		return
 	}
 
 	targetLogin := args[0]
 	if err := c.Server.Client.RemoveGuest(targetLogin); err != nil {
-		go c.Chat("#Error#Error removing guest, "+err.Error(), login)
+		go c.ChatError("Error removing guest", err, login)
 		return
 	}
 
@@ -421,7 +421,7 @@ func (p *PlayersPlugin) guestListCommand(login string, args []string) {
 	
 	guestList, err := c.Server.Client.GetGuestList(100, 0)
 	if err != nil {
-		go c.Chat("#Error#Error getting guest list, "+err.Error(), login)
+		go c.ChatError("Error getting guest list", err, login)
 		return
 	}
 
@@ -444,14 +444,14 @@ func (p *PlayersPlugin) loadGuestListCommand(login string, args []string) {
 	c := app.GetGoController()
 	
 	if len(args) < 1 {
-		go c.Chat("#Primary#Usage: #White#//loadguestlist [*file]", login)
+		go c.ChatUsage("//loadguestlist [*file]", login)
 		return
 	}
 
 	file := args[0]
 
 	if err := c.Server.Client.LoadGuestList(file); err != nil {
-		go c.Chat("#Error#Error loading guest list, "+err.Error(), login)
+		go c.ChatError("Error loading guest list", err, login)
 		return
 	}
 
@@ -462,14 +462,14 @@ func (p *PlayersPlugin) saveGuestListCommand(login string, args []string) {
 	c := app.GetGoController()
 	
 	if len(args) < 1 {
-		go c.Chat("#Primary#Usage: #White#//saveguestlist [*file]", login)
+		go c.ChatUsage("//saveguestlist [*file]", login)
 		return
 	}
 
 	file := args[0]
 
 	if err := c.Server.Client.SaveGuestList(file); err != nil {
-		go c.Chat("#Error#Error saving guest list, "+err.Error(), login)
+		go c.ChatError("Error saving guest list", err, login)
 		return
 	}
 
@@ -480,7 +480,7 @@ func (p *PlayersPlugin) cleanGuestListCommand(login string, args []string) {
 	c := app.GetGoController()
 	
 	if err := c.Server.Client.CleanGuestList(); err != nil {
-		go c.Chat("#Error#Error cleaning guest list, "+err.Error(), login)
+		go c.ChatError("Error cleaning guest list", err, login)
 		return
 	}
 
@@ -491,7 +491,7 @@ func (p *PlayersPlugin) kickCommand(login string, args []string) {
 	c := app.GetGoController()
 	
 	if len(args) < 1 {
-		go c.Chat("#Primary#Usage: #White#//kick [*login] [reason]", login)
+		go c.ChatUsage("//kick [*login] [reason]", login)
 		return
 	}
 
@@ -509,7 +509,7 @@ func (p *PlayersPlugin) getPlayersCommand(login string, args []string) {
 	
 	players, err := c.Server.Client.GetPlayerList(100, 1)
 	if err != nil {
-		go c.Chat("#Error#Error getting players, "+err.Error(), login)
+		go c.ChatError("Error getting players", err, login)
 		return
 	}
 
@@ -532,7 +532,7 @@ func (p *PlayersPlugin) forceStatusCommand(login string, args []string) {
 	c := app.GetGoController()
 	
 	if len(args) < 1 {
-		go c.Chat("#Primary#Usage: #White#//forcestatus [*login] [status]", login)
+		go c.ChatUsage("//forcestatus [*login] [status]", login)
 		return
 	}
 
@@ -540,7 +540,7 @@ func (p *PlayersPlugin) forceStatusCommand(login string, args []string) {
 	if len(args) > 1 {
 		argInt, err := strconv.Atoi(args[1])
 		if err != nil || argInt < 0 || argInt > len(statuses) - 1 {
-			go c.Chat("#Error#Invalid status", login)
+			go c.ChatError("Invalid status", nil, login)
 			return
 		}
 
@@ -549,7 +549,7 @@ func (p *PlayersPlugin) forceStatusCommand(login string, args []string) {
 
 	targetLogin := args[0]
 	if err := c.Server.Client.ForceSpectator(targetLogin, status); err != nil {
-		go c.Chat("#Error#Error forcing status, "+err.Error(), login)
+		go c.ChatError("Error forcing status", err, login)
 		return
 	}
 

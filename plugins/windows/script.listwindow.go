@@ -39,7 +39,7 @@ func (slw *ScriptListWindow) onApply(login string, _ any, entries any) {
 
 	err := app.GetClient().SetModeScriptSettings(items)
 	if err != nil {
-		go app.GetGoController().Chat("#Error#Error setting mode settings, "+err.Error(), login)
+		go app.GetGoController().ChatError("Error setting mode settings", err, login)
 		return
 	}
 

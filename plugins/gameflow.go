@@ -97,7 +97,7 @@ func (p *GameFlowPlugin) modeCommand(login string, args []string) {
 
 	if len(args) < 1 {
 		if mode, err := c.Server.Client.GetScriptName(); err != nil {
-			go c.Chat("#Error#Error getting mode, "+err.Error(), login)
+			go c.ChatError("Error getting mode", err, login)
 		} else {
 			go c.Chat(fmt.Sprintf("#Primary#Current mode: #White#%s, #Primary#Next mode: #White#%s", mode.CurrentValue, mode.NextValue), login)
 		}
@@ -105,7 +105,7 @@ func (p *GameFlowPlugin) modeCommand(login string, args []string) {
 	}
 
 	if err := c.Server.Client.SetScriptName(args[0]); err != nil {
-		go c.Chat("#Error#Error setting mode, "+err.Error(), login)
+		go c.ChatError("Error setting mode", err, login)
 		return
 	}
 

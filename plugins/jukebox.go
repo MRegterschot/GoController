@@ -123,7 +123,7 @@ func (p *JukeboxPlugin) nextCommand(login string, args []string) {
 
 	if len(args) < 1 {
 		if mapInfo, err := c.Server.Client.GetNextMapInfo(); err != nil {
-			go c.Chat("#Error#Error getting next map info", login)
+			go c.ChatError("Error getting next map info", err, login)
 		} else {
 			go c.Chat("#Primary#Next map: #White#"+mapInfo.Name, login)
 		}
@@ -132,13 +132,13 @@ func (p *JukeboxPlugin) nextCommand(login string, args []string) {
 
 	index, err := strconv.Atoi(args[0])
 	if err != nil {
-		go c.Chat("#Error#Invalid index", login)
+		go c.ChatError("Invalid index", nil, login)
 		return
 	}
 
 	err = c.Server.Client.SetNextMapIndex(index)
 	if err != nil {
-		go c.Chat("#Error#Error setting next map", login)
+		go c.ChatError("Error setting next map", err, login)
 		return
 	}
 
@@ -150,17 +150,17 @@ func (p *JukeboxPlugin) previousCommand(login string, args []string) {
 
 	previousMap := c.MapManager.PreviousMap
 	if previousMap == nil {
-		go c.Chat("#Error#No previous map", login)
+		go c.ChatError("No previous map", nil, login)
 		return
 	}
 
 	if previousMap.UId == c.MapManager.CurrentMap.UId {
-		go c.Chat("#Error#Previous map is current map", login)
+		go c.ChatError("Previous map is current map", nil, login)
 		return
 	}
 
 	if err := c.Server.Client.ChooseNextMap(previousMap.FileName); err != nil {
-		go c.Chat("#Error#Error setting previous map", login)
+		go c.ChatError("Error setting previous map", err, login)
 		return
 	}
 
@@ -171,19 +171,19 @@ func (p *JukeboxPlugin) jumpCommand(login string, args []string) {
 	c := app.GetGoController()
 
 	if len(args) < 1 {
-		go c.Chat("#Primary#Usage: #White#//jump [*index]", login)
+		go c.ChatUsage("//jump [*index]", login)
 		return
 	}
 
 	index, err := strconv.Atoi(args[0])
 	if err != nil {
-		go c.Chat("#Error#Invalid index", login)
+		go c.ChatError("Invalid index", nil, login)
 		return
 	}
 
 	err = c.Server.Client.JumpToMapIndex(index)
 	if err != nil {
-		go c.Chat("#Error#Error jumping to map", login)
+		go c.ChatError("Error jumping to map", err, login)
 		return
 	}
 }
@@ -193,12 +193,12 @@ func (p *JukeboxPlugin) requeueCommand(login string, args []string) {
 
 	currentMap := c.MapManager.CurrentMap
 	if currentMap.UId == "" {
-		go c.Chat("#Error#No current map", login)
+		go c.ChatError("No current map", nil, login)
 		return
 	}
 
 	if len(p.Queue) > 0 && p.Queue[0].UId == currentMap.UId {
-		go c.Chat("#Error#Map already in queue", login)
+		go c.ChatError("Map already in queue", nil, login)
 		return
 	}
 
@@ -210,18 +210,18 @@ func (p *JukeboxPlugin) queueCommand(login string, args []string) {
 	c := app.GetGoController()
 
 	if len(args) < 1 {
-		go c.Chat("#Primary#Usage: #White#/queue [*filename]", login)
+		go c.ChatUsage("/queue [*filename]", login)
 		return
 	}
 
 	mapInfo, err := c.Server.Client.GetMapInfo(args[0])
 	if err != nil {
-		go c.Chat("#Error#Error getting map info", login)
+		go c.ChatError("Error getting map info", err, login)
 		return
 	}
 
 	if err := p.QueueMap(mapInfo, login); err != nil {
-		go c.Chat("#Error#Error queuing map", login)
+		go c.ChatError("Error queuing map", err, login)
 		return
 	}
 
@@ -245,7 +245,7 @@ func (p *JukeboxPlugin) onEndRace(_ any) {
 	p.Queue = p.Queue[1:]
 
 	if err := c.Server.Client.ChooseNextMap(nextMap.FileName); err != nil {
-		go c.Chat("#Error#Error setting next map")
+		go c.ChatError("Error setting next map", err)
 		return
 	}
 

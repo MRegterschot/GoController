@@ -82,7 +82,7 @@ func (p *MapsPlugin) localMapsCommand(login string, args []string) {
 
 	mapsPath := app.GetMapManager().MapsPath
 	if mapsPath == "" {
-		c.Chat("#Error#No maps directory found", login)
+		c.ChatError("No maps directory found", nil, login)
 		return
 	}
 
@@ -110,7 +110,7 @@ func (p *MapsPlugin) localMapsCommand(login string, args []string) {
 		return nil
 	})
 	if err != nil {
-		c.Chat("#Error#Error walking directory, "+err.Error(), login)
+		c.ChatError("Error walking directory", err, login)
 		return
 	}
 	
@@ -134,7 +134,7 @@ func (p *MapsPlugin) onAddMap(login string, data any, _ any) {
 	c := app.GetGoController()
 	if err := c.Server.Client.AddMap(file); err != nil {
 		zap.L().Error("Failed to add map", zap.String("file", file), zap.Error(err))
-		c.Chat("#Error#Error adding map, "+err.Error(), login)
+		c.ChatError("Error adding map", err, login)
 		return
 	}
 
