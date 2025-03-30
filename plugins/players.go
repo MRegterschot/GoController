@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/MRegterschot/GbxRemoteGo/structs"
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
 	"github.com/MRegterschot/GoController/plugins/windows"
@@ -421,10 +422,20 @@ func (p *PlayersPlugin) removeGuestCommand(login string, args []string) {
 func (p *PlayersPlugin) guestListCommand(login string, args []string) {
 	c := app.GetGoController()
 
-	guestList, err := c.Server.Client.GetGuestList(100, 0)
-	if err != nil {
-		go c.ChatError("Error getting guest list", err, login)
-		return
+	guestList := make([]structs.TMGuestListEntry, 0)
+	loop := 0
+	for true {
+		gl, err := c.Server.Client.GetGuestList(100, loop)
+		if err != nil {
+			go c.ChatError("Error getting guest list", err, login)
+			return
+		}
+
+		guestList = append(guestList, gl...)
+		if len(gl) < 100 {
+			break
+		}
+		loop++
 	}
 
 	if len(guestList) == 0 {
@@ -522,30 +533,69 @@ func (p *PlayersPlugin) getPlayersCommand(login string, args []string) {
 
 	items := make([][]any, 0, len(players))
 	for _, player := range players {
-		color := "Green"
+		// Spectator toggle
+		colorSpec := "Green"
 		if player.IsSpectator {
-			color = "Red"
+			colorSpec = "Red"
 		}
-
 		spec := models.Toggle{
 			Label:  c.UIManager.Theme.Icons["Camera"],
-			Color:  color,
+			Color:  colorSpec,
 			Action: c.UIManager.AddAction(window.OnSpectatorToggle, player),
+		}
+
+		// Guest toggle
+		guestList := make([]structs.TMGuestListEntry, 0)
+		loop := 0
+		for true {
+			gl, err := c.Server.Client.GetGuestList(100, loop)
+			if err != nil {
+				go c.ChatError("Error getting guest list", err, login)
+				return
+			}
+
+			guestList = append(guestList, gl...)
+			if len(gl) < 100 {
+				break
+			}
+			loop++
+		}
+
+		isGuest := false
+		for _, gl := range guestList {
+			if gl.Login == player.Login {
+				isGuest = true
+				break
+			}
+		}
+
+		colorGuest := "Red"
+		if isGuest {
+			colorGuest = "Green"
+		}
+		guest := models.Toggle{
+			Label:  c.UIManager.Theme.Icons["Guest"],
+			Color:  colorGuest,
+			Action: c.UIManager.AddAction(window.OnGuestToggle, player),
 		}
 
 		items = append(items, []any{
 			player.NickName,
 			player.Login,
 			spec,
+			c.UIManager.AddAction(window.OnKick, player),
 			c.UIManager.AddAction(window.OnBan, player),
+			guest,
 		})
 	}
 
 	columns := []ui.Column{
 		{Name: "Nickname", Width: 20},
 		{Name: "Login", Width: 25},
-		{Name: "Spectator", Width: 10, Type: "toggle"},
-		{Name: "Ban", Width: 10, Type: "button", Color: "Danger"},
+		{Name: "Spectator", Width: 8, Type: "toggle"},
+		{Name: "Kick", Width: 8, Type: "button", Color: "Warning"},
+		{Name: "Ban", Width: 8, Type: "button", Color: "Danger"},
+		{Name: "Guest", Width: 6, Type: "toggle"},
 	}
 
 	window.Columns = columns
