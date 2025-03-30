@@ -299,7 +299,7 @@ func (uim *UIManager) DisplayManialink(ml *Manialink) {
 		uim.PublicManialinks[ml.ID] = ml
 	} else {
 		if _, ok := uim.PlayerManialinks[*ml.Recipient]; !ok {
-			uim.PlayerManialinks[*ml.Recipient] = make(map[string]*Manialink, 0)
+			uim.PlayerManialinks[*ml.Recipient] = make(map[string]*Manialink, 1)
 		}
 		uim.PlayerManialinks[*ml.Recipient][ml.ID] = ml
 	}

@@ -144,7 +144,7 @@ func (r *Recording) ToModel(dest *models.Recording) {
 		dest.DeletedAt = &t
 	}
 
-	dest.Maps = make([]models.MapRecords, 0, len(r.Maps))
+	dest.Maps = make([]models.MapRecords, len(r.Maps))
 	for i, mapRecord := range r.Maps {
 		mapRecord.ToModel(&dest.Maps[i])
 	}
@@ -153,17 +153,17 @@ func (r *Recording) ToModel(dest *models.Recording) {
 func (m *MapRecords) ToModel(dest *models.MapRecords) {
 	dest.ID = m.ID.Hex()
 
-	dest.MatchRounds = make([]models.MatchRound, 0, len(m.MatchRounds))
+	dest.MatchRounds = make([]models.MatchRound, len(m.MatchRounds))
 	for i, matchRound := range m.MatchRounds {
 		matchRound.ToModel(&dest.MatchRounds[i])
 	}
 
-	dest.Rounds = make([]models.Round, 0, len(m.Rounds))
+	dest.Rounds = make([]models.Round, len(m.Rounds))
 	for i, round := range m.Rounds {
 		round.ToModel(&dest.Rounds[i])
 	}
 
-	dest.Finishes = make([]models.PlayerFinish, 0, len(m.Finishes))
+	dest.Finishes = make([]models.PlayerFinish, len(m.Finishes))
 	for i, finish := range m.Finishes {
 		finish.ToModel(&dest.Finishes[i])
 	}
@@ -173,7 +173,7 @@ func (m *MatchRound) ToModel(dest *models.MatchRound) {
 	dest.ID = m.ID.Hex()
 	dest.RoundNumber = m.RoundNumber
 
-	dest.Teams = make([]models.Team, 0, len(m.Teams))
+	dest.Teams = make([]models.Team, len(m.Teams))
 	for i, team := range m.Teams {
 		team.ToModel(&dest.Teams[i])
 	}
@@ -183,7 +183,7 @@ func (m *Round) ToModel(dest *models.Round) {
 	dest.ID = m.ID.Hex()
 	dest.RoundNumber = m.RoundNumber
 
-	dest.Players = make([]models.PlayerRound, 0, len(m.Players))
+	dest.Players = make([]models.PlayerRound, len(m.Players))
 	for i, player := range m.Players {
 		player.ToModel(&dest.Players[i])
 	}
@@ -196,7 +196,7 @@ func (m *Team) ToModel(dest *models.Team) {
 	dest.Points = m.Points
 	dest.TotalPoints = m.TotalPoints
 
-	dest.Players = make([]models.PlayerRound, 0, len(m.Players))
+	dest.Players = make([]models.PlayerRound, len(m.Players))
 	for i, player := range m.Players {
 		player.ToModel(&dest.Players[i])
 	}
