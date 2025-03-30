@@ -1,7 +1,6 @@
 package app
 
 import (
-	"regexp"
 	"strings"
 	"sync"
 
@@ -21,8 +20,6 @@ var (
 	cmInstance *CommandManager
 	cmOnce     sync.Once
 )
-
-var re = regexp.MustCompile(`^/{1,2}`)
 
 func GetCommandManager() *CommandManager {
 	cmOnce.Do(func() {
@@ -94,7 +91,7 @@ func (cm *CommandManager) onPlayerChat(chatEvent events.PlayerChatEventArgs) {
 	}
 
 	// Check if the message is a command
-	if !re.MatchString(chatEvent.Text) {
+	if !utils.CommandRegex.MatchString(chatEvent.Text) {
 		return
 	}
 

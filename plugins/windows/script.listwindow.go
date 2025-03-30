@@ -16,13 +16,13 @@ func CreateScriptListWindow(login *string) *ScriptListWindow {
 		ListWindow: ui.NewListWindow(login),
 	}
 
-	slw.AddApplyButtons()
+	slw.AddActionButtons()
 	slw.UpdateItems = slw.updateItems
 
 	return slw
 }
 
-func (slw *ScriptListWindow) AddApplyButtons() {
+func (slw *ScriptListWindow) AddActionButtons() {
 	slw.Actions["apply"] = app.GetUIManager().AddAction(slw.onApply, nil)
 	slw.Actions["cancel"] = app.GetUIManager().AddAction(slw.Destroy, nil)
 }

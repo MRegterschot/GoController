@@ -1,10 +1,15 @@
 package plugins
 
 import (
+	"fmt"
+	"os"
+	"path/filepath"
+
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
 	"github.com/MRegterschot/GoController/plugins/windows"
 	"github.com/MRegterschot/GoController/utils"
+	"go.uber.org/zap"
 )
 
 type MapsPlugin struct {
@@ -31,6 +36,13 @@ func (p *MapsPlugin) Load() error {
 		Help:     "Shows all available maps",
 	})
 
+	commandManager.AddCommand(models.ChatCommand{
+		Name:     "//addlocal",
+		Callback: p.addLocalCommand,
+		Admin:    true,
+		Help:     "Adds a local map to the server",
+	})
+
 	return nil
 }
 
@@ -38,6 +50,7 @@ func (p *MapsPlugin) Unload() error {
 	commandManager := app.GetCommandManager()
 
 	commandManager.RemoveCommand("/maps")
+	commandManager.RemoveCommand("//addlocal")
 
 	return nil
 }
@@ -61,6 +74,42 @@ func (p *MapsPlugin) mapsCommand(login string, args []string) {
 	}
 
 	go window.Display()
+}
+
+func (p *MapsPlugin) addLocalCommand(login string, args []string) {
+	c := app.GetGoController()
+
+	mapsPath := app.GetMapManager().MapsPath
+	if mapsPath == "" {
+		c.Chat("No maps directory found", login)
+		return
+	}
+
+	window := windows.CreateLocalMapsListWindow(&login)
+	window.Title = "Local Maps"
+	window.Items = make([][]any, 0)
+
+	err := filepath.WalkDir(mapsPath, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			zap.L().Error("Failed to walk directory", zap.Error(err))
+			return err
+		}
+
+		if d.IsDir() || !utils.MapFileRegex.MatchString(filepath.Base(path)) {
+			return nil
+		}
+
+		fmt.Println("Found map:", path)
+		return nil
+	})
+	if err != nil {
+		c.Chat("Error walking directory: "+err.Error(), login)
+		return
+	}
+}
+
+func (p *MapsPlugin) onAddMap(login string, data any, _ any) {
+	fmt.Println("Adding map:", data)
 }
 
 func init() {

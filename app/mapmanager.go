@@ -18,6 +18,7 @@ type MapManager struct {
 	NextMap      structs.TMMapInfo
 	PreviousMap  *structs.TMMapInfo
 	CurrentMode  string
+	MapsPath     string
 }
 
 var (
@@ -35,15 +36,18 @@ func GetMapManager() *MapManager {
 func (mm *MapManager) Init() {
 	zap.L().Info("Initializing MapManager")
 
+	c := GetClient()
+
 	mm.SyncMaps()
-	GetClient().OnBeginMap = append(GetClient().OnBeginMap, gbxclient.GbxCallbackStruct[events.MapEventArgs]{
+
+	c.OnBeginMap = append(c.OnBeginMap, gbxclient.GbxCallbackStruct[events.MapEventArgs]{
 		Key:  "mapmanager",
 		Call: mm.onBeginMap})
-	GetClient().OnMapListModified = append(GetClient().OnMapListModified, gbxclient.GbxCallbackStruct[events.MapListModifiedEventArgs]{
+	c.OnMapListModified = append(c.OnMapListModified, gbxclient.GbxCallbackStruct[events.MapListModifiedEventArgs]{
 		Key:  "mapmanager",
 		Call: mm.onMapListModified})
 
-	mode, err := GetClient().GetScriptName()
+	mode, err := c.GetScriptName()
 	if err != nil {
 		zap.L().Error("Failed to get mode script text", zap.Error(err))
 		return
@@ -54,6 +58,11 @@ func (mm *MapManager) Init() {
 	mm.NextMap = mm.GetNextMapInfo()
 
 	mm.CurrentMapDB = GetDatabaseManager().SyncMap(mm.CurrentMap)
+
+	mm.MapsPath, err = c.GetMapsDirectory()
+	if err != nil {
+		zap.L().Error("Failed to get maps directory", zap.Error(err))
+	}
 
 	zap.L().Info("MapManager initialized")
 }
