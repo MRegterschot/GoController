@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
 	"github.com/MRegterschot/GoController/plugins/windows"
+	"github.com/MRegterschot/GoController/ui"
 	"github.com/MRegterschot/GoController/utils"
 	"go.uber.org/zap"
 )
@@ -85,9 +87,7 @@ func (p *MapsPlugin) addLocalCommand(login string, args []string) {
 		return
 	}
 
-	window := windows.CreateLocalMapsListWindow(&login)
-	window.Title = "Local Maps"
-	window.Items = make([][]any, 0)
+	items := make([][]any, 0)
 
 	err := filepath.WalkDir(mapsPath, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
@@ -95,17 +95,43 @@ func (p *MapsPlugin) addLocalCommand(login string, args []string) {
 			return err
 		}
 
-		if d.IsDir() || !utils.MapFileRegex.MatchString(filepath.Base(path)) {
+		if d.IsDir() || !strings.HasSuffix(strings.ToLower(path), ".gbx") {
 			return nil
 		}
 
-		fmt.Println("Found map:", path)
+		parentDir := strings.TrimPrefix(filepath.Dir(path), mapsPath)
+		name := utils.MapFileRegex.ReplaceAllString(filepath.Base(path), "")
+		fmt.Println("Found map:", parentDir, name)
+
+		items = append(items, []any{
+			parentDir,
+			name,
+			"",
+			"",
+			app.GetUIManager().AddAction(p.onAddMap, filepath.Base(path)),
+		})
+		
 		return nil
 	})
 	if err != nil {
 		c.Chat("Error walking directory: "+err.Error(), login)
 		return
 	}
+	
+	columns := []ui.Column{
+		{Name: "Path", Width: 25},
+		{Name: "File Name", Width: 25},
+		{Name: "Map Name", Width: 20},
+		{Name: "Author", Width: 20},
+		{Name: "Add", Width: 10, Type: "button"},
+	}
+
+	window := windows.CreateLocalMapsListWindow(&login)
+	window.Title = "Local Maps"
+	window.Columns = columns
+	window.Items = items
+
+	go window.Display()
 }
 
 func (p *MapsPlugin) onAddMap(login string, data any, _ any) {
