@@ -33,9 +33,9 @@
             halign="center" valign="center" textcolor="FFFF" textfont="{{ Fonts.Regular }}" textsize="1.5" 
             textemboss="1" action="{{ item[i] }}"/>
         {{ else if col.Type == "toggle" }}
-          <label pos="{{ totalWidth + 2 }} -2.5" z-index="1" size="{{ colWidth }} 5" text="{{ item[i]["Label"] }}" 
+          <label pos="{{ totalWidth + 2 + colWidth / 2 }} -2.5" z-index="1" size="{{ colWidth }} 5" text="{{ item[i]["Label"] }}" 
             valign="center" textcolor="{{ Styling[item[i]["Color"]] }}" textfont="{{ Fonts.Regular }}" textsize="1.5" 
-            focusareacolor1="0000" focusareacolor2="0000"
+            halign="center" focusareacolor1="0000" focusareacolor2="0000"
             textemboss="1" action="{{ item[i]["Action"] }}" />
         {{ else }}
           <label pos="{{ totalWidth + 2 }} -2.5" z-index="1" size="{{ colWidth }} 5" text="{{ item[i] }}" 
