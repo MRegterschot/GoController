@@ -61,7 +61,7 @@ func (p *MapsPlugin) mapsCommand(login string, args []string) {
 
 	window := windows.CreateMapsGridWindow(&login)
 	window.Title = "Maps"
-	window.Items = make([]any, 0)
+	window.Items = make([]any, 0, len(c.MapManager.Maps))
 
 	isAdmin := c.IsAdmin(login)
 	window.IsAdmin = &isAdmin

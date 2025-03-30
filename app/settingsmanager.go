@@ -27,7 +27,7 @@ var (
 func GetSettingsManager() *SettingsManager {
 	smOnce.Do(func() {
 		smInstance = &SettingsManager{
-			Settings:     make(map[string]string),
+			Settings:     make(map[string]string, 0),
 			AdminsFile:   "./settings/admins.json",
 		}
 	})

@@ -20,11 +20,11 @@ func NewServer() *Server {
 	}
 
 	// Register event handlers
-	onConnectionChan := make(chan any)
+	onConnectionChan := make(chan any, 1)
 	server.Client.Events.On("connect", onConnectionChan)
 	go handleConnect(onConnectionChan)
 
-	onDisconnectChan := make(chan any)
+	onDisconnectChan := make(chan any, 1)
 	server.Client.Events.On("disconnect", onDisconnectChan)
 	go handleDisconnect(onDisconnectChan)
 

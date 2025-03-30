@@ -241,7 +241,7 @@ func (p *PlayersPlugin) banListCommand(login string, args []string) {
 		return
 	}
 
-	logins := make([]string, len(banList))
+	logins := make([]string, 0, len(banList))
 	for i, ban := range banList {
 		logins[i] = ban.Login
 	}
@@ -277,7 +277,7 @@ func (p *PlayersPlugin) blackListCommand(login string, args []string) {
 			return
 		}
 
-		logins := make([]string, len(blackList))
+		logins := make([]string, 0, len(blackList))
 		for i, black := range blackList {
 			logins[i] = black.Login
 		}
@@ -431,7 +431,7 @@ func (p *PlayersPlugin) guestListCommand(login string, args []string) {
 		return
 	}
 
-	logins := make([]string, len(guestList))
+	logins := make([]string, 0, len(guestList))
 	for i, guest := range guestList {
 		logins[i] = guest.Login
 	}

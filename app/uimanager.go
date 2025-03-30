@@ -46,9 +46,9 @@ var (
 func GetUIManager() *UIManager {
 	uiOnce.Do(func() {
 		uiInstance = &UIManager{
-			Actions:          make(map[string]ManialinkAction),
-			PublicManialinks: make(map[string]*Manialink),
-			PlayerManialinks: make(map[string]map[string]*Manialink),
+			Actions:          make(map[string]ManialinkAction, 0),
+			PublicManialinks: make(map[string]*Manialink, 0),
+			PlayerManialinks: make(map[string]map[string]*Manialink, 0),
 			Modules:          make([]UIModule, 0),
 			ScriptCalls:      make([]string, 0),
 			Theme:            models.Theme{},
@@ -299,7 +299,7 @@ func (uim *UIManager) DisplayManialink(ml *Manialink) {
 		uim.PublicManialinks[ml.ID] = ml
 	} else {
 		if _, ok := uim.PlayerManialinks[*ml.Recipient]; !ok {
-			uim.PlayerManialinks[*ml.Recipient] = make(map[string]*Manialink)
+			uim.PlayerManialinks[*ml.Recipient] = make(map[string]*Manialink, 0)
 		}
 		uim.PlayerManialinks[*ml.Recipient][ml.ID] = ml
 	}

@@ -399,17 +399,17 @@ func (p *RecorderPlugin) recorderCommand(login string, args []string) {
 func (p *RecorderPlugin) recordingsCommand(login string, args []string) {
 	c := app.GetGoController()
 	
-	window := ui.NewGridWindow(&login)
-	window.SetTemplate("recorder/recording.jet")
-	window.Title = "Recordings"
-	window.Items = make([]any, 0)
-
 	recordingsDB, err := database.GetRecordings(context.Background())
 	if err != nil {
 		zap.L().Error("Failed to get recordings", zap.Error(err))
 		go c.ChatError("Failed to get recordings", nil, login)
 		return
 	}
+
+	window := ui.NewGridWindow(&login)
+	window.SetTemplate("recorder/recording.jet")
+	window.Title = "Recordings"
+	window.Items = make([]any, 0, len(recordingsDB))
 
 	for _, recordingDB := range recordingsDB {
 		var recording models.Recording

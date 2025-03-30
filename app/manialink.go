@@ -48,7 +48,7 @@ func NewManialink(login *string) *Manialink {
 			Z: 1,
 		},
 		Template:     "manialink.jet",
-		Actions:      make(map[string]string),
+		Actions:      make(map[string]string, 0),
 		Data:         nil,
 		Recipient:    login,
 		Title:        "",

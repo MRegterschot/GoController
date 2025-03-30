@@ -30,7 +30,7 @@ func (slw *ScriptListWindow) AddActionButtons() {
 func (slw *ScriptListWindow) onApply(login string, _ any, entries any) {
 	slw.updateItems(slw.Items, entries)
 
-	var items = make(map[string]any)
+	var items = make(map[string]any, 0)
 	for _, item := range slw.Items {
 		if key, ok := item[0].(string); ok {
 			items[key] = utils.ConvertStringToType(item[2].(string))

@@ -24,7 +24,7 @@ var (
 func GetCommandManager() *CommandManager {
 	cmOnce.Do(func() {
 		cmInstance = &CommandManager{
-			Commands: make(map[string]ChatCommand),
+			Commands: make(map[string]ChatCommand, 0),
 		}
 	})
 	return cmInstance

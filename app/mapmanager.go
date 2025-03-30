@@ -75,7 +75,7 @@ func (mm *MapManager) SyncMaps() {
 	}
 
 	chunckedMaps := utils.ChunkArray(maps, 100)
-	mapList := make([]structs.TMMapInfo, 0)
+	mapList := make([]structs.TMMapInfo, 0, len(maps))
 	for _, chunk := range chunckedMaps {
 		for _, m := range chunk {
 			mapInfo, err := GetClient().GetMapInfo(m.FileName)

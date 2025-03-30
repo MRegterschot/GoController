@@ -87,7 +87,7 @@ func (p *ScriptPlugin) modeSettingsCommand(login string, args []string) {
 	}
 	sort.Strings(keys)
 
-	items := make([][]any, 0)
+	items := make([][]any, 0, len(keys))
 	for _, key := range keys {
 		var desc string
 		for _, item := range info.ParamDescs {
