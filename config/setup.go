@@ -10,10 +10,10 @@ func Setup() {
 	if err != nil {
 		os.Exit(1)
 	}
-
-	// setup logger
-	SetupLogger()
 	
 	// load theme
 	LoadTheme()
+
+	// setup logger
+	SetupLogger()
 }

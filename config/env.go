@@ -23,6 +23,8 @@ type Env struct {
 
 	// Delimiter for theme processing
 	Delimiter string
+
+	LogLevel string
 }
 
 // Global variable to store the loaded environment configuration
@@ -30,13 +32,8 @@ var AppEnv *Env
 
 // LoadEnv loads the .env file into the environment and initializes AppEnv
 func LoadEnv() error {
-	goEnv := os.Getenv("GO_ENV")
-
-	// Load .env file only in development mode
-	if goEnv == "" || goEnv == "development" {
-		if err := godotenv.Load(); err != nil {
-			return err
-		}
+	if err := godotenv.Load(); err != nil {
+		return err
 	}
 
 	// Convert PORT from string to int
@@ -58,6 +55,8 @@ func LoadEnv() error {
 		MongoDb:  os.Getenv("MONGO_DB"),
 
 		Delimiter: os.Getenv("DELIMITER"),
+
+		LogLevel: os.Getenv("LOG_LEVEL"),
 	}
 
 	return nil

@@ -13,9 +13,9 @@
 
     <frame pos="0 -{{ height - 5 }}">
       {{ if .Data["IsAdmin"] }}
-        <label pos="10" size="20 6" text="Remove" action="{{ .Actions["remove_"+item["UId"]] }}" textsize="2" valign="center" halign="center" focusareacolor1="{{ Colors.Danger }}" focusareacolor2="{{ Colors.Danger }}" scriptevents="1" textemboss="1" font="{{ Fonts.Regular }}" />
+        <label pos="10" size="20 6" text="Remove" action="{{ .Actions["remove_"+item["UId"]] }}" textsize="2" valign="center" halign="center" focusareacolor1="{{ Styling.Danger }}" focusareacolor2="{{ Styling.Danger }}" scriptevents="1" textemboss="1" font="{{ Fonts.Regular }}" />
       {{ end }}
-      <label pos="{{ width - 12.5 }}" size="20 6" text="Queue" action="{{ .Actions["queue_"+item["UId"]] }}" textsize="2" halign="center" valign="center" focusareacolor1="{{ Colors.Primary }}" focusareacolor2="{{ Colors.Primary }}" scriptevents="1" textemboss="1" font="{{ Fonts.Regular }}" />
+      <label pos="{{ width - 12.5 }}" size="20 6" text="Queue" action="{{ .Actions["queue_"+item["UId"]] }}" textsize="2" halign="center" valign="center" focusareacolor1="{{ Styling.Primary }}" focusareacolor2="{{ Styling.Primary }}" scriptevents="1" textemboss="1" font="{{ Fonts.Regular }}" />
     </frame>
   </frame>
 {{ end }}

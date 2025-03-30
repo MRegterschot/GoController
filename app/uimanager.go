@@ -132,7 +132,7 @@ func (uim *UIManager) AfterInit() {
 }
 
 func (uim *UIManager) loadTheme() {
-	uim.Templates.AddGlobal("Colors", config.Theme.Colors)
+	uim.Templates.AddGlobal("Styling", config.Theme.Styling)
 	uim.Templates.AddGlobal("Fonts", config.Theme.Fonts)
 	uim.Templates.AddGlobal("Icons", config.Theme.Icons)
 	uim.Theme = config.Theme

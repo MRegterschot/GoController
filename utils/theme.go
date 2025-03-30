@@ -11,8 +11,8 @@ import (
 
 var (
 	delimiter string
-	re *regexp.Regexp
-	theme models.Theme
+	re        *regexp.Regexp
+	theme     models.Theme
 )
 
 func SetTheme() {
@@ -28,9 +28,9 @@ func ProcessString(str string) string {
 	// Replace theme colors in the string
 	modString := re.ReplaceAllStringFunc(escapedInput, func(match string) string {
 		colorKey := strings.Trim(match, delimiter)
-		for themeKey := range theme.Colors {
+		for themeKey := range theme.Styling {
 			if strings.EqualFold(colorKey, themeKey) {
-				return "$" + theme.Colors[themeKey] // Replace with theme value
+				return "$" + theme.Styling[themeKey] // Replace with theme value
 			}
 		}
 		return match

@@ -24,7 +24,7 @@
         {{ else if col.Type == "input" }}
           <textedit pos="{{ totalWidth + 2 }} -2.5" z-index="0" name="{{ item[0] }}" size="{{ colWidth }} 3.5" maxline="1" default="{{ item[i] }}"  textsize="1.5" valign="center" textfont="{{ Fonts.Regular }}" scriptevents="1"/>
         {{ else if col.Type == "button" }}
-          <label pos="{{ totalWidth + 2 + colWidth / 2 }} -2.5" z-index="1" size="{{ colWidth }} 5" text="{{ col.Name }}" focusareacolor1="{{ Colors.Primary }}" focusareacolor2="{{ Colors.Primary }}" halign="center" valign="center" textcolor="FFFFFFFF" textfont="{{ Fonts.Regular }}" textsize="1.5" textemboss="1" action="{{ item[i] }}"/>
+          <label pos="{{ totalWidth + 2 + colWidth / 2 }} -2.5" z-index="1" size="{{ colWidth }} 5" text="{{ col.Name }}" focusareacolor1="{{ Styling.Primary }}" focusareacolor2="{{ Styling.Primary }}" halign="center" valign="center" textcolor="FFFFFFFF" textfont="{{ Fonts.Regular }}" textsize="1.5" textemboss="1" action="{{ item[i] }}"/>
         {{ else }}
           <label pos="{{ totalWidth + 2 }} -2.5" z-index="1" size="{{ colWidth }} 5" text="{{ item[i] }}" valign="center" textcolor="FFFFFFFF" textfont="{{ Fonts.Regular }}" textsize="1.5" textemboss="1"/>
         {{ end }}
@@ -39,13 +39,13 @@
 
   {{ if exists := .Actions["cancel"]; exists }}
     <frame pos="2 -{{ .Size.Height - 18.75 }}">
-      <label pos="9.5 -3" size="20 6" text="Cancel" textsize="2" action="{{ .Actions.cancel }}" halign="center" valign="center" textemboss="1" scriptevents="1" focusareacolor1="{{ Colors.Primary }}" focusareacolor2="{{ Colors.Primary }}" textfont="{{ Fonts.SemiBold }}"/>
+      <label pos="9.5 -3" size="20 6" text="Cancel" textsize="2" action="{{ .Actions.cancel }}" halign="center" valign="center" textemboss="1" scriptevents="1" focusareacolor1="{{ Styling.Primary }}" focusareacolor2="{{ Styling.Primary }}" textfont="{{ Fonts.SemiBold }}"/>
     </frame>
   {{ end }}
 
   {{ if exists := .Actions["apply"]; exists }}
     <frame pos="{{ .Size.Width - 24 }} -{{ .Size.Height - 18.75 }}">
-      <label pos="9.5 -3" size="20 6" text="Apply" textsize="2" action="{{ .Actions.apply }}" halign="center" valign="center" textemboss="1" scriptevents="1" focusareacolor1="{{ Colors.Primary }}" focusareacolor2="{{ Colors.Primary }}" textfont="{{ Fonts.SemiBold }}"/>
+      <label pos="9.5 -3" size="20 6" text="Apply" textsize="2" action="{{ .Actions.apply }}" halign="center" valign="center" textemboss="1" scriptevents="1" focusareacolor1="{{ Styling.Primary }}" focusareacolor2="{{ Styling.Primary }}" textfont="{{ Fonts.SemiBold }}"/>
     </frame>
   {{ end }}
 {{ end }}
