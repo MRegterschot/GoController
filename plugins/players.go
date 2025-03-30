@@ -7,6 +7,7 @@ import (
 
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
+	"github.com/MRegterschot/GoController/ui"
 )
 
 type PlayersPlugin struct {
@@ -507,25 +508,36 @@ func (p *PlayersPlugin) kickCommand(login string, args []string) {
 func (p *PlayersPlugin) getPlayersCommand(login string, args []string) {
 	c := app.GetGoController()
 	
-	players, err := c.Server.Client.GetPlayerList(100, 1)
-	if err != nil {
-		go c.ChatError("Error getting players", err, login)
-		return
-	}
+	players := c.PlayerManager.Players
 
 	if len(players) == 0 {
 		go c.Chat("#Primary#No players found", login)
 		return
 	}
 
-	nickNames := make([]string, len(players))
-	for i, player := range players {
-		nickNames[i] = player.NickName
+	items := make([][]any, 0, len(players))
+	for _, player := range players {
+		items = append(items, []any{
+			player.NickName,
+			player.Login,
+			player.Path,
+			player.IsSpectator,
+		})
 	}
 
-	msg := fmt.Sprintf("#Primary#Players (%d): #White#%s", len(players), strings.Join(nickNames, ", "))
+	columns := []ui.Column{
+		{Name: "Nickname", Width: 20},
+		{Name: "Login", Width: 25},
+		{Name: "Path", Width: 45},
+		{Name: "Spectator", Width: 10, Type: "checkbox"},
+	}
 
-	go c.Chat(msg, login)
+	window := ui.NewListWindow(&login)
+	window.Title = "Players"
+	window.Columns = columns
+	window.Items = items
+
+	go window.Display()
 }
 
 func (p *PlayersPlugin) forceStatusCommand(login string, args []string) {

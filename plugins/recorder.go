@@ -12,7 +12,7 @@ import (
 	"github.com/MRegterschot/GoController/database"
 	"github.com/MRegterschot/GoController/models"
 	"github.com/MRegterschot/GoController/plugins/widgets"
-	"github.com/MRegterschot/GoController/plugins/windows"
+	"github.com/MRegterschot/GoController/ui"
 	"github.com/MRegterschot/GoController/utils"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.uber.org/zap"
@@ -399,7 +399,8 @@ func (p *RecorderPlugin) recorderCommand(login string, args []string) {
 func (p *RecorderPlugin) recordingsCommand(login string, args []string) {
 	c := app.GetGoController()
 	
-	window := windows.CreateRecorderGridWindow(&login)
+	window := ui.NewGridWindow(&login)
+	window.SetTemplate("recorder/recording.jet")
 	window.Title = "Recordings"
 	window.Items = make([]any, 0)
 

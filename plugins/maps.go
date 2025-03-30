@@ -120,7 +120,7 @@ func (p *MapsPlugin) localMapsCommand(login string, args []string) {
 		{Name: "Add", Width: 10, Type: "button"},
 	}
 
-	window := windows.CreateLocalMapsListWindow(&login)
+	window := ui.NewListWindow(&login)
 	window.Title = "Local Maps"
 	window.Columns = columns
 	window.Items = items
