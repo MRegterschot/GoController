@@ -105,8 +105,7 @@ func (c *GoController) Start() {
 
 	c.Server.Client.Echo(fmt.Sprintf("%d", c.StartTime), "GoController")
 
-	msg := fmt.Sprintf("Welcome to #Primary#GoController#White#! Version %s", c.Version)
-	msg = utils.ProcessString(msg)
+	msg := fmt.Sprintf("#Primary#Welcome to #White#GoController! #Primary#Version #White#%s", c.Version)
 	go c.Chat(msg)
 	zap.L().Info(msg)
 	zap.L().Info("GoController started successfully")
@@ -118,6 +117,7 @@ func (c *GoController) AfterStart() {
 
 // Sends a chat message to the server
 func (c *GoController) Chat(message string, login ...string) {
+	message = utils.ProcessString(message)
 	if len(login) > 0 {
 		go c.Server.Client.ChatSendServerMessageToLogin("$9ab$n>$z$s "+message, strings.Join(login, ","))
 	} else {
@@ -138,7 +138,7 @@ func (c *GoController) IsAdmin(login string) bool {
 // Shutdown the GoController
 func (c *GoController) Shutdown() {
 	zap.L().Info("Shutting down GoController")
-	go c.Chat("GoController shutting down...")
+	go c.Chat("#Primary#GoController shutting down...")
 
 	c.Server.Disconnect()
 
@@ -153,11 +153,12 @@ func (c *GoController) Reboot() error {
 	exe, err := os.Executable()
 	if err != nil {
 		zap.L().Error("Failed to get executable path", zap.Error(err))
+		go c.Chat("#Error#Error rebooting, #White#"+err.Error())
 		return err
 	}
 
 	zap.L().Info("Rebooting GoController")
-	go c.Chat("GoController rebooting...")
+	go c.Chat("#Primary#GoController rebooting...")
 
 	args := os.Args
 	var cmd *exec.Cmd

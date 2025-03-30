@@ -2,6 +2,7 @@
   "Colors": {
     "Primary": "0C6",
     "Danger": "C22",
+    "Error": "F00",
 
     "White": "FFF",
     "Black": "000",

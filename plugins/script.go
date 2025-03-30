@@ -70,13 +70,13 @@ func (p *ScriptPlugin) modeSettingsCommand(login string, args []string) {
 	
 	settings, err := c.Server.Client.GetModeScriptSettings()
 	if err != nil {
-		go c.Chat("Error getting mode settings: "+err.Error(), login)
+		go c.Chat("#Error#Error getting mode settings, "+err.Error(), login)
 		return
 	}
 
 	info, err := c.Server.Client.GetModeScriptInfo()
 	if err != nil {
-		go c.Chat("Error getting mode script info: "+err.Error(), login)
+		go c.Chat("#Error#Error getting mode script info, "+err.Error(), login)
 		return
 	}
 
@@ -122,18 +122,18 @@ func (p *ScriptPlugin) loadMatchSettingsCommand(login string, args []string) {
 	c := app.GetGoController()
 	
 	if len(args) < 1 {
-		go c.Chat("Usage: //loadmatchsettings [*filename]", login)
+		go c.Chat("#Primary#Usage: #White#//loadmatchsettings [*filename]", login)
 		return
 	}
 
 	filename := args[0]
 	_, err := c.Server.Client.LoadMatchSettings("MatchSettings/" + filename)
 	if err != nil {
-		go c.Chat("Error loading match settings: "+err.Error(), login)
+		go c.Chat("#Error#Error loading match settings, "+err.Error(), login)
 		return
 	}
 
-	go c.Chat("Match settings loaded", login)
+	go c.Chat("#Primary#Match settings loaded", login)
 }
 
 func (p *ScriptPlugin) saveMatchSettingsCommand(login string, args []string) {
@@ -147,11 +147,11 @@ func (p *ScriptPlugin) saveMatchSettingsCommand(login string, args []string) {
 
 	_, err := c.Server.Client.SaveMatchSettings("MatchSettings/" + file)
 	if err != nil {
-		go c.Chat("Error saving match settings: "+err.Error(), login)
+		go c.Chat("#Error#Error saving match settings, "+err.Error(), login)
 		return
 	}
 
-	go c.Chat("Match settings saved to "+file, login)
+	go c.Chat("#Primary#Match settings saved to #White#"+file, login)
 }
 
 func init() {

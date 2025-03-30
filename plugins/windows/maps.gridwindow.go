@@ -38,7 +38,7 @@ func (mgw *MapsGridWindow) HandleRemoveAnswer(login string, data any, _ any) {
 	mapInfo := data.(structs.TMMapInfo)
 
 	if err := c.Server.Client.RemoveMap(mapInfo.FileName); err != nil {
-		go c.Chat(fmt.Sprintf("Error removing map: %v", err), login)
+		go c.Chat(fmt.Sprintf("#Error#Error removing map #White#%v", err), login)
 		return
 	}
 
@@ -62,7 +62,7 @@ func (mgw *MapsGridWindow) HandleRemoveAnswer(login string, data any, _ any) {
 	}
 
 	mgw.Refresh()
-	go c.Chat("Map removed", login)
+	go c.Chat("#Primary#Map removed", login)
 }
 
 func (mgw *MapsGridWindow) HandleQueueAnswer(login string, data any, _ any) {

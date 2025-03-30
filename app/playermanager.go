@@ -102,14 +102,14 @@ func (plm *PlayerManager) onPlayerConnect(playerConnectEvent events.PlayerConnec
 
 	player := plm.GetPlayer(playerConnectEvent.Login)
 
-	go GetGoController().Chat(fmt.Sprintf("Welcome %s!", player.NickName))
+	go GetGoController().Chat(fmt.Sprintf("#Primary#Welcome #White#%s!", player.NickName))
 }
 
 func (plm *PlayerManager) onPlayerDisconnect(playerDisconnectEvent events.PlayerDisconnectEventArgs) {
 	for i, player := range plm.Players {
 		if player.Login == playerDisconnectEvent.Login {
 			plm.Players = slices.Delete(plm.Players, i, i+1)
-			go GetGoController().Chat(fmt.Sprintf("%s disconnected", player.NickName))
+			go GetGoController().Chat(fmt.Sprintf("%s #Primary#disconnected", player.NickName))
 			return
 		}
 	}

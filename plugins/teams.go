@@ -55,12 +55,12 @@ func (p *TeamsPlugin) forcedTeamsCommand(login string, args []string) {
 	
 	if len(args) < 1 {
 		if forcedTeams, err := c.Server.Client.GetForcedTeams(); err != nil {
-			go c.Chat("Error getting forced teams", login)
+			go c.Chat("#Error#Error getting forced teams", login)
 		} else {
 			if forcedTeams {
-				go c.Chat("Forced teams are enabled", login)
+				go c.Chat("#Primary#Forced teams are enabled", login)
 			} else {
-				go c.Chat("Forced teams are disabled", login)
+				go c.Chat("#Primary#Forced teams are disabled", login)
 			}
 		}
 		return
@@ -68,14 +68,14 @@ func (p *TeamsPlugin) forcedTeamsCommand(login string, args []string) {
 
 	forcedTeams := args[0] == "true" || args[0] == "1"
 	if err := c.Server.Client.SetForcedTeams(forcedTeams); err != nil {
-		go c.Chat("Error setting forced teams", login)
+		go c.Chat("#Error#Error setting forced teams", login)
 		return
 	}
 
 	if forcedTeams {
-		go c.Chat("Forced teams are enabled", login)
+		go c.Chat("#Primary#Forced teams are enabled", login)
 	} else {
-		go c.Chat("Forced teams are disabled", login)
+		go c.Chat("#Primary#Forced teams are disabled", login)
 	}
 }
 
@@ -83,22 +83,22 @@ func (p *TeamsPlugin) forcePlayerTeamCommand(login string, args []string) {
 	c := app.GetGoController()
 	
 	if len(args) < 2 {
-		go c.Chat("Usage: //forceteam [*login] [*team]", login)
+		go c.Chat("#Primary#Usage: #White#//forceteam [*login] [*team]", login)
 		return
 	}
 
 	team, err := strconv.Atoi(args[1])
 	if err != nil {
-		go c.Chat("Invalid team", login)
+		go c.Chat("#Error#Invalid team", login)
 		return
 	}
 
 	if err := c.Server.Client.ForcePlayerTeam(args[0], team); err != nil {
-		go c.Chat("Error forcing player team: "+err.Error(), login)
+		go c.Chat("#Error#Error forcing player team, "+err.Error(), login)
 		return
 	}
 
-	go c.Chat("Player team forced", login)
+	go c.Chat("#Primary#Player team forced", login)
 }
 
 func init() {

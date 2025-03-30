@@ -152,19 +152,19 @@ func (p *ServerPlugin) setPasswordCommand(login string, args []string) {
 	if len(args) < 1 {
 		err := c.Server.Client.SetServerPassword("")
 		if err != nil {
-			go c.Chat("Error removing server password: "+err.Error(), login)
+			go c.Chat("#Error#Error removing server password, "+err.Error(), login)
 			return
 		}
-		go c.Chat("Server password removed", login)
+		go c.Chat("#Primary#Server password removed", login)
 		return
 	}
 
 	err := c.Server.Client.SetServerPassword(args[0])
 	if err != nil {
-		go c.Chat("Error setting server password: "+err.Error(), login)
+		go c.Chat("#Error#Error setting server password, "+err.Error(), login)
 		return
 	}
-	go c.Chat("Server password set", login)
+	go c.Chat("#Primary#Server password set", login)
 }
 
 func (p *ServerPlugin) getPasswordCommand(login string, args []string) {
@@ -172,10 +172,10 @@ func (p *ServerPlugin) getPasswordCommand(login string, args []string) {
 	
 	password, err := c.Server.Client.GetServerPassword()
 	if err != nil {
-		go c.Chat("Error getting server password: "+err.Error(), login)
+		go c.Chat("#Error#Error getting server password, "+err.Error(), login)
 		return
 	}
-	go c.Chat("Server password: "+password, login)
+	go c.Chat("#Primary#Server password #White#"+password, login)
 }
 
 func (p *ServerPlugin) setPasswordSpectatorCommand(login string, args []string) {
@@ -184,19 +184,19 @@ func (p *ServerPlugin) setPasswordSpectatorCommand(login string, args []string) 
 	if len(args) < 1 {
 		err := c.Server.Client.SetServerPasswordForSpectator("")
 		if err != nil {
-			go c.Chat("Error removing spectator password: "+err.Error(), login)
+			go c.Chat("#Error#Error removing spectator password, "+err.Error(), login)
 			return
 		}
-		go c.Chat("Spectator password removed", login)
+		go c.Chat("#Primary#Spectator password removed", login)
 		return
 	}
 
 	err := c.Server.Client.SetServerPasswordForSpectator(args[0])
 	if err != nil {
-		go c.Chat("Error setting spectator password: "+err.Error(), login)
+		go c.Chat("#Error#Error setting spectator password, "+err.Error(), login)
 		return
 	}
-	go c.Chat("Spectator password set", login)
+	go c.Chat("#Primary#Spectator password set", login)
 }
 
 func (p *ServerPlugin) getPasswordSpectatorCommand(login string, args []string) {
@@ -204,10 +204,10 @@ func (p *ServerPlugin) getPasswordSpectatorCommand(login string, args []string) 
 	
 	password, err := c.Server.Client.GetServerPasswordForSpectator()
 	if err != nil {
-		go c.Chat("Error getting spectator password: "+err.Error(), login)
+		go c.Chat("#Error#Error getting spectator password, "+err.Error(), login)
 		return
 	}
-	go c.Chat("Spectator password: "+password, login)
+	go c.Chat("#Primary#Spectator password #White#"+password, login)
 }
 
 func (p *ServerPlugin) nameCommand(login string, args []string) {
@@ -216,10 +216,10 @@ func (p *ServerPlugin) nameCommand(login string, args []string) {
 	if len(args) < 1 {
 		name, err := c.Server.Client.GetServerName()
 		if err != nil {
-			go c.Chat("Error getting server name: "+err.Error(), login)
+			go c.Chat("#Error#Error getting server name, "+err.Error(), login)
 			return
 		}
-		go c.Chat("Server name: "+name, login)
+		go c.Chat("#Primary#Server name #White#"+name, login)
 		return
 	}
 
@@ -227,10 +227,10 @@ func (p *ServerPlugin) nameCommand(login string, args []string) {
 
 	err := c.Server.Client.SetServerName(name)
 	if err != nil {
-		go c.Chat("Error setting server name: "+err.Error(), login)
+		go c.Chat("#Error#Error setting server name, "+err.Error(), login)
 		return
 	}
-	go c.Chat("Set server name to " + name, login)
+	go c.Chat("#Primary#Set server name to #White#" + name, login)
 }
 
 func (p *ServerPlugin) commentCommand(login string, args []string) {
@@ -239,10 +239,10 @@ func (p *ServerPlugin) commentCommand(login string, args []string) {
 	if len(args) < 1 {
 		comment, err := c.Server.Client.GetServerComment()
 		if err != nil {
-			go c.Chat("Error getting server comment: "+err.Error(), login)
+			go c.Chat("#Error#Error getting server comment, "+err.Error(), login)
 			return
 		}
-		go c.Chat("Server comment: "+comment, login)
+		go c.Chat("#Primary#Server comment #White#"+comment, login)
 		return
 	}
 
@@ -250,10 +250,10 @@ func (p *ServerPlugin) commentCommand(login string, args []string) {
 
 	err := c.Server.Client.SetServerComment(comment)
 	if err != nil {
-		go c.Chat("Error setting server comment: "+err.Error(), login)
+		go c.Chat("#Error#Error setting server comment, "+err.Error(), login)
 		return
 	}
-	go c.Chat("Set server comment to " + comment, login)
+	go c.Chat("#Primary#Set server comment to #White#" + comment, login)
 }
 
 func (p *ServerPlugin) hideCommand(login string, args []string) {
@@ -262,13 +262,13 @@ func (p *ServerPlugin) hideCommand(login string, args []string) {
 	if len(args) < 1 {
 		hidden, err := c.Server.Client.GetHideServer()
 		if err != nil {
-			go c.Chat("Error getting server hidden status: "+err.Error(), login)
+			go c.Chat("#Error#Error getting server hidden status, "+err.Error(), login)
 			return
 		}
 		if hidden == 1 || hidden == 2 {
-			go c.Chat("Server is hidden", login)
+			go c.Chat("#Primary#Server is hidden", login)
 		} else {
-			go c.Chat("Server is not hidden", login)
+			go c.Chat("#Primary#Server is not hidden", login)
 		}
 		return
 	}
@@ -280,13 +280,13 @@ func (p *ServerPlugin) hideCommand(login string, args []string) {
 
 	err := c.Server.Client.SetHideServer(hidden)
 	if err != nil {
-		go c.Chat("Error setting server hidden status: "+err.Error(), login)
+		go c.Chat("#Error#Error setting server hidden status, "+err.Error(), login)
 		return
 	}
 	if hidden == 1 {
-		go c.Chat("Server is now hidden", login)
+		go c.Chat("#Primary#Server is now hidden", login)
 	} else {
-		go c.Chat("Server is no longer hidden", login)
+		go c.Chat("#Primary#Server is no longer hidden", login)
 	}
 }
 
@@ -296,25 +296,25 @@ func (p *ServerPlugin) maxPlayersCommand(login string, args []string) {
 	if len(args) < 1 {
 		maxPlayers, err := c.Server.Client.GetMaxPlayers()
 		if err != nil {
-			go c.Chat("Error getting max players: "+err.Error(), login)
+			go c.Chat("#Error#Error getting max players, "+err.Error(), login)
 			return
 		}
-		go c.Chat(fmt.Sprintf("Current max: %d, Next max: %d", maxPlayers.CurrentValue, maxPlayers.NextValue), login)
+		go c.Chat(fmt.Sprintf("#Primary#Current max: #White#%d, #Primary#Next max: #White#%d", maxPlayers.CurrentValue, maxPlayers.NextValue), login)
 		return
 	}
 
 	maxPlayers, err := strconv.Atoi(args[0])
 	if err != nil {
-		go c.Chat("Invalid max players", login)
+		go c.Chat("#Error#Invalid max players", login)
 		return
 	}
 
 	err = c.Server.Client.SetMaxPlayers(maxPlayers)
 	if err != nil {
-		go c.Chat("Error setting max players: "+err.Error(), login)
+		go c.Chat("#Error#Error setting max players, "+err.Error(), login)
 		return
 	}
-	go c.Chat(fmt.Sprintf("Set max players to %d", maxPlayers), login)
+	go c.Chat(fmt.Sprintf("#Primary#Set max players to #White#%d", maxPlayers), login)
 }
 
 func (p *ServerPlugin) maxSpectatorsCommand(login string, args []string) {
@@ -323,25 +323,25 @@ func (p *ServerPlugin) maxSpectatorsCommand(login string, args []string) {
 	if len(args) < 1 {
 		maxSpectators, err := c.Server.Client.GetMaxSpectators()
 		if err != nil {
-			go c.Chat("Error getting max spectators: "+err.Error(), login)
+			go c.Chat("#Error#Error getting max spectators, "+err.Error(), login)
 			return
 		}
-		go c.Chat(fmt.Sprintf("Current max: %d, Next max: %d", maxSpectators.CurrentValue, maxSpectators.NextValue), login)
+		go c.Chat(fmt.Sprintf("#Primary#Current max: #White#%d, #Primary#Next max: #White#%d", maxSpectators.CurrentValue, maxSpectators.NextValue), login)
 		return
 	}
 
 	maxSpectators, err := strconv.Atoi(args[0])
 	if err != nil {
-		go c.Chat("Invalid max spectators", login)
+		go c.Chat("#Error#Invalid max spectators", login)
 		return
 	}
 
 	err = c.Server.Client.SetMaxSpectators(maxSpectators)
 	if err != nil {
-		go c.Chat("Error setting max spectators: "+err.Error(), login)
+		go c.Chat("#Error#Error setting max spectators, "+err.Error(), login)
 		return
 	}
-	go c.Chat(fmt.Sprintf("Set max spectators to %d", maxSpectators), login)
+	go c.Chat(fmt.Sprintf("#Primary#Set max spectators to #White#%d", maxSpectators), login)
 }
 
 func (p *ServerPlugin) keepPlayerSlotsCommand(login string, args []string) {
@@ -350,14 +350,14 @@ func (p *ServerPlugin) keepPlayerSlotsCommand(login string, args []string) {
 	if len(args) < 1 {
 		keepPlayerSlots, err := c.Server.Client.IsKeepingPlayerSlots()
 		if err != nil {
-			go c.Chat("Error getting keep player slots: "+err.Error(), login)
+			go c.Chat("#Error#Error getting keep player slots, "+err.Error(), login)
 			return
 		}
 
 		if keepPlayerSlots {
-			go c.Chat("Keep player slots is enabled", login)
+			go c.Chat("#Primary#Keep player slots is enabled", login)
 		} else {
-			go c.Chat("Keep player slots is disabled", login)
+			go c.Chat("#Primary#Keep player slots is disabled", login)
 		}
 		return
 	}
@@ -365,14 +365,14 @@ func (p *ServerPlugin) keepPlayerSlotsCommand(login string, args []string) {
 	keepPlayerSlots := args[0] == "1" || args[0] == "true"
 
 	if err := c.Server.Client.KeepPlayerSlots(keepPlayerSlots); err != nil {
-		go c.Chat("Error setting keep player slots: "+err.Error(), login)
+		go c.Chat("#Error#Error setting keep player slots, "+err.Error(), login)
 		return
 	}
 
 	if keepPlayerSlots {
-		go c.Chat("Keep player slots is enabled", login)
+		go c.Chat("#Primary#Keep player slots is enabled", login)
 	} else {
-		go c.Chat("Keep player slots is disabled", login)
+		go c.Chat("#Primary#Keep player slots is disabled", login)
 	}
 }
 
@@ -382,14 +382,14 @@ func (p *ServerPlugin) hornsCommand(login string, args []string) {
 	if len(args) < 1 {
 		disableHorns, err := c.Server.Client.AreHornsDisabled()
 		if err != nil {
-			go c.Chat("Error getting horns status: "+err.Error(), login)
+			go c.Chat("#Error#Error getting horns status, "+err.Error(), login)
 			return
 		}
 
 		if disableHorns {
-			go c.Chat("Horns are disabled", login)
+			go c.Chat("#Primary#Horns are disabled", login)
 		} else {
-			go c.Chat("Horns are enabled", login)
+			go c.Chat("#Primary#Horns are enabled", login)
 		}
 		return
 	}
@@ -401,14 +401,14 @@ func (p *ServerPlugin) hornsCommand(login string, args []string) {
 
 	err := c.Server.Client.DisableHorns(disableHorns)
 	if err != nil {
-		go c.Chat("Error setting horns status: "+err.Error(), login)
+		go c.Chat("#Error#Error setting horns status, "+err.Error(), login)
 		return
 	}
 
 	if disableHorns {
-		go c.Chat("Horns are disabled", login)
+		go c.Chat("#Primary#Horns are disabled", login)
 	} else {
-		go c.Chat("Horns are enabled", login)
+		go c.Chat("#Primary#Horns are enabled", login)
 	}
 }
 
@@ -418,14 +418,14 @@ func (p *ServerPlugin) serviceAnnouncesCommand(login string, args []string) {
 	if len(args) < 1 {
 		disableServiceAnnounces, err := c.Server.Client.AreServiceAnnouncesDisabled()
 		if err != nil {
-			go c.Chat("Error getting service announces status: "+err.Error(), login)
+			go c.Chat("#Error#Error getting service announces status, "+err.Error(), login)
 			return
 		}
 
 		if disableServiceAnnounces {
-			go c.Chat("Service announces are disabled", login)
+			go c.Chat("#Primary#Service announces are disabled", login)
 		} else {
-			go c.Chat("Service announces are enabled", login)
+			go c.Chat("#Primary#Service announces are enabled", login)
 		}
 		return
 	}
@@ -437,14 +437,14 @@ func (p *ServerPlugin) serviceAnnouncesCommand(login string, args []string) {
 
 	err := c.Server.Client.DisableServiceAnnounces(!enableServiceAnnounces)
 	if err != nil {
-		go c.Chat("Error setting service announces status: "+err.Error(), login)
+		go c.Chat("#Error#Error setting service announces status, "+err.Error(), login)
 		return
 	}
 
 	if enableServiceAnnounces {
-		go c.Chat("Service announces are enabled", login)
+		go c.Chat("#Primary#Service announces are enabled", login)
 		} else {
-		go c.Chat("Service announces are disabled", login)
+		go c.Chat("#Primary#Service announces are disabled", login)
 	}
 }
 
@@ -454,14 +454,14 @@ func (p *ServerPlugin) skinsCommand(login string, args []string) {
 	if len(args) < 1 {
 		disableSkins, err := c.Server.Client.AreProfileSkinsDisabled()
 		if err != nil {
-			go c.Chat("Error getting skins status: "+err.Error(), login)
+			go c.Chat("#Error#Error getting skins status, "+err.Error(), login)
 			return
 		}
 
 		if disableSkins {
-			go c.Chat("Skins are disabled", login)
+			go c.Chat("#Primary#Skins are disabled", login)
 		} else {
-			go c.Chat("Skins are enabled", login)
+			go c.Chat("#Primary#Skins are enabled", login)
 		}
 		return
 	}
@@ -473,14 +473,14 @@ func (p *ServerPlugin) skinsCommand(login string, args []string) {
 
 	err := c.Server.Client.DisableProfileSkins(!enableSkins)
 	if err != nil {
-		go c.Chat("Error setting skins status: "+err.Error(), login)
+		go c.Chat("#Error#Error setting skins status, "+err.Error(), login)
 		return
 	}
 
 	if enableSkins {
-		go c.Chat("Skins are enabled", login)
+		go c.Chat("#Primary#Skins are enabled", login)
 	} else {
-		go c.Chat("Skins are disabled", login)
+		go c.Chat("#Primary#Skins are disabled", login)
 	}
 }
 

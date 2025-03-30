@@ -365,14 +365,14 @@ func (p *RecorderPlugin) recorderCommand(login string, args []string) {
 	c := app.GetGoController()
 	
 	if len(args) < 1 {
-		go c.Chat("Usage: //recorder [*start | stop] [name]", login)
+		go c.Chat("#Primary#Usage: #White#//recorder [*start | stop] [name]", login)
 		return
 	}
 
 	switch args[0] {
 	case "start":
 		if p.IsRecording {
-			go c.Chat("Already recording", login)
+			go c.Chat("#Error#Already recording", login)
 			return
 		}
 
@@ -382,17 +382,17 @@ func (p *RecorderPlugin) recorderCommand(login string, args []string) {
 		}
 
 		p.startRecording(name)
-		go c.Chat("Recording started", login)
+		go c.Chat("#Primary#Recording started", login)
 	case "stop":
 		if !p.IsRecording {
-			go c.Chat("Not recording", login)
+			go c.Chat("#Error#Not recording", login)
 			return
 		}
 
 		p.stopRecording()
-		go c.Chat("Recording stopped with id "+p.Recording.ID.Hex(), login)
+		go c.Chat("#Primary#Recording stopped with id #White#"+p.Recording.ID.Hex(), login)
 	default:
-		go c.Chat("Usage: //recorder [*start | stop] [name]", login)
+		go c.Chat("#Primary#Usage: #White#//recorder [*start | stop] [name]", login)
 	}
 }
 
@@ -406,7 +406,7 @@ func (p *RecorderPlugin) recordingsCommand(login string, args []string) {
 	recordingsDB, err := database.GetRecordings(context.Background())
 	if err != nil {
 		zap.L().Error("Failed to get recordings", zap.Error(err))
-		go c.Chat("Failed to get recordings", login)
+		go c.Chat("#Error#Failed to get recordings", login)
 		return
 	}
 
@@ -424,7 +424,7 @@ func (p *RecorderPlugin) exportToCSVCommand(login string, args []string) {
 	c := app.GetGoController()
 	
 	if len(args) < 1 {
-		go c.Chat("Usage: //export [*recording id]", login)
+		go c.Chat("#Primary#Usage: #White#//export [*recording id]", login)
 		return
 	}
 
@@ -432,17 +432,17 @@ func (p *RecorderPlugin) exportToCSVCommand(login string, args []string) {
 	objectID, err := primitive.ObjectIDFromHex(recordingID)
 	if err != nil {
 		zap.L().Error("Invalid recording ID", zap.Error(err))
-		go c.Chat("Invalid recording ID", login)
+		go c.Chat("#Error#Invalid recording ID", login)
 		return
 	}
 
 	err = p.exportToCSV(objectID)
 	if err != nil {
-		go c.Chat("Failed to export recording to CSV", login)
+		go c.Chat("#Error#Failed to export recording to CSV", login)
 		return
 	}
 
-	go c.Chat("Recording exported to CSV", login)
+	go c.Chat("#Primary#Recording exported to CSV", login)
 }
 
 func (p *RecorderPlugin) handleDownloadAnswer(login string, data any, _ any) {
@@ -450,12 +450,12 @@ func (p *RecorderPlugin) handleDownloadAnswer(login string, data any, _ any) {
 	
 	if id, err := primitive.ObjectIDFromHex(data.(string)); err != nil {
 		zap.L().Error("Invalid recording ID", zap.Error(err))
-		go c.Chat("Invalid recording ID", login)
+		go c.Chat("#Error#Invalid recording ID", login)
 	} else {
 		if err = p.exportToCSV(id); err != nil {
-			go c.Chat("Failed to export recording to CSV", login)
+			go c.Chat("#Error#Failed to export recording to CSV", login)
 		} else {
-			go c.Chat("Recording exported to CSV", login)
+			go c.Chat("#Primary#Recording exported to CSV", login)
 		}
 	}
 }
