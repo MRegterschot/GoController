@@ -2,6 +2,7 @@
   "Styling": {
     "Primary": "0C6",
     "Danger": "C22",
+    "Warning": "FA0",
     "Error": "F00",
 
     "White": "FFF",
@@ -26,6 +27,7 @@
     "StartRecording": "",
     "StopRecording": "",
     "User": "",
+    "Users": "",
     "Camera": "",
     "Guest": ""
   }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
+	"github.com/MRegterschot/GoController/plugins/widgets"
 	"github.com/MRegterschot/GoController/plugins/windows"
 	"github.com/MRegterschot/GoController/ui"
 	"github.com/MRegterschot/GoController/utils"
@@ -44,6 +45,14 @@ func (p *MapsPlugin) Load() error {
 		Help:     "Manage local maps",
 	})
 
+	acw := widgets.GetAdminControlsWidget()
+
+	acw.AddAction(widgets.Action{
+		Name:    "LocalMaps",
+		Icon:    "Map",
+		Command: "//localmaps",
+	})
+
 	return nil
 }
 
@@ -52,6 +61,10 @@ func (p *MapsPlugin) Unload() error {
 
 	commandManager.RemoveCommand("/maps")
 	commandManager.RemoveCommand("//localmaps")
+
+	acw := widgets.GetAdminControlsWidget()
+
+	acw.RemoveAction("LocalMaps")
 
 	return nil
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/MRegterschot/GbxRemoteGo/structs"
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
+	"github.com/MRegterschot/GoController/plugins/widgets"
 	"github.com/MRegterschot/GoController/plugins/windows"
 	"github.com/MRegterschot/GoController/ui"
 )
@@ -164,6 +165,14 @@ func (p *PlayersPlugin) Load() error {
 		Help:     "Forces a player to status",
 	})
 
+	acw := widgets.GetAdminControlsWidget()
+
+	acw.AddAction(widgets.Action{
+		Name:    "Players",
+		Icon:    "Users",
+		Command: "//players",
+	})
+
 	return nil
 }
 
@@ -188,6 +197,10 @@ func (p *PlayersPlugin) Unload() error {
 	commandManager.RemoveCommand("//cleanguestlist")
 	commandManager.RemoveCommand("//kick")
 	commandManager.RemoveCommand("//players")
+
+	acw := widgets.GetAdminControlsWidget()
+
+	acw.RemoveAction("Players")
 
 	return nil
 }
@@ -590,8 +603,8 @@ func (p *PlayersPlugin) getPlayersCommand(login string, args []string) {
 	}
 
 	columns := []ui.Column{
-		{Name: "Nickname", Width: 20},
-		{Name: "Login", Width: 25},
+		{Name: "Nickname", Width: 35},
+		{Name: "Login", Width: 35},
 		{Name: "Spectator", Width: 8, Type: "toggle"},
 		{Name: "Kick", Width: 8, Type: "button", Color: "Warning"},
 		{Name: "Ban", Width: 8, Type: "button", Color: "Danger"},
