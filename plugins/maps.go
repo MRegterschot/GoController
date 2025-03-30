@@ -1,7 +1,6 @@
 package plugins
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -101,14 +100,11 @@ func (p *MapsPlugin) addLocalCommand(login string, args []string) {
 
 		parentDir := strings.TrimPrefix(filepath.Dir(path), mapsPath)
 		name := utils.MapFileRegex.ReplaceAllString(filepath.Base(path), "")
-		fmt.Println("Found map:", parentDir, name)
 
 		items = append(items, []any{
 			parentDir,
 			name,
-			"",
-			"",
-			app.GetUIManager().AddAction(p.onAddMap, filepath.Base(path)),
+			app.GetUIManager().AddAction(p.onAddMap, path),
 		})
 		
 		return nil
@@ -119,10 +115,8 @@ func (p *MapsPlugin) addLocalCommand(login string, args []string) {
 	}
 	
 	columns := []ui.Column{
-		{Name: "Path", Width: 25},
-		{Name: "File Name", Width: 25},
-		{Name: "Map Name", Width: 20},
-		{Name: "Author", Width: 20},
+		{Name: "Path", Width: 40},
+		{Name: "File Name", Width: 50},
 		{Name: "Add", Width: 10, Type: "button"},
 	}
 
@@ -135,7 +129,18 @@ func (p *MapsPlugin) addLocalCommand(login string, args []string) {
 }
 
 func (p *MapsPlugin) onAddMap(login string, data any, _ any) {
-	fmt.Println("Adding map:", data)
+	file := data.(string)
+
+	c := app.GetGoController()
+	if err := c.Server.Client.AddMap(file); err != nil {
+		zap.L().Error("Failed to add map", zap.String("file", file), zap.Error(err))
+		c.Chat("Error adding map: "+err.Error(), login)
+		return
+	}
+	
+	c.MapManager.SyncMaps()
+	c.Chat("Map added successfully", login)
+	zap.L().Info("Map added successfully", zap.String("file", file))
 }
 
 func init() {
