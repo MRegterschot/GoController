@@ -52,18 +52,18 @@ func (plm *PlayerManager) SyncPlayers() {
 		if player.PlayerId == 0 {
 			continue
 		}
+
 		detailedInfo, err := GetClient().GetDetailedPlayerInfo(player.Login)
 		if err != nil {
 			zap.L().Error("Failed to get detailed player info", zap.Error(err))
 			continue
 		}
 
-		
 		detailedPlayer := models.DetailedPlayer{
 			TMPlayerDetailedInfo: detailedInfo,
 			IsAdmin:              GetGoController().IsAdmin(player.Login),
 		}
-		
+
 		if utils.Includes(plm.Players, detailedPlayer) {
 			// Replace the player in the list if it already exists
 			for i, existingPlayer := range plm.Players {
