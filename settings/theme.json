@@ -6,7 +6,9 @@
 
     "White": "FFF",
     "Black": "000",
-    "Gray": "ABC"
+    "Gray": "ABC",
+    "Red": "F00",
+    "Green": "0F0"
   },
   "Fonts": {
     "Regular": "GameFont",
@@ -23,6 +25,7 @@
     "Requeue": "",
     "StartRecording": "",
     "StopRecording": "",
-    "User": ""
+    "User": "",
+    "Camera": ""
   }
 }

@@ -7,22 +7,23 @@ import (
 
 	"github.com/MRegterschot/GoController/app"
 	"github.com/MRegterschot/GoController/models"
+	"github.com/MRegterschot/GoController/plugins/windows"
 	"github.com/MRegterschot/GoController/ui"
 )
 
 type PlayersPlugin struct {
-	Name string
+	Name         string
 	Dependencies []string
-	Loaded bool
+	Loaded       bool
 }
 
 var statuses = [4]string{"Selectable", "Spectator", "Player", "Spectator but selectable"}
 
 func CreatePlayersPlugin() *PlayersPlugin {
 	return &PlayersPlugin{
-		Name: "Players",
+		Name:         "Players",
 		Dependencies: []string{},
-		Loaded: false,
+		Loaded:       false,
 	}
 }
 
@@ -385,7 +386,7 @@ func (p *PlayersPlugin) fakePlayerCommand(login string, args []string) {
 
 func (p *PlayersPlugin) addGuestCommand(login string, args []string) {
 	c := app.GetGoController()
-	
+
 	if len(args) < 1 {
 		go c.ChatUsage("//addguest [*login]", login)
 		return
@@ -402,7 +403,7 @@ func (p *PlayersPlugin) addGuestCommand(login string, args []string) {
 
 func (p *PlayersPlugin) removeGuestCommand(login string, args []string) {
 	c := app.GetGoController()
-	
+
 	if len(args) < 1 {
 		go c.ChatUsage("//removeguest [*login]", login)
 		return
@@ -419,7 +420,7 @@ func (p *PlayersPlugin) removeGuestCommand(login string, args []string) {
 
 func (p *PlayersPlugin) guestListCommand(login string, args []string) {
 	c := app.GetGoController()
-	
+
 	guestList, err := c.Server.Client.GetGuestList(100, 0)
 	if err != nil {
 		go c.ChatError("Error getting guest list", err, login)
@@ -443,7 +444,7 @@ func (p *PlayersPlugin) guestListCommand(login string, args []string) {
 
 func (p *PlayersPlugin) loadGuestListCommand(login string, args []string) {
 	c := app.GetGoController()
-	
+
 	if len(args) < 1 {
 		go c.ChatUsage("//loadguestlist [*file]", login)
 		return
@@ -461,7 +462,7 @@ func (p *PlayersPlugin) loadGuestListCommand(login string, args []string) {
 
 func (p *PlayersPlugin) saveGuestListCommand(login string, args []string) {
 	c := app.GetGoController()
-	
+
 	if len(args) < 1 {
 		go c.ChatUsage("//saveguestlist [*file]", login)
 		return
@@ -479,7 +480,7 @@ func (p *PlayersPlugin) saveGuestListCommand(login string, args []string) {
 
 func (p *PlayersPlugin) cleanGuestListCommand(login string, args []string) {
 	c := app.GetGoController()
-	
+
 	if err := c.Server.Client.CleanGuestList(); err != nil {
 		go c.ChatError("Error cleaning guest list", err, login)
 		return
@@ -490,7 +491,7 @@ func (p *PlayersPlugin) cleanGuestListCommand(login string, args []string) {
 
 func (p *PlayersPlugin) kickCommand(login string, args []string) {
 	c := app.GetGoController()
-	
+
 	if len(args) < 1 {
 		go c.ChatUsage("//kick [*login] [reason]", login)
 		return
@@ -507,7 +508,7 @@ func (p *PlayersPlugin) kickCommand(login string, args []string) {
 
 func (p *PlayersPlugin) getPlayersCommand(login string, args []string) {
 	c := app.GetGoController()
-	
+
 	players := c.PlayerManager.Players
 
 	if len(players) == 0 {
@@ -515,13 +516,27 @@ func (p *PlayersPlugin) getPlayersCommand(login string, args []string) {
 		return
 	}
 
+	window := windows.CreatePlayersListWindow(&login)
+	window.Title = "Players"
+
 	items := make([][]any, 0, len(players))
 	for _, player := range players {
+		color := "Green"
+		if player.IsSpectator {
+			color = "Red"
+		}
+
+		spec := models.Toggle{
+			Label:   c.UIManager.Theme.Icons["Camera"],
+			Color:   color,
+			Action:  c.UIManager.AddAction(window.OnSpectatorToggle, player),
+		}
+
 		items = append(items, []any{
 			player.NickName,
 			player.Login,
 			player.Path,
-			player.IsSpectator,
+			spec,
 		})
 	}
 
@@ -529,11 +544,9 @@ func (p *PlayersPlugin) getPlayersCommand(login string, args []string) {
 		{Name: "Nickname", Width: 20},
 		{Name: "Login", Width: 25},
 		{Name: "Path", Width: 45},
-		{Name: "Spectator", Width: 10, Type: "checkbox"},
+		{Name: "Spectator", Width: 10, Type: "toggle"},
 	}
 
-	window := ui.NewListWindow(&login)
-	window.Title = "Players"
 	window.Columns = columns
 	window.Items = items
 
@@ -542,7 +555,7 @@ func (p *PlayersPlugin) getPlayersCommand(login string, args []string) {
 
 func (p *PlayersPlugin) forceStatusCommand(login string, args []string) {
 	c := app.GetGoController()
-	
+
 	if len(args) < 1 {
 		go c.ChatUsage("//forcestatus [*login] [status]", login)
 		return
@@ -551,7 +564,7 @@ func (p *PlayersPlugin) forceStatusCommand(login string, args []string) {
 	status := 3
 	if len(args) > 1 {
 		argInt, err := strconv.Atoi(args[1])
-		if err != nil || argInt < 0 || argInt > len(statuses) - 1 {
+		if err != nil || argInt < 0 || argInt > len(statuses)-1 {
 			go c.ChatError("Invalid status", nil, login)
 			return
 		}

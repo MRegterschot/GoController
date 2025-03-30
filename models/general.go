@@ -1,5 +1,11 @@
 package models
 
+type Toggle struct {
+	Label   string
+	Color   string
+	Action  string
+}
+
 type PaginationResult[T any] struct {
 	Items       []T
 	TotalItems  int
