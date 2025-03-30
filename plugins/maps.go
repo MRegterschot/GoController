@@ -38,10 +38,10 @@ func (p *MapsPlugin) Load() error {
 	})
 
 	commandManager.AddCommand(models.ChatCommand{
-		Name:     "//addlocal",
-		Callback: p.addLocalCommand,
+		Name:     "//localmaps",
+		Callback: p.localMapsCommand,
 		Admin:    true,
-		Help:     "Adds a local map to the server",
+		Help:     "Manage local maps",
 	})
 
 	return nil
@@ -51,7 +51,7 @@ func (p *MapsPlugin) Unload() error {
 	commandManager := app.GetCommandManager()
 
 	commandManager.RemoveCommand("/maps")
-	commandManager.RemoveCommand("//addlocal")
+	commandManager.RemoveCommand("//localmaps")
 
 	return nil
 }
@@ -77,7 +77,7 @@ func (p *MapsPlugin) mapsCommand(login string, args []string) {
 	go window.Display()
 }
 
-func (p *MapsPlugin) addLocalCommand(login string, args []string) {
+func (p *MapsPlugin) localMapsCommand(login string, args []string) {
 	c := app.GetGoController()
 
 	mapsPath := app.GetMapManager().MapsPath
