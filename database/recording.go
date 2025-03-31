@@ -24,7 +24,7 @@ type Recording struct {
 
 type MapRecords struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty"`
-	MapID       primitive.ObjectID `bson:"mapID"`
+	MapID       primitive.ObjectID `bson:"mapId"`
 	MatchRounds []MatchRound       `bson:"matchRounds,omitempty"`
 	Rounds      []Round            `bson:"rounds,omitempty"`
 	Finishes    []PlayerFinish     `bson:"finishes,omitempty"`
@@ -44,7 +44,7 @@ type Round struct {
 
 type Team struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty"`
-	TeamID      int                `bson:"teamID"`
+	TeamID      int                `bson:"teamId"`
 	Name        string             `bson:"name"`
 	Points      int                `bson:"points"`
 	TotalPoints int                `bson:"totalPoints"`
@@ -53,7 +53,7 @@ type Team struct {
 
 type PlayerRound struct {
 	ID          primitive.ObjectID  `bson:"_id,omitempty"`
-	PlayerID    *primitive.ObjectID `bson:"playerID"`
+	PlayerID    *primitive.ObjectID `bson:"playerId"`
 	Login       string              `bson:"login"`
 	AccountId   string              `bson:"accountId"`
 	Points      int                 `bson:"points"`
@@ -64,7 +64,7 @@ type PlayerRound struct {
 
 type PlayerFinish struct {
 	ID          primitive.ObjectID  `bson:"_id,omitempty"`
-	PlayerID    *primitive.ObjectID `bson:"playerID"`
+	PlayerID    *primitive.ObjectID `bson:"playerId"`
 	Login       string              `bson:"login"`
 	AccountId   string              `bson:"accountId"`
 	Time        int                 `bson:"time"`
