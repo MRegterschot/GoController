@@ -16,6 +16,7 @@ import (
 	"github.com/MRegterschot/GoController/utils"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.uber.org/zap"
+	"slices"
 )
 
 type RecorderPlugin struct {
@@ -91,6 +92,22 @@ func (p *RecorderPlugin) Unload() error {
 	acw.RemoveAction("StartRecording")
 	acw.RemoveAction("StopRecording")
 
+	client := app.GetClient()
+
+	for i, callback := range client.OnPlayerFinish {
+		if callback.Key == "recording" {
+			client.OnPlayerFinish = slices.Delete(client.OnPlayerFinish, i, i+1)
+			break
+		}
+	}
+
+	for i, callback := range client.OnPreEndRound {
+		if callback.Key == "recording" {
+			client.OnPreEndRound = slices.Delete(client.OnPreEndRound, i, i+1)
+			break
+		}
+	}
+
 	return nil
 }
 
@@ -143,13 +160,13 @@ func (p *RecorderPlugin) stopRecording() {
 	
 	for i, callback := range c.Server.Client.OnPlayerFinish {
 		if callback.Key == "recording" {
-			c.Server.Client.OnPlayerFinish = append(c.Server.Client.OnPlayerFinish[:i], c.Server.Client.OnPlayerFinish[i+1:]...)
+			c.Server.Client.OnPlayerFinish = slices.Delete(c.Server.Client.OnPlayerFinish, i, i+1)
 		}
 	}
 
 	for i, callback := range c.Server.Client.OnPreEndRound {
 		if callback.Key == "recording" {
-			c.Server.Client.OnPreEndRound = append(c.Server.Client.OnPreEndRound[:i], c.Server.Client.OnPreEndRound[i+1:]...)
+			c.Server.Client.OnPreEndRound = slices.Delete(c.Server.Client.OnPreEndRound, i, i+1)
 		}
 	}
 
