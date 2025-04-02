@@ -106,10 +106,8 @@ func (c *GoController) Start() {
 
 	c.Server.Client.Echo(fmt.Sprintf("%d", c.StartTime), "GoController")
 
-	msg := fmt.Sprintf("#Primary#Welcome to #White#GoController! #Primary#Version #White#%s", c.Version)
-	go c.Chat(msg)
-	zap.L().Info(msg)
-	zap.L().Info("GoController started successfully")
+	go c.Chat(fmt.Sprintf("#Primary#Welcome to #White#GoController! #Primary#Version #White#%s", c.Version))
+	zap.L().Info("GoController started successfully", zap.String("version", c.Version))
 }
 
 func (c *GoController) AfterStart() {
