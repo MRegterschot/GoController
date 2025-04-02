@@ -3,7 +3,7 @@
 {{ block body() }}
 	<quad pos="0 0" z-index="0" size="50 {{ 5 + len(.Data.Records) * 5 }}" bgcolor="000" opacity="0.6"/>
 	<quad pos="0 0" z-index="0" size="50 5" bgcolor="{{ Styling.Primary }}" opacity="1"/>
-	<label pos="25 -2" z-index="0" size="50 5" text="Records" valign="center" textsize="2" halign="center"
+	<label pos="25 -2" z-index="0" size="50 5" text="Records ({{ .Data.Count }})" valign="center" textsize="2" halign="center"
     textfont="{{ Fonts.SemiBold }}"/>
   {{ range i, record := .Data.Records }}
     <frame pos="0 -{{ (i + 1) * 5 }}">

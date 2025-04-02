@@ -42,6 +42,7 @@ func (rw *RecordsWidget) reload() {
 
 	rw.Data = map[string]any{
 		"Records": records[:min(len(records), 10)],
+		"Count":   len(records),
 	}
 
 	rw.Display()
