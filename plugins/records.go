@@ -149,6 +149,8 @@ func (p *RecordsPlugin) onPlayerFinish(playerFinishEvent events.PlayerWayPointEv
 }
 
 func (p *RecordsPlugin) onBeginMap(mapEvent events.MapEventArgs) {
+	p.LocalRecords = make(map[string]models.Record, 0)
+
 	records, err := database.GetRecordsByMapUId(context.Background(), mapEvent.Map.Uid)
 	if err != nil {
 		zap.L().Error("Failed to get records by map UId", zap.String("mapUId", mapEvent.Map.Uid), zap.Error(err))

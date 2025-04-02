@@ -164,7 +164,7 @@ func (p *JukeboxPlugin) previousCommand(login string, args []string) {
 		return
 	}
 
-	go c.Server.Client.NextMap(true)
+	go c.Server.Client.NextMap(false)
 }
 
 func (p *JukeboxPlugin) jumpCommand(login string, args []string) {

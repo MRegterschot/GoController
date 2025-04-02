@@ -41,7 +41,7 @@ func (rw *RecordsWidget) reload() {
 	records := rw.getSortedRecords()
 
 	rw.Data = map[string]any{
-		"Records": records,
+		"Records": records[:min(len(records), 10)],
 	}
 
 	rw.Display()

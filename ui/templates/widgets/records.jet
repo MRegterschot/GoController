@@ -1,20 +1,22 @@
 {{ extends "../widget.jet" }}
 
 {{ block body() }}
-	<quad pos="0 0" z-index="0" size="50 55" bgcolor="000" opacity="0.6"/>
+	<quad pos="0 0" z-index="0" size="50 {{ 5 + len(.Data.Records) * 5 }}" bgcolor="000" opacity="0.6"/>
 	<quad pos="0 0" z-index="0" size="50 5" bgcolor="{{ Styling.Primary }}" opacity="1"/>
 	<label pos="25 -2" z-index="0" size="50 5" text="Records" valign="center" textsize="2" halign="center"
     textfont="{{ Fonts.SemiBold }}"/>
   {{ range i, record := .Data.Records }}
     <frame pos="0 -{{ (i + 1) * 5 }}">
       <frame>
-        <label pos="2.5 -2.2" z-index="0" size="5 5" text="{{ i + 1 }}" halign="center" valign="center" 
-          textfont="{{ Fonts.SemiBold }}" textsize="2"/>
+        <label pos="2.5 -2.4" z-index="0" size="5 5" text="{{ i + 1 }}" halign="center" valign="center" 
+          textfont="{{ Fonts.SemiBold }}" textsize="1.5"/>
         <label pos="6 -2.4" z-index="0" size="30 5" text="{{ record.Player["NickName"] }}" textsize="1.5" 
           valign="center" textfont="{{ Fonts.Regular }}"/>
         <label pos="49 -2.4" z-index="0" size="15 5" text="{{ record.Time|formatTime }}" textsize="1.5" valign="center" 
           textfont="{{ Fonts.Regular }}" halign="right"/>
-        <quad pos="0 -5" z-index="1" size="50 0.2" bgcolor="FFF" opacity="0.2"/>
+        {{ if i + 1 != len(.Data.Records) }}
+          <quad pos="0 -5" z-index="1" size="50 0.2" bgcolor="FFF" opacity="0.2"/>
+        {{ end }}
       </frame>
     </frame>
   {{ end }}
