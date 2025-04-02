@@ -9,6 +9,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+var mapsCollection = "maps"
+
 type Map struct {
 	ID             primitive.ObjectID `bson:"_id,omitempty"`
 	Name           string             `bson:"name"`
@@ -65,16 +67,16 @@ func CopyMap(src Map, dest *Map) {
 
 func GetMapByID(ctx context.Context, id primitive.ObjectID) (Map, error) {
 	var mapInfo Map
-	err := GetCollection("maps").FindOne(ctx, bson.M{"_id": id}).Decode(&mapInfo)
+	err := GetCollection(mapsCollection).FindOne(ctx, bson.M{"_id": id}).Decode(&mapInfo)
 	return mapInfo, err
 }
 
 func GetMapByUId(ctx context.Context, uid string) (Map, error) {
 	var mapInfo Map
-	err := GetCollection("maps").FindOne(ctx, bson.M{"uid": uid}).Decode(&mapInfo)
+	err := GetCollection(mapsCollection).FindOne(ctx, bson.M{"uid": uid}).Decode(&mapInfo)
 	return mapInfo, err
 }
 
 func InsertMap(ctx context.Context, mapInfo Map) (*mongo.InsertOneResult, error) {
-	return GetCollection("maps").InsertOne(ctx, mapInfo)
+	return GetCollection(mapsCollection).InsertOne(ctx, mapInfo)
 }

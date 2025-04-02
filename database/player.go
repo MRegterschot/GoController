@@ -9,6 +9,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+var playersCollection = "players"
+
 type Player struct {
 	ID       primitive.ObjectID `bson:"_id,omitempty"`
 	Login    string             `bson:"login"`
@@ -53,20 +55,20 @@ func CopyPlayer(src Player, dest *Player) {
 
 func GetPlayerByID(ctx context.Context, id primitive.ObjectID) (Player, error) {
 	var player Player
-	err := GetCollection("players").FindOne(ctx, bson.M{"_id": id}).Decode(&player)
+	err := GetCollection(playersCollection).FindOne(ctx, bson.M{"_id": id}).Decode(&player)
 	return player, err
 }
 
 func GetPlayerByLogin(ctx context.Context, login string) (Player, error) {
 	var player Player
-	err := GetCollection("players").FindOne(ctx, bson.M{"login": login}).Decode(&player)
+	err := GetCollection(playersCollection).FindOne(ctx, bson.M{"login": login}).Decode(&player)
 	return player, err
 }
 
 func InsertPlayer(ctx context.Context, player Player) (*mongo.InsertOneResult, error) {
-	return GetCollection("players").InsertOne(ctx, player)
+	return GetCollection(playersCollection).InsertOne(ctx, player)
 }
 
 func UpdatePlayer(ctx context.Context, player Player) (*mongo.UpdateResult, error) {
-	return GetCollection("players").UpdateOne(ctx, bson.M{"_id": player.ID}, bson.M{"$set": player})
+	return GetCollection(playersCollection).UpdateOne(ctx, bson.M{"_id": player.ID}, bson.M{"$set": player})
 }

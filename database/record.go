@@ -9,7 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var collection = "records"
+var recordsCollection = "records"
 
 type Record struct {
 	ID    primitive.ObjectID `bson:"_id,omitempty"`
@@ -42,19 +42,19 @@ func CopyRecord(src Record, dest *Record) {
 
 func GetRecordByID(ctx context.Context, id primitive.ObjectID) (Record, error) {
 	var record Record
-	err := GetCollection(collection).FindOne(ctx, bson.M{"_id": id}).Decode(&record)
+	err := GetCollection(recordsCollection).FindOne(ctx, bson.M{"_id": id}).Decode(&record)
 	return record, err
 }
 
 func GetRecordByLogin(ctx context.Context, login string) (Record, error) {
 	var record Record
-	err := GetCollection(collection).FindOne(ctx, bson.M{"login": login}).Decode(&record)
+	err := GetCollection(recordsCollection).FindOne(ctx, bson.M{"login": login}).Decode(&record)
 	return record, err
 }
 
 func GetRecordsByLogin(ctx context.Context, login string) ([]Record, error) {
 	var records []Record
-	cursor, err := GetCollection(collection).Find(ctx, bson.M{"login": login})
+	cursor, err := GetCollection(recordsCollection).Find(ctx, bson.M{"login": login})
 	if err != nil {
 		return nil, err
 	}
@@ -76,5 +76,5 @@ func GetRecordsByLogin(ctx context.Context, login string) ([]Record, error) {
 }
 
 func InsertRecord(ctx context.Context, record Record) (*mongo.InsertOneResult, error) {
-	return GetCollection(collection).InsertOne(ctx, record)
+	return GetCollection(recordsCollection).InsertOne(ctx, record)
 }

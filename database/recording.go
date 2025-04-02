@@ -10,6 +10,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+var recordingsCollection = "recordings"
+
 type Recording struct {
 	ID   primitive.ObjectID `bson:"_id,omitempty"`
 	Name string             `bson:"name"`
@@ -106,12 +108,12 @@ func CopyRecording(src Recording, dest *Recording) {
 
 func GetRecordingByID(ctx context.Context, id primitive.ObjectID) (Recording, error) {
 	var recording Recording
-	err := GetCollection("recordings").FindOne(ctx, bson.M{"_id": id}).Decode(&recording)
+	err := GetCollection(recordingsCollection).FindOne(ctx, bson.M{"_id": id}).Decode(&recording)
 	return recording, err
 }
 
 func GetRecordings(ctx context.Context) ([]Recording, error) {
-	cursor, err := GetCollection("recordings").Find(ctx, bson.M{})
+	cursor, err := GetCollection(recordingsCollection).Find(ctx, bson.M{})
 	if err != nil {
 		return nil, err
 	}
@@ -125,11 +127,11 @@ func GetRecordings(ctx context.Context) ([]Recording, error) {
 }
 
 func InsertRecording(ctx context.Context, recording Recording) (*mongo.InsertOneResult, error) {
-	return GetCollection("recordings").InsertOne(ctx, recording)
+	return GetCollection(recordingsCollection).InsertOne(ctx, recording)
 }
 
 func UpdateRecording(ctx context.Context, recording Recording) (*mongo.UpdateResult, error) {
-	return GetCollection("recordings").UpdateOne(ctx, bson.M{"_id": recording.ID}, bson.M{"$set": recording})
+	return GetCollection(recordingsCollection).UpdateOne(ctx, bson.M{"_id": recording.ID}, bson.M{"$set": recording})
 }
 
 func (r *Recording) ToModel(dest *models.Recording) {
