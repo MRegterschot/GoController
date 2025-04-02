@@ -19,9 +19,6 @@ type Action struct {
 
 type AdminControlsWidget struct {
 	*ui.Widget
-	Name         string
-	Dependencies []string
-	Loaded       bool
 	Controls     []Action
 }
 
@@ -40,26 +37,11 @@ func GetAdminControlsWidget() *AdminControlsWidget {
 		}
 
 		acwInstance = &AdminControlsWidget{
-			Name:         "AdminControlsWidget",
-			Dependencies: []string{},
-			Loaded:       false,
 			Widget:       widget,
 		}
 	})
 
 	return acwInstance
-}
-
-func (acw *AdminControlsWidget) Load() error {
-	acw.reload()
-
-	return nil
-}
-
-func (acw *AdminControlsWidget) Unload() error {
-	acw.Destroy()
-
-	return nil
 }
 
 func (acw *AdminControlsWidget) reload() {
@@ -110,9 +92,4 @@ func removeActionByName(actions []Action, name string) []Action {
 		}
 	}
 	return actions
-}
-
-func init() {
-	adminControlsWidget := GetAdminControlsWidget()
-	app.GetPluginManager().PreLoadPlugin(adminControlsWidget)
 }

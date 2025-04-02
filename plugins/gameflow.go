@@ -80,7 +80,7 @@ func (p *GameFlowPlugin) Unload() error {
 }
 
 func (p *GameFlowPlugin) skipCommand(login string, args []string) {
-	app.GetGoController().Server.Client.NextMap(true)
+	app.GetGoController().Server.Client.NextMap(false)
 }
 
 func (p *GameFlowPlugin) restartCommand(login string, args []string) {

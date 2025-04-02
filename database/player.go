@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/MRegterschot/GoController/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -71,4 +72,17 @@ func InsertPlayer(ctx context.Context, player Player) (*mongo.InsertOneResult, e
 
 func UpdatePlayer(ctx context.Context, player Player) (*mongo.UpdateResult, error) {
 	return GetCollection(playersCollection).UpdateOne(ctx, bson.M{"_id": player.ID}, bson.M{"$set": player})
+}
+
+func (p *Player) ToModel(dest *models.Player) {
+	dest.ID = p.ID.Hex()
+	dest.Login = p.Login
+	dest.NickName = p.NickName
+	dest.Path = p.Path
+	dest.CreatedAt = p.CreatedAt.Time()
+	dest.UpdatedAt = p.UpdatedAt.Time()
+	if p.DeletedAt != nil {
+		t := p.DeletedAt.Time()
+		dest.DeletedAt = &t
+	}
 }
