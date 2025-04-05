@@ -24,11 +24,11 @@ type Map struct {
 }
 
 type QueueMap struct {
-	Name            string
-	UId             string
-	FileName        string
-	Author          string
-	AuthorNickname  string
+	Name             string
+	UId              string
+	FileName         string
+	Author           string
+	AuthorNickname   string
 	QueuedBy         string
 	QueuedByNickname string
 	QueuedAt         time.Time

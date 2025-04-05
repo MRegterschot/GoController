@@ -1,9 +1,9 @@
 package models
 
 type Toggle struct {
-	Label   string
-	Color   string
-	Action  string
+	Label  string
+	Color  string
+	Action string
 }
 
 type PaginationResult[T any] struct {

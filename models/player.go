@@ -7,10 +7,11 @@ import (
 )
 
 type Player struct {
-	ID string
-	Login string
+	ID       string
+	Login    string
 	NickName string
-	Path string
+	Path     string
+	Roles    []string
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

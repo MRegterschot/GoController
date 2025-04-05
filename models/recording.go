@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Recording struct {
-	ID string
+	ID   string
 	Name string
 	Type string
 	Mode string
@@ -15,51 +15,51 @@ type Recording struct {
 }
 
 type MapRecords struct {
-	ID string
-	Map Map
+	ID          string
+	Map         Map
 	MatchRounds []MatchRound
-	Rounds []Round
-	Finishes []PlayerFinish
+	Rounds      []Round
+	Finishes    []PlayerFinish
 }
 
 type MatchRound struct {
-	ID string
+	ID          string
 	RoundNumber int
-	Teams []Team
+	Teams       []Team
 }
 
 type Round struct {
-	ID string
+	ID          string
 	RoundNumber int
-	Players []PlayerRound
+	Players     []PlayerRound
 }
 
 type Team struct {
-	ID string
-	TeamID int
-	Name string
-	Points int
+	ID          string
+	TeamID      int
+	Name        string
+	Points      int
 	TotalPoints int
-	Players []PlayerRound
+	Players     []PlayerRound
 }
 
 type PlayerRound struct {
-	ID string
-	Player Player
-	Login string
-	AccountId string
-	Points int
+	ID          string
+	Player      Player
+	Login       string
+	AccountId   string
+	Points      int
 	TotalPoints int
-	Time int
+	Time        int
 	Checkpoints []int
 }
 
 type PlayerFinish struct {
-	ID string
-	Player Player
-	Login string
-	AccountId string
-	Time int
+	ID          string
+	Player      Player
+	Login       string
+	AccountId   string
+	Time        int
 	Checkpoints []int
-	Timestamp time.Time
+	Timestamp   time.Time
 }
