@@ -43,12 +43,14 @@ func (dbm *DatabaseManager) SyncPlayer(player models.DetailedPlayer) {
 			Login:    player.Login,
 			NickName: player.NickName,
 			Path:     player.Path,
+			Roles:    []string{},
 		}))
 	} else {
 		dbPlayer.Update(database.Player{
 			Login:    player.Login,
 			NickName: player.NickName,
 			Path:     player.Path,
+			Roles:    dbPlayer.Roles,
 		})
 
 		database.UpdatePlayer(ctx, dbPlayer)
