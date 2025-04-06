@@ -21,28 +21,31 @@ type Env struct {
 	MongoUri string
 	MongoDb  string
 
+	// Server
+	ServerLogin string
+	ServerPass  string
+
+	// Contact info
+	Contact string
+
 	// Delimiter for theme processing
 	Delimiter string
 
 	LogLevel string
 }
 
-// Global variable to store the loaded environment configuration
 var AppEnv *Env
 
-// LoadEnv loads the .env file into the environment and initializes AppEnv
 func LoadEnv() error {
 	if err := godotenv.Load(); err != nil {
 		return err
 	}
 
-	// Convert PORT from string to int
 	port, err := strconv.Atoi(os.Getenv("XMLRPC_PORT"))
 	if err != nil {
-		port = 5000 // Default port if conversion fails
+		port = 5000
 	}
 
-	// Initialize global AppEnv variable
 	AppEnv = &Env{
 		Host: os.Getenv("XMLRPC_HOST"),
 		Port: port,
@@ -53,6 +56,11 @@ func LoadEnv() error {
 
 		MongoUri: os.Getenv("MONGO_URI"),
 		MongoDb:  os.Getenv("MONGO_DB"),
+
+		ServerLogin: os.Getenv("SERVER_LOGIN"),
+		ServerPass:  os.Getenv("SERVER_PASS"),
+		
+		Contact: os.Getenv("CONTACT_INFO"),
 
 		Delimiter: os.Getenv("DELIMITER"),
 

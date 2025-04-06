@@ -23,6 +23,12 @@ type Map struct {
 	SilverTime     int                `bson:"silverTime"`
 	BronzeTime     int                `bson:"bronzeTime"`
 
+	// Fields from nadeo API
+	Submitter    string             `bson:"submitter"`
+	Timestamp    primitive.DateTime `bson:"timestamp"`
+	FileUrl      string             `bson:"fileUrl"`
+	ThumbnailUrl string             `bson:"thumbnailUrl"`
+
 	CreatedAt primitive.DateTime  `bson:"createdAt"`
 	UpdatedAt primitive.DateTime  `bson:"updatedAt"`
 	DeletedAt *primitive.DateTime `bson:"deletedAt,omitempty"`
@@ -63,6 +69,10 @@ func CopyMap(src Map, dest *Map) {
 	dest.GoldTime = src.GoldTime
 	dest.SilverTime = src.SilverTime
 	dest.BronzeTime = src.BronzeTime
+	dest.Submitter = src.Submitter
+	dest.Timestamp = src.Timestamp
+	dest.FileUrl = src.FileUrl
+	dest.ThumbnailUrl = src.ThumbnailUrl
 }
 
 func GetMapByID(ctx context.Context, id primitive.ObjectID) (Map, error) {
@@ -77,6 +87,31 @@ func GetMapByUId(ctx context.Context, uid string) (Map, error) {
 	return mapInfo, err
 }
 
+func GetMapsByUIds(ctx context.Context, uids []string) ([]Map, error) {
+	var maps []Map
+	filter := bson.M{"uid": bson.M{"$in": uids}}
+
+	cursor, err := GetCollection(mapsCollection).Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	if err = cursor.All(ctx, &maps); err != nil {
+		return nil, err
+	}
+
+	return maps, nil
+}
+
 func InsertMap(ctx context.Context, mapInfo Map) (*mongo.InsertOneResult, error) {
 	return GetCollection(mapsCollection).InsertOne(ctx, mapInfo)
+}
+
+func InsertMaps(ctx context.Context, maps []Map) (*mongo.InsertManyResult, error) {
+	docs := make([]any, len(maps))
+	for i, mapInfo := range maps {
+		docs[i] = mapInfo
+	}
+	return GetCollection(mapsCollection).InsertMany(ctx, docs)
 }
