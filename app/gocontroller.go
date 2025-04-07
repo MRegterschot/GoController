@@ -8,10 +8,11 @@ import (
 	"sync"
 	"syscall"
 
+	"slices"
+
 	"github.com/MRegterschot/GbxRemoteGo/gbxclient"
 	"github.com/MRegterschot/GoController/utils"
 	"go.uber.org/zap"
-	"slices"
 )
 
 type GoController struct {

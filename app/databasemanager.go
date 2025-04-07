@@ -107,11 +107,14 @@ func (dbm *DatabaseManager) SyncPlayers() {
 		}
 	}
 
-	nadeoApi := api.GetNadeoAPI()
-	webIdentities, err := nadeoApi.GetWebIdentities(newAccountIds)
-	if err != nil {
-		zap.L().Error("Failed to get web identities", zap.Error(err))
-		return
+	var webIdentities []models.WebIdentity
+	if len(newAccountIds) > 0 {
+		nadeoApi := api.GetNadeoAPI()
+		webIdentities, err = nadeoApi.GetWebIdentities(newAccountIds)
+		if err != nil {
+			zap.L().Error("Failed to get web identities", zap.Error(err))
+			return
+		}
 	}
 
 	for _, playerDB := range existingPlayers {
