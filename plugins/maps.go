@@ -114,22 +114,32 @@ func (p *MapsPlugin) localMapsCommand(login string, args []string) {
 		parentDir := strings.TrimPrefix(filepath.Dir(path), mapsPath)
 		name := utils.MapFileRegex.ReplaceAllString(filepath.Base(path), "")
 
+		mapInfo, err := c.Server.Client.GetMapInfo(path)
+		if err != nil {
+			zap.L().Error("Failed to get map info", zap.String("file", path), zap.Error(err))
+		}
+
 		items = append(items, []any{
 			parentDir,
 			name,
+			mapInfo.Name,
+			mapInfo.AuthorNickname,
 			app.GetUIManager().AddAction(p.onAddMap, path),
 		})
 
 		return nil
 	})
+
 	if err != nil {
 		go c.ChatError("Error walking directory", err, login)
 		return
 	}
 
 	columns := []ui.Column{
-		{Name: "Folder", Width: 40},
-		{Name: "File Name", Width: 50},
+		{Name: "Folder", Width: 20},
+		{Name: "File Name", Width: 25},
+		{Name: "Map Name", Width: 25},
+		{Name: "Author", Width: 20},
 		{Name: "Add", Width: 10, Type: "button", Color: "Primary"},
 	}
 
