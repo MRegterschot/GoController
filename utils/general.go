@@ -85,18 +85,18 @@ func ConvertStringToType(value string) any {
 }
 
 // Converts slugified base64 string back to a uuid
-func DecodeSlug(slug string) (uuid.UUID, error) {
+func DecodeSlug(slug string) string {
 	base64Str := strings.ReplaceAll(strings.ReplaceAll(slug, "-", "+"), "_", "/") + "=="
 
 	bytes, err := base64.StdEncoding.DecodeString(base64Str)
 	if err != nil {
-		return uuid.Nil, err
+		return ""
 	}
 
-	id, err := uuid.FromBytes(bytes)
+	decodedUUID, err := uuid.FromBytes(bytes)
 	if err != nil {
-		return uuid.Nil, err
+		return ""
 	}
 
-	return id, nil
+	return decodedUUID.String()
 }

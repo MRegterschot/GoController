@@ -70,6 +70,25 @@ func GetPlayerByLogin(ctx context.Context, login string) (Player, error) {
 	return player, err
 }
 
+func GetPlayersByLogins(ctx context.Context, logins []string) ([]Player, error) {
+	var players []Player
+	cursor, err := GetCollection(playersCollection).Find(ctx, bson.M{"login": bson.M{"$in": logins}})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var player Player
+		if err := cursor.Decode(&player); err != nil {
+			return nil, err
+		}
+		players = append(players, player)
+	}
+
+	return players, nil
+}
+
 func InsertPlayer(ctx context.Context, player Player) (*mongo.InsertOneResult, error) {
 	return GetCollection(playersCollection).InsertOne(ctx, player)
 }
