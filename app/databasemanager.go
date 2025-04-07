@@ -96,6 +96,22 @@ func (dbm *DatabaseManager) SyncMap(mapInfo structs.TMMapInfo) database.Map {
 		newMap := database.NewMap(m)
 		database.InsertMap(ctx, newMap)
 		return newMap
+	} else if mapDB.ThumbnailUrl == "" {
+		mapsInfo, err := api.GetNadeoAPI().GetMapsInfo([]string{mapInfo.UId})
+		if err != nil {
+			zap.L().Error("Failed to get maps info from Nadeo", zap.Error(err))
+		}
+
+		if len(mapsInfo) > 0 {
+			mapDB.Submitter = mapsInfo[0].Submitter
+			mapDB.FileUrl = mapsInfo[0].FileUrl
+			mapDB.ThumbnailUrl = mapsInfo[0].ThumbnailUrl
+			mapDB.Timestamp = primitive.NewDateTimeFromTime(mapsInfo[0].Timestamp)
+			mapDB.Update(mapDB)
+			database.UpdateMap(ctx, mapDB)
+		}
+
+		return mapDB
 	} else {
 		return mapDB
 	}
@@ -126,6 +142,11 @@ func (dbm *DatabaseManager) SyncMaps() {
 		if !found {
 			newUids = append(newUids, uid)
 		}
+	}
+
+	if len(newUids) == 0 {
+		zap.L().Info("No new maps to sync")
+		return
 	}
 
 	nadeoApi := api.GetNadeoAPI()

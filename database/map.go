@@ -115,3 +115,12 @@ func InsertMaps(ctx context.Context, maps []Map) (*mongo.InsertManyResult, error
 	}
 	return GetCollection(mapsCollection).InsertMany(ctx, docs)
 }
+
+func UpdateMap(ctx context.Context, mapInfo Map) (*mongo.UpdateResult, error) {
+	filter := bson.M{"_id": mapInfo.ID}
+	update := bson.M{
+		"$set": mapInfo,
+	}
+
+	return GetCollection(mapsCollection).UpdateOne(ctx, filter, update)
+}
