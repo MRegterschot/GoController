@@ -7,6 +7,7 @@ import (
 	"github.com/MRegterschot/GbxRemoteGo/structs"
 	"github.com/MRegterschot/GoController/database"
 	"github.com/MRegterschot/GoController/models"
+	"github.com/MRegterschot/GoController/utils"
 	"github.com/MRegterschot/GoController/utils/api"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.uber.org/zap"
@@ -41,11 +42,27 @@ func (dbm *DatabaseManager) SyncPlayer(player models.DetailedPlayer) {
 	ctx := context.Background()
 	dbPlayer, err := database.GetPlayerByLogin(ctx, player.Login)
 	if err != nil {
+		var ubiUid string
+		accountId, err := utils.DecodeSlug(player.Login)
+		if err != nil {
+			zap.L().Error("Failed to decode slug", zap.Error(err))
+		} else {
+			webIdentities, err := api.GetNadeoAPI().GetWebIdentities([]string{accountId.String()})
+			if err != nil {
+				zap.L().Error("Failed to get web identities", zap.Error(err))
+			} else {
+				if len(webIdentities) > 0 {
+					ubiUid = webIdentities[0].Uid
+				}
+			}
+		}
+
 		database.InsertPlayer(ctx, database.NewPlayer(database.Player{
 			Login:    player.Login,
 			NickName: player.NickName,
 			Path:     player.Path,
 			Roles:    []string{},
+			UbiUid:   ubiUid,
 		}))
 	} else {
 		dbPlayer.Update(database.Player{
@@ -53,6 +70,7 @@ func (dbm *DatabaseManager) SyncPlayer(player models.DetailedPlayer) {
 			NickName: player.NickName,
 			Path:     player.Path,
 			Roles:    dbPlayer.Roles,
+			UbiUid:   dbPlayer.UbiUid,
 		})
 
 		database.UpdatePlayer(ctx, dbPlayer)

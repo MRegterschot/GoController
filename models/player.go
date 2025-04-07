@@ -12,6 +12,7 @@ type Player struct {
 	NickName string
 	Path     string
 	Roles    []string
+	UbiUid   string
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

@@ -18,6 +18,7 @@ type Player struct {
 	NickName string             `bson:"nickName"`
 	Path     string             `bson:"path"`
 	Roles    []string           `bson:"roles"`
+	UbiUid   string             `bson:"ubiUid"`
 
 	CreatedAt primitive.DateTime  `bson:"createdAt"`
 	UpdatedAt primitive.DateTime  `bson:"updatedAt"`
@@ -54,6 +55,7 @@ func CopyPlayer(src Player, dest *Player) {
 	dest.NickName = src.NickName
 	dest.Path = src.Path
 	dest.Roles = src.Roles
+	dest.UbiUid = src.UbiUid
 }
 
 func GetPlayerByID(ctx context.Context, id primitive.ObjectID) (Player, error) {
@@ -82,6 +84,7 @@ func (p *Player) ToModel(dest *models.Player) {
 	dest.NickName = p.NickName
 	dest.Path = p.Path
 	dest.Roles = p.Roles
+	dest.UbiUid = p.UbiUid
 	dest.CreatedAt = p.CreatedAt.Time()
 	dest.UpdatedAt = p.UpdatedAt.Time()
 	if p.DeletedAt != nil {

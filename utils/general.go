@@ -1,10 +1,13 @@
 package utils
 
 import (
+	"encoding/base64"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // Checks if an element is present in the slice
@@ -79,4 +82,21 @@ func ConvertStringToType(value string) any {
 	}
 
 	return value
+}
+
+// Converts slugified base64 string back to a uuid
+func DecodeSlug(slug string) (uuid.UUID, error) {
+	base64Str := strings.ReplaceAll(strings.ReplaceAll(slug, "-", "+"), "_", "/") + "=="
+
+	bytes, err := base64.StdEncoding.DecodeString(base64Str)
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	id, err := uuid.FromBytes(bytes)
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	return id, nil
 }

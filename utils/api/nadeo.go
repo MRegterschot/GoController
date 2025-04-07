@@ -130,6 +130,37 @@ func (api *NadeoAPI) GetMapsInfo(mapUids []string) ([]models.MapInfo, error) {
 	return mapsInfo, nil
 }
 
+func (api *NadeoAPI) GetWebIdentities(accountIds []string) ([]models.WebIdentity, error) {
+	url := api.ProdUrl + "/webidentities/?accountIdList=" + strings.Join(accountIds, ",")
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		zap.L().Error("Failed to create request", zap.Error(err))
+		return nil, err
+	}
+
+	res, err := api.doRequest(req)
+	if err != nil {
+		zap.L().Error("Failed to send request", zap.Error(err))
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		zap.L().Error("Failed to get web identities", zap.String("status", res.Status))
+		return nil, err
+	}
+
+	var identities []models.WebIdentity
+	err = json.NewDecoder(res.Body).Decode(&identities)
+	if err != nil {
+		zap.L().Error("Failed to decode response", zap.Error(err))
+		return nil, err
+	}
+
+	zap.L().Info("Successfully retrieved web identities", zap.Int("count", len(identities)))
+	return identities, nil
+}
+
 // doRequest sends a request to the Nadeo API and returns the response.
 // It handles authentication and token refresh if necessary.
 // This function should be called for every API request.
