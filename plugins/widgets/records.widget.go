@@ -45,6 +45,10 @@ func (rw *RecordsWidget) reload() {
 		"Count":   len(records),
 	}
 
+	if rw.Hidden {
+		return
+	}
+
 	rw.Display()
 }
 

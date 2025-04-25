@@ -59,6 +59,14 @@ func (p *RecordsPlugin) Load() error {
 		Call: p.onBeginMap,
 	})
 
+	app.GetCommandManager().AddCommand(models.ChatCommand{
+		Name:     "//recordswidget",
+		Callback: p.hideRecordsWidget,
+		Admin:    true,
+		Help:     "Show or hide the records widget",
+		Aliases:  []string{"//recwidget"},
+	})
+
 	currentMap, err := app.GetClient().GetCurrentMapInfo()
 	if err != nil {
 		zap.L().Error("Failed to get current map info", zap.Error(err))
@@ -111,7 +119,24 @@ func (p *RecordsPlugin) Unload() error {
 		}
 	}
 
+	p.RecordsWidget.Destroy()
+
+	app.GetCommandManager().RemoveCommand("//recordswidget")
+
 	return nil
+}
+
+func (p *RecordsPlugin) hideRecordsWidget(login string, args []string) {
+	if len(args) == 0 {
+		p.RecordsWidget.Hide()
+		return
+	}
+
+	if args[0] == "hide" {
+		p.RecordsWidget.Hide()
+	} else if args[0] == "show" {
+		p.RecordsWidget.Display()
+	}
 }
 
 func (p *RecordsPlugin) onPlayerFinish(playerFinishEvent events.PlayerWayPointEventArgs) {
